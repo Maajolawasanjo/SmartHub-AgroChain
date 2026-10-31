@@ -30,6 +30,15 @@ CREATE TABLE "commodity_types" (
 CREATE UNIQUE INDEX "commodity_types_commodityId_slug_key" ON "commodity_types"("commodityId","slug");
 ALTER TABLE "commodity_types" ADD CONSTRAINT "commodity_types_commodityId_fkey" FOREIGN KEY("commodityId") REFERENCES "commodities"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
+CREATE TABLE "commodity_specifications" (
+ "id" UUID NOT NULL,"commodityId" UUID NOT NULL,"name" VARCHAR(120) NOT NULL,
+ "description" VARCHAR(900),"unit" VARCHAR(40),
+ "publicPublished" BOOLEAN NOT NULL DEFAULT FALSE,"createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ CONSTRAINT "commodity_specifications_pkey" PRIMARY KEY("id")
+);
+CREATE UNIQUE INDEX "commodity_specifications_commodityId_name_key" ON "commodity_specifications"("commodityId","name");
+ALTER TABLE "commodity_specifications" ADD CONSTRAINT "commodity_specifications_commodityId_fkey" FOREIGN KEY("commodityId") REFERENCES "commodities"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
 CREATE TABLE "insight_articles" (
  "id" UUID NOT NULL,"slug" VARCHAR(140) NOT NULL,"title" VARCHAR(180) NOT NULL,
  "summary" VARCHAR(550) NOT NULL,"body" TEXT NOT NULL,"category" VARCHAR(80) NOT NULL,
@@ -60,7 +69,8 @@ CREATE TABLE "public_contact_throttles" (
 -- All these tables are server-only; database-backed publication is performed by trusted server handlers.
 ALTER TABLE "commodity_categories" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "commodity_types" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "commodity_specifications" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "insight_articles" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public_enquiries" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public_contact_throttles" ENABLE ROW LEVEL SECURITY;
-REVOKE ALL ON TABLE "commodity_categories","commodity_types","insight_articles","public_enquiries","public_contact_throttles" FROM anon,authenticated;
+REVOKE ALL ON TABLE "commodity_categories","commodity_types","commodity_specifications","insight_articles","public_enquiries","public_contact_throttles" FROM anon,authenticated;

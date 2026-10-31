@@ -5,7 +5,7 @@ export const dynamic="force-dynamic";
 export default async function CatalogManage(){const {account,db}=await requirePortal("OPERATIONS");
  const [categories,commodities,insights]=await Promise.all([
   db.commodityCategory.findMany({orderBy:{name:"asc"}}),
-  db.commodity.findMany({orderBy:{name:"asc"},include:{category:true,types:{orderBy:{name:"asc"}}}}),
+  db.commodity.findMany({orderBy:{name:"asc"},include:{category:true,types:{orderBy:{name:"asc"}},specifications:{orderBy:{name:"asc"}}}}),
   db.insightArticle.findMany({orderBy:{createdAt:"desc"},take:50}),
  ]);
  const isAdmin=account.role==="SUPER_ADMIN";
@@ -20,6 +20,9 @@ export default async function CatalogManage(){const {account,db}=await requirePo
  <h3 className="font-bold">Types / variations</h3>
  {c.types.map(t=><div className="agro-record" key={t.id}><span>{t.name} · {t.publicPublished?"Published":"Draft"}</span>{isAdmin&&<PublicationAction action="publish-type" id={t.id} publish={!t.publicPublished} label={t.publicPublished?"Unpublish type":"Publish type"}/>}</div>)}
  <CatalogAction action="type" submitLabel="Add product type" initial={{commodityId:c.id}}><label className="agro-field">Type name<input name="name" maxLength={120} required/></label><label className="agro-field">Type slug<input name="slug" required pattern="[a-z0-9]+(-[a-z0-9]+)*"/></label><label className="agro-field">Market name (optional)<input name="marketName" maxLength={120}/></label><label className="agro-field">Description<input name="description" maxLength={900}/></label></CatalogAction>
+ <h3 className="font-bold">Published specification definitions</h3>
+ {c.specifications.map(spec=><div className="agro-record" key={spec.id}><span>{spec.name} · {spec.publicPublished?"Published":"Draft"}</span>{isAdmin&&<PublicationAction action="publish-spec" id={spec.id} publish={!spec.publicPublished} label={spec.publicPublished?"Unpublish specification":"Publish specification"}/>}</div>)}
+ <CatalogAction action="spec" submitLabel="Add specification definition" initial={{commodityId:c.id}}><label className="agro-field">Specification name<input name="name" maxLength={120} required placeholder="Grade, size or packaging"/></label><label className="agro-field">Unit (optional)<input name="unit" maxLength={40}/></label><label className="agro-field">Description<input name="description" maxLength={900}/></label></CatalogAction>
  </section>)}
  <h2 className="text-xl font-bold my-5">Insights editorial drafts</h2>
  <CatalogAction action="insight" submitLabel="Save unpublished insight"><label className="agro-field">Article title<input name="title" minLength={10} maxLength={180} required/></label><label className="agro-field">Article slug<input name="slug" required pattern="[a-z0-9]+(-[a-z0-9]+)*"/></label><label className="agro-field">Category<input name="category" maxLength={80} required/></label><label className="agro-field">Summary<textarea name="summary" minLength={30} maxLength={550} required/></label><label className="agro-field">Article body (plain text)<textarea name="body" minLength={300} maxLength={40000} rows={10} required/></label></CatalogAction>

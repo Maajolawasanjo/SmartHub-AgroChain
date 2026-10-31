@@ -17,7 +17,11 @@ Extends existing Commodity (does not duplicate farm/supply truth) with slug/desc
 
 ## Publication workflow
 
-Operations can create categories and edit commodity metadata, product types, draft articles; only a server-verified Super Admin can publish/unpublish commodities, types or insights. Review via `/operations/catalog/manage`. Publication is reference metadata, **not** supply approval, stock allocation, current availability or verified supplier certification.
+Operations can create categories and edit commodity metadata, product types, specification definitions and draft articles; only a server-verified Super Admin can publish/unpublish commodities, types or insights. Review via `/operations/catalog/manage`. Publication is reference metadata, **not** supply approval, stock allocation, current availability or verified supplier certification.
+
+## Operations enquiry inbox
+
+An authorized Operations user can review contact-form messages at `/operations/enquiries`, read private enquiry detail, reply using their email app, and change internal review status with an atomic, audited, concurrency-guarded update. The system does not pretend to send messages or create sourcing requests.
 
 ## Contact request
 

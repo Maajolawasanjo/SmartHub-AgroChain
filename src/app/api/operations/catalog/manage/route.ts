@@ -12,6 +12,8 @@ const input=z.discriminatedUnion("action",[
  z.object({action:z.literal("type"),commodityId:uuid,name:z.string().trim().min(2).max(120),slug,description:z.string().trim().max(900),marketName:z.string().trim().max(120)}),
  z.object({action:z.literal("publish"),commodityId:uuid,publish:z.boolean()}),
  z.object({action:z.literal("publish-type"),typeId:uuid,publish:z.boolean()}),
+ z.object({action:z.literal("spec"),commodityId:uuid,name:z.string().trim().min(2).max(120),description:z.string().trim().max(900),unit:z.string().trim().max(40)}),
+ z.object({action:z.literal("publish-spec"),specId:uuid,publish:z.boolean()}),
  z.object({action:z.literal("insight"),title:z.string().trim().min(10).max(180),slug,summary:z.string().trim().min(30).max(550),category:z.string().trim().min(3).max(80),body:z.string().trim().min(300).max(40000)}),
  z.object({action:z.literal("publish-insight"),articleId:uuid,publish:z.boolean()}),
 ]);
@@ -20,7 +22,7 @@ export async function POST(request:NextRequest){
   assertSameOrigin(request);
   const {account,db}=await requireActor("OPERATIONS");
   const data=input.parse(await readJson(request));
-  if(["publish","publish-type","publish-insight"].includes(data.action) && account.role!=="SUPER_ADMIN")
+  if(["publish","publish-type","publish-spec","publish-insight"].includes(data.action) && account.role!=="SUPER_ADMIN")
    throw new PublicError(403,"Public publication requires Super Admin approval.");
   await db.$transaction(async tx=>{
    const audit=(action:string,subjectId:string)=>tx.auditEvent.create({data:{actorId:account.id,action,subjectId}});
@@ -54,6 +56,17 @@ export async function POST(request:NextRequest){
     if(data.publish&&!item.commodity.publicPublished)throw new PublicError(409,"Publish the parent commodity first.");
     await tx.commodityType.update({where:{id:item.id},data:{publicPublished:data.publish}});
     await audit(data.publish?"CATALOG_TYPE_PUBLISHED":"CATALOG_TYPE_UNPUBLISHED",item.id);break;
+   }
+   case "spec":{
+    const item=await tx.commoditySpecification.create({data:{commodityId:data.commodityId,name:data.name,description:data.description||null,unit:data.unit||null}});
+    await audit("CATALOG_SPEC_CREATED",item.id);break;
+   }
+   case "publish-spec":{
+    const item=await tx.commoditySpecification.findUnique({where:{id:data.specId},include:{commodity:true}});
+    if(!item)throw new PublicError(404,"Product specification not found.");
+    if(data.publish&&!item.commodity.publicPublished)throw new PublicError(409,"Publish the parent commodity first.");
+    await tx.commoditySpecification.update({where:{id:item.id},data:{publicPublished:data.publish}});
+    await audit(data.publish?"CATALOG_SPEC_PUBLISHED":"CATALOG_SPEC_UNPUBLISHED",item.id);break;
    }
    case "insight":{
     const item=await tx.insightArticle.create({data:{title:data.title,slug:data.slug,summary:data.summary,category:data.category,body:data.body}});

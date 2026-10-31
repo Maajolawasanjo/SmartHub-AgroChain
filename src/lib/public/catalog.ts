@@ -10,6 +10,7 @@ const publicProductSelect={
  id:true,name:true,slug:true,description:true,
  category:{select:{name:true,slug:true}},
  types:{where:{publicPublished:true},select:{id:true,name:true,slug:true,description:true,marketName:true},orderBy:{name:"asc"}},
+ specifications:{where:{publicPublished:true},select:{id:true,name:true,description:true,unit:true},orderBy:{name:"asc"}},
 } as const;
 
 export async function publicProducts(query:string,category:string){

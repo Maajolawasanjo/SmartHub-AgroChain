@@ -147,6 +147,7 @@ model Commodity {
   createdAt       DateTime @default(now())
   category        CommodityCategory? @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   types           CommodityType[]
+  specifications  CommoditySpecification[]
   crops           FarmerCrop[]
   supplies        SupplyDeclaration[]
 
@@ -182,6 +183,20 @@ model CommodityType {
 
   @@unique([commodityId, slug])
   @@map("commodity_types")
+}
+
+model CommoditySpecification {
+  id              String @id @default(uuid()) @db.Uuid
+  commodityId     String @db.Uuid
+  name            String @db.VarChar(120)
+  description     String? @db.VarChar(900)
+  unit            String? @db.VarChar(40)
+  publicPublished Boolean @default(false)
+  createdAt       DateTime @default(now())
+  commodity       Commodity @relation(fields: [commodityId], references: [id], onDelete: Restrict)
+
+  @@unique([commodityId, name])
+  @@map("commodity_specifications")
 }
 
 model InsightArticle {
