@@ -1,0 +1,61 @@
+name: Phase 00 application checks
+
+on:
+  push:
+    branches: ['feat/**']
+  pull_request:
+    branches: [main, 'feat/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: smarthub-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  structural:
+    name: Source safety and contract tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - run: npm test
+      - run: npm run verify:foundation
+
+  build:
+    name: Prisma, TypeScript, Next.js build and lockfile gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Generate temporary lockfile only if absent
+        run: |
+          if [ ! -f package-lock.json ]; then
+            npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+          fi
+      - name: Upload candidate lockfile for manual review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase00-lockfile-candidate
+          path: package-lock.json
+          if-no-files-found: warn
+      - run: npm ci --no-audit --no-fund
+      - run: npm run db:generate
+      - name: Validate Prisma models (no live database connection)
+        env:
+          DATABASE_URL: postgresql://placeholder:placeholder@127.0.0.1:5432/smarthub?schema=public
+          DIRECT_URL: postgresql://placeholder:placeholder@127.0.0.1:5432/smarthub?schema=public
+        run: npx prisma validate
+      - run: npm run typecheck
+      - run: npm run verify:syntax
+      - run: npm test
+      - run: npm run build
+      - name: Require committed dependency lockfile before release
+        run: npm run verify:foundation -- --require-lock
