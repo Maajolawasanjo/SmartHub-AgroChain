@@ -1,4 +1,4 @@
-import ts from "typescript";
+import * as ts from "typescript";
 import { readdirSync, readFileSync } from "node:fs";
 import { extname, join } from "node:path";
 const files=[];
