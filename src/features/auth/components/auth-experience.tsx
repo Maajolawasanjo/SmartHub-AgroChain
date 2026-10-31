@@ -77,7 +77,7 @@ export function AuthExperience({route,previewEnabled}:{route:string;previewEnabl
  const transition=transitions.find(t=>t.id===screen?.id);
  const titleInfo = headline[route] ?? {eyebrow:scenarios[0]?.module??"Account journey",title:route.split("/").filter(Boolean).at(-1)?.replaceAll("-"," ")??"Account access",description:"This account lifecycle step needs authenticated, server-authorized state before it can change records."};
  const reviewPaths = related[route] ?? [{href:"/account/help",label:"Account help"},{href:"/login",label:"Sign in"}];
- const locked=privateRoute(route)&&!previewEnabled;
+ const locked=(privateRoute(route)||["/reset-password/success","/invite/complete","/account/delete/complete","/forgot-password/sent"].includes(route))&&!previewEnabled;
  return <div className="auth-layout">
   <aside className="auth-aside">
    <Link href="/" className="auth-logo">SmartHub<span>AgroChain</span></Link>
@@ -88,8 +88,8 @@ export function AuthExperience({route,previewEnabled}:{route:string;previewEnabl
    <section className="auth-content" aria-labelledby="auth-heading"><div className="auth-heading"><p className="auth-kicker">{titleInfo.eyebrow}</p><h1 id="auth-heading">{titleInfo.title}</h1><p>{titleInfo.description}</p></div>
     {locked ? <><ActionNotice kind="error">This account or staff area requires real authenticated authorization. It cannot be accessed as a public preview in production.</ActionNotice><Link className="auth-submit auth-cta-link" href="/login">Return to sign in →</Link></>:
     <><div className="auth-card">
-       {route!=="/signup"&&route!=="/login"&&screen&&<div className="auth-state-intro"><span className="auth-state-dot"/><div><span className="auth-state-tag">{screen.module}</span><h2>{screen.name}</h2><p>{screen.action}</p></div></div>}
-       <FormForRoute route={route}/>
+       {screen&&<div className="auth-state-intro"><span className="auth-state-dot"/><div><span className="auth-state-tag">{screen.module}</span><h2>{screen.name}</h2><p>{screen.action}</p></div></div>}
+       <FormForRoute route={route} previewStateId={previewEnabled?screen?.id:undefined}/>
        {screen&&<GenericAction route={route} action={screen.action} stateId={screen.id}/>}
        {!(["/signup","/login","/forgot-password","/reset-password","/account/security/password","/verify-phone","/account/security/phone","/account/security/email","/admin/staff/invite","/admin/staff/new","/account/profile","/operations/account","/field-agent/account","/admin/account","/account/delete","/account/delete/confirm","/account/preferences","/invite/accept","/invite/profile"].includes(route))&& <ActionNotice kind="info">{blockedInfo} This screen displays the documented guidance and recovery options without claiming the operation succeeded.</ActionNotice>}
        {route==="/account/help"&&<p className="auth-support">Need additional assistance? <a href="mailto:info@smarthubagrochain.online">Email SmartHub support</a>.</p>}

@@ -17,9 +17,10 @@ function useBlockedSubmit() {
 
 const disconnected = <ActionNotice>Frontend checks passed. This action is <strong>not connected to Supabase or the database yet</strong>; nothing was sent, changed, saved, verified or deleted.</ActionNotice>;
 
-export function SignupForm() {
+export function SignupForm({previewStateId}:{previewStateId?:string}) {
   const [role, setRole] = useState<PublicRole>("buyer");
   useEffect(()=>{const requested=new URLSearchParams(window.location.search).get("role");if(requested==="buyer"||requested==="farmer")setRole(requested)},[]);
+  useEffect(()=>{if(["REG-003","REG-005"].includes(previewStateId??""))setRole("farmer");if(["REG-002","REG-004"].includes(previewStateId??""))setRole("buyer")},[previewStateId]);
   const [data, setData] = useState<Omit<SignupData, "role">>({fullName:"",farmName:"",state:"",email:"",phone:"",password:"",confirmPassword:"",agree:false});
   const submit = useBlockedSubmit();
   function set<K extends keyof typeof data>(name: K, value: (typeof data)[K]) { setData((d) => ({...d,[name]:value})); submit.clear(); }
@@ -43,8 +44,8 @@ export function SignupForm() {
   </div>;
 }
 
-export function LoginForm(){
- const [role,setRole]=useState<"buyer"|"farmer"|"staff">("buyer"); const [email,setEmail]=useState("");const [password,setPassword]=useState("");const submit=useBlockedSubmit();
+export function LoginForm({previewStateId}:{previewStateId?:string}){
+ const [role,setRole]=useState<"buyer"|"farmer"|"staff">("buyer"); useEffect(()=>{if(previewStateId==="SES-002")setRole("farmer");if(previewStateId==="SES-003")setRole("staff");if(previewStateId==="SES-001")setRole("buyer")},[previewStateId]); const [email,setEmail]=useState("");const [password,setPassword]=useState("");const submit=useBlockedSubmit();
  return <><div className="auth-tabs" role="group" aria-label="Sign-in type">{(["buyer","farmer","staff"] as const).map(r=><button type="button" key={r} aria-pressed={role===r} className={role===r?"auth-tab active":"auth-tab"} onClick={()=>setRole(r)}>{r==="buyer"?"Buyer":r==="farmer"?"Farmer":"Staff"}</button>)}</div>
   <ActionNotice kind="info">The selection changes the guidance, not your permissions. Your actual role and destination will come from trusted server records.</ActionNotice>
   <form noValidate className="auth-form" onSubmit={e=>submit.handle(e,{...(!validEmail(email)?{email:"Enter a valid email address."}:{}),...(!password?{password:"Enter your password."}:{})})}>
@@ -72,8 +73,8 @@ export function PreferencesForm(){const[email,setEmail]=useState(true);const[inA
 
 export function InvitationAcceptForm(){const[name,setName]=useState("");const[password,setPassword]=useState("");const sub=useBlockedSubmit();return <form className="auth-form" noValidate onSubmit={e=>sub.handle(e,{...(name.trim().length<2?{name:"Enter your name."}:{}),...(!validPassword(password)?{password:"Use at least 8 characters."}:{})})}><ActionNotice kind="info">An actual invitation must be validated using a secure, single-use server-side token before a staff role can be assigned. No invitation is accepted here.</ActionNotice><Field id="invite-name" label="Full name" value={name} required onChange={e=>{setName(e.target.value);sub.clear()}} error={sub.errors.name}/><Field id="invite-pass" label="Set your password" type="password" autoComplete="new-password" value={password} required onChange={e=>{setPassword(e.target.value);sub.clear()}} error={sub.errors.password}/><Submit>Review profile information</Submit>{sub.notice&&disconnected}</form>}
 
-export function FormForRoute({route}:{route:string}){
+export function FormForRoute({route,previewStateId}:{route:string;previewStateId?:string}){
  const byRoute:Partial<Record<string,FormKey>>={"/signup":"signup","/login":"login","/forgot-password":"forgot","/reset-password":"password","/account/security/password":"password","/verify-phone":"phone","/account/security/phone":"phone-change","/account/security/email":"email-change","/admin/staff/invite":"staff-invite","/admin/staff/new":"staff-invite","/account/profile":"profile","/operations/account":"profile","/field-agent/account":"profile","/admin/account":"profile","/account/delete":"delete","/account/delete/confirm":"delete","/account/preferences":"preferences","/invite/accept":"invitation","/invite/profile":"invitation"};
  const key=byRoute[route];
- switch(key){case"signup":return <SignupForm/>;case"login":return <LoginForm/>;case"forgot":return <RecoveryForm/>;case"password":return <PasswordForm change={route.includes("/account/")}/>;case"phone":return <OtpForm/>;case"phone-change":return <><ChangeContactForm kind="phone"/><OtpForm phoneChange/></>;case"email-change":return <ChangeContactForm kind="email"/>;case"staff-invite":return <StaffInviteForm/>;case"profile":return <ProfileForm/>;case"delete":return <DeletionForm/>;case"preferences":return <PreferencesForm/>;case"invitation":return <InvitationAcceptForm/>;default:return null;}
+ switch(key){case"signup":return <SignupForm previewStateId={previewStateId}/>;case"login":return <LoginForm previewStateId={previewStateId}/>;case"forgot":return <RecoveryForm/>;case"password":return <PasswordForm change={route.includes("/account/")}/>;case"phone":return <OtpForm/>;case"phone-change":return <><ChangeContactForm kind="phone"/><OtpForm phoneChange/></>;case"email-change":return <ChangeContactForm kind="email"/>;case"staff-invite":return <StaffInviteForm/>;case"profile":return <ProfileForm/>;case"delete":return <DeletionForm/>;case"preferences":return <PreferencesForm/>;case"invitation":return <InvitationAcceptForm/>;default:return null;}
 }
