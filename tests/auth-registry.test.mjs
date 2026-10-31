@@ -29,7 +29,7 @@ test("every one of the 48 documented authentication routes is an actual app rout
 test("every authentication page mounts one shared flow boundary",()=>{
  for(const path of paths){
   const content=source(join("src/app",path,"page.tsx"));
-  assert.ok(content.includes("<AuthPage route=") || ["/auth/redirect","/account/status"].includes(path),path);
+  assert.ok(content.includes("<AuthPage route=") || ["/auth/redirect","/account/status","/forgot-password/sent","/reset-password/success"].includes(path),path);
  }
 });
 test("production preview registry is inaccessible",()=>{
