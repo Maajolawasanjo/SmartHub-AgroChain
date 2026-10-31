@@ -34,9 +34,10 @@ export async function PUT(request:NextRequest,context:{params:Promise<{id:string
       const target=await tx.account.findUnique({where:{id},select:{id:true,role:true,status:true}});
       if(!target||target.role!=="FIELD_AGENT")throw new PublicError(404,"Field Agent record not found.");
       if(target.status!=="ACTIVE")throw new PublicError(409,"Reinstate this Field Agent before changing assignments.");
-      const desired=new Set(input.states);
+      type NigeriaState=typeof NIGERIA_STATES[number];
+      const desired=new Set<NigeriaState>(input.states);
       const current=await tx.fieldAgentAssignment.findMany({where:{fieldAgentId:id,active:true},select:{state:true}});
-      const active=new Set(current.map(row=>row.state));
+      const active=new Set<NigeriaState>(current.map(row=>row.state as NigeriaState));
       const added=input.states.filter(state=>!active.has(state));
       const removed=[...active].filter(state=>!desired.has(state));
       for(const state of added){

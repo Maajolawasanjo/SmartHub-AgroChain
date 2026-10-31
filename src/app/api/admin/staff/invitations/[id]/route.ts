@@ -19,7 +19,7 @@ export async function PATCH(request:NextRequest,context:{params:Promise<{id:stri
     await db.$transaction(async tx=>{
       const changed=await tx.staffInvitation.updateMany({where:{id,status:"PENDING",expiresAt:{gt:new Date()}},data:{status:"REVOKED"}});
       if(changed.count!==1)throw new PublicError(409,"Invitation status changed. Refresh and try again.");
-      await tx.auditEvent.create({data:{actorId:ctx.account.id,action:"STAFF_INVITATION_REVOKED",subjectId:id,details:{reason,email:invitation.email}}});
+      await tx.auditEvent.create({data:{actorId:ctx.account.id,action:"STAFF_INVITATION_REVOKED",subjectId:id,details:{reason:input.reason,email:invitation.email}}});
     });
     return reply({ok:true,message:"Invitation revoked. Its acceptance endpoint will no longer provision access."});
   }catch(error){return errorReply(error);}
