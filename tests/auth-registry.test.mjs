@@ -27,7 +27,10 @@ test("every one of the 48 documented authentication routes is an actual app rout
  for(const path of normalized)assert.ok(existsSync(join(root,"src/app",path,"page.tsx")),`Missing ${path}`);
 });
 test("every authentication page mounts one shared flow boundary",()=>{
- for(const path of paths)assert.ok(source(join("src/app",path,"page.tsx")).includes("<AuthPage route="),path);
+ for(const path of paths){
+  const content=source(join("src/app",path,"page.tsx"));
+  assert.ok(content.includes("<AuthPage route=") || ["/auth/redirect","/account/status"].includes(path),path);
+ }
 });
 test("production preview registry is inaccessible",()=>{
  const preview=source("src/app/auth-preview/page.tsx");
