@@ -101,8 +101,11 @@ async function handle(request:NextRequest, action:string){
     catch{throw new PublicError(429,"A verification request is already processing.");}
    }
    // Sends an Auth-managed phone-change OTP, subject to configured Supabase SMS provider.
-   const {error}=await supabase.auth.updateUser({phone:targetPhone});
-   if(error)throw new PublicError(503,"SMS delivery is unavailable. Please try again later.");
+   // Supabase provides a dedicated resend method for an already pending phone change.
+   const result=previous
+      ? await supabase.auth.resend({type:"phone_change",phone:targetPhone})
+      : await supabase.auth.updateUser({phone:targetPhone});
+   if(result.error)throw new PublicError(503,"SMS delivery is unavailable. Please try again later.");
    return reply({ok:true,message:"Verification SMS requested for your registered phone."});
   }
   case "verify-phone": {
