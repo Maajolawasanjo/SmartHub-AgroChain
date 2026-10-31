@@ -42,11 +42,14 @@ test("all direct Data API table access is revoked and RLS enabled",()=>{
  }
  assert.match(migration,/REVOKE ALL ON TABLE/);assert.match(migration,/FROM anon, authenticated/);
 });
-test("farmer and operations navigation links target implemented pages",()=>{
- const c=read("src/components/agriculture/portal-frame.tsx");
+test("farmer and operations navigation reflects actual implemented and planned destinations",()=>{
+ const navigation=read("src/components/dashboard/navigation.ts");
  for(const link of ["/farmer/kyc","/farmer/my-supply","/farmer/orders","/farmer/opportunities","/farmer/wallet","/farmer/notifications","/farmer/settings","/operations/verification","/operations/supply","/operations/catalog"]){
- assert.ok(c.includes(link),link);
+  assert.ok(navigation.includes(link),link);
  }
+ assert.match(navigation,/planned\("Orders & Transactions","\/farmer\/orders"/);
+ assert.match(navigation,/active\("Supply Reviews","\/operations\/supply"/);
+ assert.match(read("src/components/agriculture/portal-frame.tsx"),/DashboardFrame/);
 });
 test("no hardcoded production agriculture figures or fake inventory entries",()=>{
  const components=read("src/app/farmer/page.tsx")+read("src/app/operations/page.tsx");
