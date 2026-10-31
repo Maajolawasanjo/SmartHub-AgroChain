@@ -12,7 +12,7 @@ test("farmer farm, crop and supply endpoints are real POST/PATCH handlers",()=>{
 test("permission boundary enforces true farmer and operations roles",()=>{
  const c=read("src/server/agriculture/policies.ts");
  assert.match(c,/requireActor\("FARMER"\)|role === "FARMER"/);
- assert.match(c,/OPERATIONS/);assert.match(c,/SUPER_ADMIN/);
+ assert.match(c,/hasPermission\(ctx\.account\.role,"farmer\.supply\.manage"\)/);assert.match(c,/hasPermission\(ctx\.account\.role,"operations\.supply\.review"\)/);
  assert.match(c,/email_confirmed_at/);assert.match(c,/phone_confirmed_at/);
 });
 test("supply is always farmer-owned and does not reserve or publish inventory",()=>{

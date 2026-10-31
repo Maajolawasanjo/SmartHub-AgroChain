@@ -1,6 +1,10 @@
-export const metadata = { robots: { index: false, follow: false } };
-import { AuthPage } from "@/features/auth/components/auth-page";
-
-export default function Page() {
-  return <AuthPage route="/admin/staff/[id]/activity" />;
-}
+import Link from "next/link";
+import {notFound} from "next/navigation";
+import {DashboardFrame} from "@/components/dashboard/dashboard-frame";
+import {WorkspaceEmpty,WorkspaceTable} from "@/components/dashboard/dashboard-ui";
+import {requireSuperAdminPage} from "@/server/admin/guard";
+import {isStaffRole} from "@/server/admin/permissions";
+import {getPrisma} from "@/server/db/prisma";
+export const dynamic="force-dynamic";
+export const metadata={robots:{index:false,follow:false}};
+export default async function StaffActivityPage({params}:{params:Promise<{id:string}>}){const ctx=await requireSuperAdminPage();const {id}=await params;if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id))notFound();const db=getPrisma();const staff=await db.account.findUnique({where:{id},select:{id:true,fullName:true,role:true}});if(!staff||!isStaffRole(staff.role))notFound();const events=await db.auditEvent.findMany({where:{subjectId:id,OR:[{action:{startsWith:"STAFF_"}},{action:{startsWith:"FIELD_AGENT_"}}]},orderBy:{createdAt:"desc"},take:100,select:{id:true,action:true,details:true,createdAt:true,actor:{select:{fullName:true,role:true}}}});return <DashboardFrame role="SUPER_ADMIN" name={ctx.account.fullName} title="Staff audit activity" description={`Recorded governance changes affecting ${staff.fullName}.`}><div className="staff-page-links"><Link href={`/admin/staff/${id}`}>← Staff profile</Link><Link href="/admin/audit">All staff audit events →</Link></div>{events.length?<WorkspaceTable caption="Staff audit activity" columns={["Event","Actor","Details","Date"]}><>{events.map(event=><tr key={event.id}><td><strong>{event.action.replaceAll("_"," ")}</strong></td><td>{event.actor.fullName}<span className="staff-cell-subtitle">{event.actor.role.replaceAll("_"," ")}</span></td><td><code className="staff-audit-details">{event.details?JSON.stringify(event.details):"—"}</code></td><td>{event.createdAt.toLocaleString("en-NG")}</td></tr>)}</></WorkspaceTable>:<WorkspaceEmpty title="No staff changes recorded" description="Role, access and state assignment changes will appear here after they are performed."/>}</DashboardFrame>;}
