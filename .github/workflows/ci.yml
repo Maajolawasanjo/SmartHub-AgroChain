@@ -23,32 +23,24 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
+          cache: npm
       - run: npm test
-      - run: npm run verify:foundation
+      - run: npm run verify:foundation -- --require-lock
 
   build:
-    name: Prisma, TypeScript, Next.js build and lockfile gate
+    name: Reproducible Prisma, TypeScript and Next.js build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-      - name: Generate temporary lockfile only if absent
-        run: |
-          if [ ! -f package-lock.json ]; then
-            npm install --package-lock-only --ignore-scripts --no-audit --no-fund
-          fi
-      - name: Upload candidate lockfile for manual review
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: phase00-lockfile-candidate
-          path: package-lock.json
-          if-no-files-found: warn
-      - run: npm ci --no-audit --no-fund
-      - run: npm run db:generate
-      - name: Validate Prisma models (no live database connection)
+          cache: npm
+      - name: Install exact committed dependency graph
+        run: npm ci --no-audit --no-fund
+      - name: Generate Prisma client
+        run: npm run db:generate
+      - name: Validate Prisma models without a database connection
         env:
           DATABASE_URL: postgresql://placeholder:placeholder@127.0.0.1:5432/smarthub?schema=public
           DIRECT_URL: postgresql://placeholder:placeholder@127.0.0.1:5432/smarthub?schema=public
@@ -57,5 +49,5 @@ jobs:
       - run: npm run verify:syntax
       - run: npm test
       - run: npm run build
-      - name: Require committed dependency lockfile before release
+      - name: Confirm reviewed lockfile and foundation configuration
         run: npm run verify:foundation -- --require-lock
