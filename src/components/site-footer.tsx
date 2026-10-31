@@ -1,12 +1,15 @@
 import Link from "next/link";
-export function SiteFooter() {
-  return <footer className="mt-20 bg-[#123d2b] py-12 text-white">
-    <div className="container grid gap-9 md:grid-cols-3">
-      <div><strong className="text-xl">SmartHub AgroChain</strong><p className="mt-3 max-w-sm text-sm text-[#d2e4d7]">Connecting agricultural supply with real market demand.</p></div>
-      <div><strong>Explore</strong><div className="mt-3 grid grid-cols-2 gap-3 text-sm text-[#e0eadf]">
-        <Link href="/">Home</Link><Link href="/product">Platform</Link><Link href="/products">Products</Link><Link href="/how-it-works">How It Works</Link><Link href="/for-buyers">For Buyers</Link><Link href="/for-farmers">For Farmers</Link><Link href="/about">About</Link><Link href="/contact">Contact</Link>
-      </div></div>
-      <div><strong>Contact</strong><p className="mt-3 text-sm text-[#e0eadf]">Nigeria</p><a className="mt-2 block text-sm underline" href="mailto:info@smarthubagrochain.online">info@smarthubagrochain.online</a><p className="mt-5 text-xs text-[#c5d8c8]">© {new Date().getFullYear()} SmartHub AgroChain Ltd.</p></div>
-    </div>
-  </footer>;
-}
+const navigation=[
+  ["Home","/"],["Product","/product"],["How It Works","/how-it-works"],
+  ["For Buyers","/for-buyers"],["For Farmers","/for-farmers"],["Products","/products"],
+  ["About Us","/about"],["Insights","/insights"],["Contact","/contact"]
+] as const;
+export function SiteFooter(){return <footer className="public-footer">
+  <div className="container public-footer-grid">
+    <div><Link href="/" className="public-footer-logo">SmartHub AgroChain</Link><p>Building technology that connects agricultural supply with real market demand.</p><p className="public-footer-caption">SMARTHUB AGROCHAIN LTD · Nigeria</p></div>
+    <div><strong>Explore</strong><nav aria-label="Footer navigation">{navigation.map(([label,href])=><Link key={href} href={href}>{label}</Link>)}</nav></div>
+    <div><strong>Get Started</strong><nav aria-label="Participation links"><Link href="/signup?role=buyer">Start a Buyer Request</Link><Link href="/signup?role=farmer">Join as a Farmer</Link><Link href="/contact?interest=partner">Partner With Us</Link></nav></div>
+    <div><strong>Contact & Policies</strong><a href="mailto:info@smarthubagrochain.online">info@smarthubagrochain.online</a><nav aria-label="Legal and accessibility"><Link href="/faq">FAQ</Link><Link href="/privacy">Privacy Policy</Link><Link href="/terms">Terms of Use</Link><Link href="/cookies">Cookie Policy</Link><Link href="/accessibility">Accessibility</Link></nav></div>
+  </div>
+  <div className="container public-footer-base"><span>© {new Date().getFullYear()} SmartHub AgroChain Ltd. All rights reserved.</span><span>Where agriculture meets innovation.</span></div>
+ </footer>}

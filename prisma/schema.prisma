@@ -137,14 +137,100 @@ enum SupplyReviewStatus {
 }
 
 model Commodity {
-  id        String   @id @default(uuid()) @db.Uuid
-  name      String   @unique @db.VarChar(100)
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  crops     FarmerCrop[]
-  supplies  SupplyDeclaration[]
+  id              String   @id @default(uuid()) @db.Uuid
+  name            String   @unique @db.VarChar(100)
+  slug            String?  @unique @db.VarChar(110)
+  description     String?  @db.VarChar(1200)
+  categoryId      String?  @db.Uuid
+  publicPublished Boolean  @default(false)
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  category        CommodityCategory? @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  types           CommodityType[]
+  crops           FarmerCrop[]
+  supplies        SupplyDeclaration[]
 
+  @@index([categoryId, publicPublished, active])
   @@map("commodities")
+}
+
+// Public catalog metadata, independent from stock/supplier data.
+model CommodityCategory {
+  id          String @id @default(uuid()) @db.Uuid
+  slug        String @unique @db.VarChar(90)
+  name        String @unique @db.VarChar(100)
+  description String? @db.VarChar(900)
+  active      Boolean @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  commodities Commodity[]
+
+  @@map("commodity_categories")
+}
+
+model CommodityType {
+  id              String @id @default(uuid()) @db.Uuid
+  commodityId     String @db.Uuid
+  slug            String @db.VarChar(110)
+  name            String @db.VarChar(120)
+  standardizedName String? @db.VarChar(120)
+  marketName      String? @db.VarChar(120)
+  description     String? @db.VarChar(900)
+  publicPublished Boolean @default(false)
+  createdAt       DateTime @default(now())
+  commodity       Commodity @relation(fields: [commodityId], references: [id], onDelete: Restrict)
+
+  @@unique([commodityId, slug])
+  @@map("commodity_types")
+}
+
+model InsightArticle {
+  id          String @id @default(uuid()) @db.Uuid
+  slug        String @unique @db.VarChar(140)
+  title       String @db.VarChar(180)
+  summary     String @db.VarChar(550)
+  body        String @db.Text
+  category    String @db.VarChar(80)
+  published   Boolean @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([published, publishedAt])
+  @@map("insight_articles")
+}
+
+enum PublicEnquiryStatus {
+  NEW
+  IN_REVIEW
+  CLOSED
+}
+
+model PublicEnquiry {
+  id            String @id @default(uuid()) @db.Uuid
+  fullName      String @db.VarChar(160)
+  email         String @db.VarChar(254)
+  phone         String? @db.VarChar(24)
+  organisation  String? @db.VarChar(180)
+  audience      String @db.VarChar(32)
+  subject       String @db.VarChar(180)
+  message       String @db.VarChar(4000)
+  productSlug   String? @db.VarChar(110)
+  senderHash    String @db.VarChar(64)
+  status        PublicEnquiryStatus @default(NEW)
+  createdAt     DateTime @default(now())
+
+  @@index([status, createdAt])
+  @@index([senderHash, createdAt])
+  @@map("public_enquiries")
+}
+
+model PublicContactThrottle {
+  senderHash String @id @db.VarChar(64)
+  windowStart DateTime
+  count Int @default(1)
+
+  @@map("public_contact_throttles")
 }
 
 model Farm {

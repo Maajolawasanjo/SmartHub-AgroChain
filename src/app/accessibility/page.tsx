@@ -1,0 +1,4 @@
+import Link from "next/link";
+import {PublicShell} from "@/components/public-shell";
+export const metadata={title:"Accessibility & Support"};
+export default function Accessibility(){return <PublicShell><section className="container public-section"><span className="eyebrow">Accessible participation</span><h1 className="public-legal-heading">Accessibility & Support</h1><p className="public-prose">SmartHub AgroChain aims to provide clear navigation, labelled forms and access across screen sizes. The website has not yet completed a formal independent accessibility audit. If a page, form or feature creates a barrier for you, contact the team to request assistance and report the problem.</p><a className="action action-primary" href="mailto:info@smarthubagrochain.online?subject=Accessibility%20support">Email accessibility support</a><p className="public-prose"><Link href="/faq">Read FAQs</Link> for other common questions.</p></section></PublicShell>}

@@ -1,4 +1,10 @@
-import { SectionPage } from "@/components/section-page";
-import type { Metadata } from "next";
-export const metadata:Metadata={title:"For Farmers"};
-export default function Farmers(){return <SectionPage eyebrow="For farmers & producers" title="Connect your farm with real market demand" body="SmartHub is building a structured farmer network based on genuine records, verification and operational coordination, not instant public seller storefronts." items={[{title:"Set up a farm profile",description:"Farmers will be able to register their farm and provide relevant information for verification."},{title:"Record crops and supply",description:"Expected harvests are distinct from available produce; declaring supply does not automatically approve it."},{title:"Relevant opportunities",description:"Eligible suppliers may be invited to participate in sourcing opportunities without revealing private buyer information."},{title:"Track transactions",description:"Fulfilment and farmer settlements are separate recorded stages, never invented dashboard balances."}]}/>;}
+import type {Metadata} from "next";
+import {MarketingPage} from "@/components/public/marketing";
+export const metadata:Metadata={title:"Join a Farmer Network in Nigeria",description:"Join SmartHub AgroChain's growing farmer network and connect farm and agricultural supply information with real market demand."};
+export default function Farmers(){return <MarketingPage eyebrow="Farmers & producers" title="Connect Your Farm With Real Market Demand" description="Farmers produce the food and raw materials that keep agriculture moving. SmartHub AgroChain is building technology to organise agricultural supply information and create stronger connections with market demand." steps={[
+ {title:"Register",description:"Create a farmer account and complete required contact verification."},
+ {title:"Provide Farm Information",description:"Describe your farm, location, crops and agricultural activities."},
+ {title:"Provide Supply Information",description:"Distinguish expected harvests from produce that physically exists and is available."},
+ {title:"Verification",description:"Relevant farmer, farm and supply information moves through an appropriate review process."},
+ {title:"Market Opportunities",description:"Eligible supply may be considered for suitable buyer demand, subject to review and availability."}
+ ]} primary={{label:"Join as a Farmer",href:"/signup?role=farmer"}} secondary={{label:"How It Works",href:"/how-it-works"}} asideTitle="Farmers Are Not the Problem. The System Needs to Work Better." aside="Farmers should not carry the entire burden created by fragmented markets, weak information systems and inefficient coordination. Better systems can improve the way agriculture works."/>}

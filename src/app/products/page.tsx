@@ -1,4 +1,26 @@
-import { SectionPage } from "@/components/section-page";
-import type { Metadata } from "next";
-export const metadata:Metadata={title:"Agricultural Products"};
-export default function Products(){return <SectionPage eyebrow="Agricultural catalogue" title="Explore agricultural products and available supply" body="Our product catalogue will distinguish verified currently available supply from commodities that can be requested for sourcing. Until operational product records are connected, no listings, prices or quantities are shown as live." items={[{title:"Products and variations",description:"Category, commodity, variety and specification information will be organised for clear sourcing decisions."},{title:"Availability is verified, not assumed",description:"A commodity can be described without making a claim that a specific quantity is in stock."}]}/>;}
+import Link from "next/link";
+import type {Metadata} from "next";
+import {PublicShell} from "@/components/public-shell";
+import {publicProducts,safeCatalogSearch} from "@/lib/public/catalog";
+export const metadata:Metadata={title:"Agricultural Products in Nigeria",description:"Explore agricultural product categories and approved SmartHub AgroChain commodity information. Supply availability is verified separately."};
+export const dynamic="force-dynamic";
+const guidance=[{title:"Grains",examples:"Maize, rice, sorghum, millet"},{title:"Legumes",examples:"Soybeans, groundnuts, beans"},{title:"Roots & Tubers",examples:"Cassava, yam, sweet potato"}];
+export default async function Products({searchParams}:{searchParams:Promise<{q?:string;category?:string}>}){
+ const params=await searchParams;const q=safeCatalogSearch(params.q??"");const category=params.category??"";
+ const catalog=await publicProducts(q,category);
+ return <PublicShell>
+ <section className="public-hero"><div className="container public-hero-content"><span className="public-kicker">Agricultural catalogue</span><h1>Agricultural Supply Starts With Knowing What Is Available</h1><p>Explore published commodity information and tell SmartHub what your business requires. Availability, quantity, quality and delivery terms are confirmed during sourcing—not assumed from a product name.</p></div></section>
+ <section className="container public-section"><div className="public-section-intro"><span className="eyebrow">Product discovery</span><h2>Explore approved commodity information</h2><p>Only categories and commodities expressly published by authorized SmartHub staff appear below. No supplier identities, unverified inventory or invented prices are displayed.</p></div>
+ <form method="get" action="/products" className="public-catalog-filters" role="search">
+ <label htmlFor="catalog-search">Find a commodity<input id="catalog-search" name="q" maxLength={80} defaultValue={q} placeholder="Search published commodities"/></label>
+ <label htmlFor="catalog-category">Category<select id="catalog-category" name="category" defaultValue={category}><option value="">All categories</option>{catalog.categories.map(c=><option key={c.slug} value={c.slug}>{c.name}</option>)}</select></label>
+ <button className="action action-primary" type="submit">Search products</button>{(q||category)&&<Link href="/products" className="action action-outline">Clear filters</Link>}
+ </form>
+ {catalog.state!=="ready"?<div className="public-empty" role="status"><h3>Published catalogue is not connected yet</h3><p>SmartHub is preparing its approved catalogue. We cannot confirm stock or product availability at this time. Contact the team to discuss your requirement.</p><Link className="action action-outline" href="/contact?interest=buyer">Ask about sourcing</Link></div>:
+ catalog.items.length?<div className="public-product-grid">{catalog.items.map(item=><article className="public-product-card" key={item.id}><div className="public-product-symbol" aria-hidden="true">{item.category?.name.slice(0,1)??"A"}</div><div className="public-product-content"><p className="public-card-tag">{item.category?.name}</p><h3><Link href={`/products/${item.slug}`}>{item.name}</Link></h3><p>{item.description??"Details and sourcing terms are discussed during the request process."}</p><p className="public-product-disclaimer">Published product reference · Availability not confirmed</p><Link className="action action-outline" href={`/products/${item.slug}`}>View product details</Link></div></article>)}</div>:
+ <div className="public-empty" role="status"><h3>No matching published products</h3><p>{q||category?"Try removing a filter or contact SmartHub about your requirements.":"No commodity records have been published yet. This is not an indication that real farmers have no produce."}</p><Link className="action action-outline" href="/contact?interest=buyer">Discuss a sourcing requirement</Link></div>}
+ </section>
+ <section className="container public-section"><div className="public-section-intro"><span className="eyebrow">Category guide</span><h2>Agricultural categories we are developing</h2><p>These are examples of agricultural product families from the platform requirements, not live listings or current stock claims.</p></div><div className="public-card-grid">{guidance.map(x=><div className="public-feature-card" key={x.title}><h3>{x.title}</h3><p>Examples: {x.examples}</p></div>)}</div></section>
+ <section className="container public-section"><div className="public-cta-band"><div><h2>Need a specific commodity or variety?</h2><p>Tell SmartHub about the type, quantity, quality, required location and expected timing. A sourcing enquiry does not reserve stock or create an order.</p></div><Link href="/contact?interest=buyer" className="action action-primary">Discuss sourcing</Link></div></section>
+ </PublicShell>;
+}
