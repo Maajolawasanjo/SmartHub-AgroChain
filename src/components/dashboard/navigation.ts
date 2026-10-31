@@ -25,15 +25,15 @@ export const workspaceNavigation:Record<WorkspaceRole,NavigationSection[]>={
   {title:"My account",items:[planned("Notifications","/farmer/notifications","bell"),active("Farm Profile & Verification","/farmer/kyc","check"),planned("Farmer Settings","/farmer/settings","settings")]},
  ],
  FIELD_AGENT:[
-  {title:"Field operations",items:[active("Overview","/field-agent","grid"),planned("Assigned Farmers","/field-agent/farmers","users"),planned("Field Visits","/field-agent/visits","calendar"),planned("Inspections & Evidence","/field-agent/inspections","clipboard"),planned("Submitted Reports","/field-agent/reports","file")]},
+  {title:"Field operations",items:[active("Overview","/field-agent","grid"),active("Assigned Farmers","/field-agent/farmers","users"),active("Field Visits","/field-agent/visits","calendar"),active("Submitted Reports","/field-agent/reports","file")]},
  ],
  OPERATIONS:[
-  {title:"Reviews",items:[active("Overview","/operations","grid"),active("Farmer Verification","/operations/verification","check"),active("Supply Reviews","/operations/supply","leaf"),active("Commodity Catalog","/operations/catalog","tag"),active("Public Enquiries","/operations/enquiries","file")]},
+  {title:"Reviews",items:[active("Overview","/operations","grid"),active("Farmer Verification","/operations/verification","check"),active("Supply Reviews","/operations/supply","leaf"),active("Commodity Catalog","/operations/catalog","tag"),active("Public Enquiries","/operations/enquiries","file"),active("Field Visit Reports","/operations/field-visits","clipboard")]},
   {title:"Procurement pipeline",items:[planned("Buyer Requests","/operations/requests","clipboard"),planned("Matches & Quotes","/operations/matching","file"),planned("Orders & Logistics","/operations/orders","truck"),planned("Disputes","/operations/disputes","shield")]},
  ],
  SUPER_ADMIN:[
   {title:"Governance",items:[active("Overview","/admin","grid"),active("Invite Staff","/admin/staff/invite","users"),active("Staff Directory","/admin/staff","users"),active("Invitations","/admin/staff/invites","mail"),active("Roles & Permissions","/admin/permissions","shield"),active("Platform Audit","/admin/audit","file")]},
-  {title:"Oversight",items:[planned("User Directory","/admin/users","user"),planned("Reports & Insights","/admin/reports","chart"),planned("Configuration","/admin/settings","settings")]},
+  {title:"Oversight",items:[active("Field Visit Reports","/operations/field-visits","clipboard"),planned("User Directory","/admin/users","user"),planned("Reports & Insights","/admin/reports","chart"),planned("Configuration","/admin/settings","settings")]},
  ],
 };
 

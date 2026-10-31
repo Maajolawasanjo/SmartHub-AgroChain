@@ -10,6 +10,7 @@ export const PERMISSIONS = [
   "buyer.request.create",
   "farmer.supply.manage",
   "field.assigned.read",
+  "field.visit.manage",
   "field.evidence.submit",
   "operations.verification.review",
   "operations.supply.review",
@@ -26,7 +27,7 @@ export type Permission = typeof PERMISSIONS[number];
 const ROLE_PERMISSIONS: Record<AccountRole, readonly Permission[]> = {
   BUYER: ["buyer.request.create"],
   FARMER: ["farmer.supply.manage"],
-  FIELD_AGENT: ["field.assigned.read", "field.evidence.submit"],
+  FIELD_AGENT: ["field.assigned.read", "field.visit.manage", "field.evidence.submit"],
   OPERATIONS: ["operations.verification.review", "operations.supply.review", "operations.catalog.manage", "operations.enquiries.manage"],
   SUPER_ADMIN: ["operations.verification.review", "operations.supply.review", "operations.catalog.manage", "operations.enquiries.manage", "staff.invite", "staff.manage", "staff.assign", "staff.audit.read", "permissions.view"],
 };
@@ -35,6 +36,7 @@ export const PERMISSION_DETAILS: ReadonlyArray<{permission:Permission;label:stri
   {permission:"buyer.request.create",label:"Create sourcing requests",description:"Submit procurement requests as a buyer."},
   {permission:"farmer.supply.manage",label:"Manage own supply",description:"Maintain the farmer's own crop and supply declarations."},
   {permission:"field.assigned.read",label:"View assigned field work",description:"Read only farmers and field records within assigned scopes."},
+  {permission:"field.visit.manage",label:"Manage own field visits",description:"Create, update, submit and cancel own field visits within active state scopes."},
   {permission:"field.evidence.submit",label:"Submit field evidence",description:"Submit inspection notes and evidence for assigned work."},
   {permission:"operations.verification.review",label:"Review farmer verification",description:"Review and decide farmer verification cases."},
   {permission:"operations.supply.review",label:"Review supply declarations",description:"Review supply declarations and evidence."},
