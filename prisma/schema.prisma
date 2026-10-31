@@ -1,0 +1,10 @@
+// Phase 0D foundation only. No production tables are defined or migrated yet.
+// Explicit business and data decisions must be approved before introducing models.
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}

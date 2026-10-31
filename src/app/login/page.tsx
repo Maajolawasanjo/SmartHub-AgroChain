@@ -1,0 +1,4 @@
+import Link from "next/link";
+import type { Metadata } from "next";
+export const metadata:Metadata={title:"Sign in"};
+export default function Login(){return <main className="container flex min-h-screen items-center justify-center py-12"><div className="surface w-full max-w-lg p-10"><Link href="/" className="font-bold text-[#123d2b]">SmartHub AgroChain</Link><p className="eyebrow mt-8">Account access</p><h1 className="mt-3 text-3xl font-bold">Sign-in is being configured</h1><p className="mt-4 leading-7 text-[#526858]">Secure buyer and farmer sign-in will become available after our authentication provider and verification workflows have been tested. We are not collecting passwords on this temporary page.</p><Link href="/" className="action action-primary mt-8">Return to homepage</Link></div></main>;}
