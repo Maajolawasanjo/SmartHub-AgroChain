@@ -10,7 +10,7 @@ export async function requireFieldAgentPage(){
   if(!ctx)redirect("/login");
   if(ctx.account.status!=="ACTIVE")redirect("/account/status");
   if(!ctx.user.email_confirmed_at)redirect("/verify-email");
-  if(!hasPermission(ctx.account.role,permission))redirect("/forbidden");
+  if(!hasPermission(ctx.account.role,"field.assigned.read"))redirect("/forbidden");
   return {...ctx,db:getPrisma()};
 }
 
