@@ -9,7 +9,9 @@ test("actual route handlers wired, not mock authentication",()=>{
  const router=s("src/app/api/auth/[action]/route.ts");
  for(const action of ['"signup"','"login"','"forgot"','"resend-email"','"logout"','"reset-password"','"start-phone"','"verify-phone"']) assert.ok(router.includes(action),action);
  assert.match(router,/supabase\.auth\.signUp/);assert.match(router,/supabase\.auth\.signInWithPassword/);
- assert.match(router,/supabase\.auth\.verifyOtp/);assert.match(router,/db\.account\.create/);
+ assert.match(router,/supabase\.auth\.verifyOtp/);
+ assert.match(router,/createSignupIntent/);
+ assert.match(s("src/server/auth/provisioning.ts"),/tx\.account\.create/);
 });
 
 test("public user registration strictly buyer/farmer",()=>{
@@ -17,7 +19,7 @@ test("public user registration strictly buyer/farmer",()=>{
  assert.match(validator,/z\.enum\(\["buyer","farmer"\]\)/);
  const server=s("src/app/api/auth/[action]/route.ts");
  assert.ok(!/role:data\.role\s*[,}]/.test(server));
- assert.match(server,/data\.role==="farmer"\?"FARMER":"BUYER"/);
+ assert.match(s("src/server/auth/provisioning.ts"),/input\.role === "farmer" \? "FARMER" : "BUYER"/);
  assert.ok(!server.includes('SUPABASE_SECRET_KEY'));
 });
 

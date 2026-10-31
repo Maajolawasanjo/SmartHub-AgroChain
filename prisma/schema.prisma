@@ -64,11 +64,31 @@ model Account {
   @@map("app_accounts")
 }
 
+// Server-issued public registration intent; never use untrusted Auth user metadata as a role claim.
+model SignupIntent {
+  id           String      @id @db.Uuid
+  email        String      @db.VarChar(254)
+  role         AccountRole
+  fullName     String      @db.VarChar(160)
+  phone        String      @db.VarChar(20)
+  farmName     String?     @db.VarChar(160)
+  state        String?     @db.VarChar(60)
+  authUserId   String?     @unique @db.Uuid
+  expiresAt    DateTime
+  consumedAt   DateTime?
+  createdAt    DateTime    @default(now())
+  @@index([email, expiresAt])
+  @@map("signup_intents")
+}
+
 model PhoneOtpThrottle {
   accountId       String   @id @db.Uuid
   lastRequestedAt DateTime
   windowStartedAt DateTime
   countInWindow   Int      @default(1)
+  attempts        Int      @default(0)
+  lockedUntil     DateTime?
+  targetPhone     String?  @db.VarChar(20)
   account         Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
   @@map("phone_otp_throttles")
 }

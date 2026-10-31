@@ -17,6 +17,6 @@ export async function DeletionStatus({route}:{route:string}){
   <p className="eyebrow">Account lifecycle</p><h1 className="mt-3 text-3xl font-bold">Deletion request status</h1>
   <p className="mt-5 leading-7 text-[#526858]">{statusText}</p>
   {latest&&<p className="mt-3 text-xs text-[#526858]">Requested: {latest.requestedAt.toISOString().slice(0,10)} · Status: {status}</p>}
-  <div className="mt-8 flex flex-wrap gap-4"><Link href="/account/profile">My profile</Link><Link href="/account/help">Contact support</Link><Link href="/account/delete">Deletion policy</Link></div>
+  <div className="mt-8 flex flex-wrap gap-4">{status==="REQUESTED"&&<Link href="/account/delete/cancel">Cancel request</Link>}<Link href="/account/profile">My profile</Link><Link href="/account/help">Contact support</Link><Link href="/account/delete">Deletion policy</Link></div>
  </section></main>;
 }
