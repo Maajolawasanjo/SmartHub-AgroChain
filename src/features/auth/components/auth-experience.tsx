@@ -66,8 +66,8 @@ const related:Record<string,{href:string;label:string}[]> = {
  "/admin/staff/invites":[{href:"/admin/staff/invite",label:"Create invitation"}],
 };
 
-const privateRoute = (path:string) => path.startsWith("/account/") || path.startsWith("/admin/") || path.startsWith("/operations/") || path.startsWith("/field-agent/");
-const blockedInfo = "No identity provider, SMS gateway or production database is connected to this foundation. Sensitive actions cannot complete yet.";
+const privateRoute = (path:string) => (path.startsWith("/account/") && path!=="/account/help") || path.startsWith("/admin/") || path.startsWith("/operations/") || path.startsWith("/field-agent/");
+const blockedInfo = "This screen is informational until its specific backend policy and authorization flow are enabled. No sensitive operation has occurred.";
 
 export function AuthExperience({route,previewEnabled}:{route:string;previewEnabled:boolean}){
  const scenarios = useMemo(()=>states.filter(s=>s.route.split("?")[0]===route),[route]);
