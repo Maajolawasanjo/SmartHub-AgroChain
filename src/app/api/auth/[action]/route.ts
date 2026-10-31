@@ -125,7 +125,12 @@ async function handle(request:NextRequest, action:string){
    if(throttle.lockedUntil && throttle.lockedUntil>new Date())
      throw new PublicError(429,"Too many incorrect codes. Request a new code later.");
    const {data:verified,error}=await supabase.auth.verifyOtp({phone:targetPhone,token,type:"phone_change"});
-   if(error || verified.user?.id!==ctx.account.id){
+   if(!error && verified.user?.id!==ctx.account.id){
+     // Never leave the browser signed into an unintended identity after provider ambiguity.
+     await supabase.auth.signOut();
+     throw new PublicError(403,"Verification identity mismatch. Your session was ended; contact support.");
+   }
+   if(error){
      const nextAttempts=throttle.attempts+1;
      await db.phoneOtpThrottle.updateMany({where:{accountId:ctx.account.id,targetPhone},data:{
        attempts:{increment:1},...(nextAttempts>=5?{lockedUntil:new Date(Date.now()+15*60_000)}:{}),

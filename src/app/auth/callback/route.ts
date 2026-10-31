@@ -13,7 +13,7 @@ export async function GET(request:NextRequest) {
  if(!authConfigReady())return fail();
  const token_hash=request.nextUrl.searchParams.get("token_hash");
  const type=request.nextUrl.searchParams.get("type");
- if(!token_hash || !["email","signup","recovery","invite","email_change"].includes(type))return fail();
+ if(!token_hash || !type || !["email","signup","recovery","invite","email_change"].includes(type))return fail();
  try {
   const supabase=await createSupabaseServerClient();
   const {error}=await supabase.auth.verifyOtp({token_hash,type:type as EmailOtpType});
