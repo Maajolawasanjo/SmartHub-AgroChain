@@ -54,6 +54,12 @@ model Account {
   deletionRequests   DeletionRequest[]
   auditEvents        AuditEvent[]
   invitationsSent    StaffInvitation[] @relation("Inviter")
+  farms              Farm[] @relation("FarmerFarms")
+  farmerVerification FarmerVerification? @relation("FarmerVerificationOwner")
+  verificationReviews FarmerVerification[] @relation("VerificationReviewer")
+  crops              FarmerCrop[] @relation("FarmerCrops")
+  supplies           SupplyDeclaration[] @relation("FarmerSupplies")
+  supplyReviews      SupplyDeclaration[] @relation("SupplyReviewer")
 
   @@map("app_accounts")
 }
@@ -102,4 +108,159 @@ model AuditEvent {
   actor       Account  @relation(fields: [actorId], references: [id])
   @@index([actorId, createdAt])
   @@map("auth_audit_events")
+}
+
+// Phase 2: Farmer onboarding, physical-supply declarations, and Operations review.
+// No automated stock reservation or buyer publication is implied by APPROVED.
+enum FarmerVerificationStatus {
+  DRAFT
+  PENDING_REVIEW
+  MORE_INFO_REQUIRED
+  VERIFIED
+  REJECTED
+}
+
+enum CropStage {
+  PLANNED
+  GROWING
+  HARVESTED
+  INACTIVE
+}
+
+enum SupplyReviewStatus {
+  DRAFT
+  PENDING_REVIEW
+  MORE_INFO_REQUIRED
+  APPROVED
+  REJECTED
+  WITHDRAWN
+}
+
+model Commodity {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @unique @db.VarChar(100)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  crops     FarmerCrop[]
+  supplies  SupplyDeclaration[]
+
+  @@map("commodities")
+}
+
+model Farm {
+  id           String   @id @default(uuid()) @db.Uuid
+  farmerId     String   @db.Uuid
+  name         String   @db.VarChar(160)
+  state        String   @db.VarChar(60)
+  lga          String   @db.VarChar(120)
+  community    String?  @db.VarChar(160)
+  locationNote String?  @db.VarChar(500)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  farmer       Account  @relation("FarmerFarms", fields: [farmerId], references: [id], onDelete: Restrict)
+  crops        FarmerCrop[]
+  supplies     SupplyDeclaration[]
+
+  @@index([farmerId, createdAt])
+  @@map("farms")
+}
+
+model FarmerVerification {
+  id           String                   @id @default(uuid()) @db.Uuid
+  farmerId     String                   @unique @db.Uuid
+  status       FarmerVerificationStatus @default(DRAFT)
+  submittedAt  DateTime?
+  reviewedAt   DateTime?
+  reviewedById String?                  @db.Uuid
+  feedback     String?                  @db.VarChar(2000)
+  updatedAt    DateTime                 @updatedAt
+  farmer       Account                  @relation("FarmerVerificationOwner", fields: [farmerId], references: [id], onDelete: Restrict)
+  reviewer     Account?                 @relation("VerificationReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  events       FarmerVerificationEvent[]
+
+  @@index([status, submittedAt])
+  @@map("farmer_verifications")
+}
+
+model FarmerVerificationEvent {
+  id             String                   @id @default(uuid()) @db.Uuid
+  verificationId String                   @db.Uuid
+  actorId        String                   @db.Uuid
+  status         FarmerVerificationStatus
+  note           String?                  @db.VarChar(2000)
+  createdAt      DateTime                 @default(now())
+  verification   FarmerVerification       @relation(fields: [verificationId], references: [id], onDelete: Restrict)
+
+  @@index([verificationId, createdAt])
+  @@map("farmer_verification_events")
+}
+
+model FarmerCrop {
+  id                String    @id @default(uuid()) @db.Uuid
+  farmerId          String    @db.Uuid
+  farmId            String    @db.Uuid
+  commodityId       String    @db.Uuid
+  variety           String?   @db.VarChar(120)
+  stage             CropStage @default(GROWING)
+  plantingDate      DateTime? @db.Date
+  expectedHarvestAt DateTime? @db.Date
+  estimatedQuantity Decimal?  @db.Decimal(18,3)
+  estimatedUnit     String?   @db.VarChar(30)
+  notes             String?   @db.VarChar(2000)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  farmer            Account   @relation("FarmerCrops", fields: [farmerId], references: [id], onDelete: Restrict)
+  farm              Farm      @relation(fields: [farmId], references: [id], onDelete: Restrict)
+  commodity         Commodity @relation(fields: [commodityId], references: [id], onDelete: Restrict)
+  supplies          SupplyDeclaration[]
+
+  @@index([farmerId, stage])
+  @@index([farmId])
+  @@map("farmer_crops")
+}
+
+model SupplyDeclaration {
+  id                String             @id @default(uuid()) @db.Uuid
+  farmerId          String             @db.Uuid
+  farmId            String             @db.Uuid
+  cropId            String?            @db.Uuid
+  commodityId       String             @db.Uuid
+  variety           String?            @db.VarChar(120)
+  quantity          Decimal            @db.Decimal(18,3)
+  unit              String             @db.VarChar(30)
+  packaging         String?            @db.VarChar(160)
+  harvestDate       DateTime?          @db.Date
+  reportedCondition String             @db.VarChar(160)
+  storageNote       String?            @db.VarChar(1000)
+  notes             String?            @db.VarChar(2000)
+  status            SupplyReviewStatus @default(DRAFT)
+  submittedAt       DateTime?
+  reviewedAt        DateTime?
+  reviewedById      String?            @db.Uuid
+  feedback          String?            @db.VarChar(2000)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  farmer            Account            @relation("FarmerSupplies", fields: [farmerId], references: [id], onDelete: Restrict)
+  farm              Farm               @relation(fields: [farmId], references: [id], onDelete: Restrict)
+  crop              FarmerCrop?        @relation(fields: [cropId], references: [id], onDelete: Restrict)
+  commodity         Commodity          @relation(fields: [commodityId], references: [id], onDelete: Restrict)
+  reviewer          Account?           @relation("SupplyReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  events            SupplyReviewEvent[]
+
+  @@index([farmerId, status, createdAt])
+  @@index([status, submittedAt])
+  @@map("supply_declarations")
+}
+
+model SupplyReviewEvent {
+  id        String             @id @default(uuid()) @db.Uuid
+  supplyId  String             @db.Uuid
+  actorId   String             @db.Uuid
+  status    SupplyReviewStatus
+  note      String?            @db.VarChar(2000)
+  createdAt DateTime           @default(now())
+  supply    SupplyDeclaration  @relation(fields: [supplyId], references: [id], onDelete: Restrict)
+
+  @@index([supplyId, createdAt])
+  @@map("supply_review_events")
 }
