@@ -20,51 +20,53 @@ export async function POST(request:NextRequest){
   assertSameOrigin(request);
   const {account,db}=await requireActor("OPERATIONS");
   const data=input.parse(await readJson(request));
-  const audit=async(action:string,subjectId:string)=>db.auditEvent.create({data:{actorId:account.id,action,subjectId}});
   if(["publish","publish-type","publish-insight"].includes(data.action) && account.role!=="SUPER_ADMIN")
    throw new PublicError(403,"Public publication requires Super Admin approval.");
-  switch(data.action){
+  await db.$transaction(async tx=>{
+   const audit=(action:string,subjectId:string)=>tx.auditEvent.create({data:{actorId:account.id,action,subjectId}});
+   switch(data.action){
    case "category":{
-    const existing=await db.commodityCategory.findFirst({where:{OR:[{slug:data.slug},{name:{equals:data.name,mode:"insensitive"}}]}});
+    const existing=await tx.commodityCategory.findFirst({where:{OR:[{slug:data.slug},{name:{equals:data.name,mode:"insensitive"}}]}});
     if(existing)throw new PublicError(409,"A category with that name or slug already exists.");
-    const item=await db.commodityCategory.create({data:{name:data.name,slug:data.slug,description:data.description||null}});
+    const item=await tx.commodityCategory.create({data:{name:data.name,slug:data.slug,description:data.description||null}});
     await audit("CATALOG_CATEGORY_CREATED",item.id);break;
    }
    case "metadata":{
-    const category=await db.commodityCategory.findFirst({where:{id:data.categoryId,active:true}});
+    const category=await tx.commodityCategory.findFirst({where:{id:data.categoryId,active:true}});
     if(!category)throw new PublicError(400,"Select an active category.");
-    const item=await db.commodity.update({where:{id:data.commodityId},data:{categoryId:category.id,slug:data.slug,description:data.description||null}});
+    const item=await tx.commodity.update({where:{id:data.commodityId},data:{categoryId:category.id,slug:data.slug,description:data.description||null}});
     await audit("CATALOG_METADATA_UPDATED",item.id);break;
    }
    case "type":{
-    const item=await db.commodityType.create({data:{commodityId:data.commodityId,name:data.name,slug:data.slug,description:data.description||null,marketName:data.marketName||null}});
+    const item=await tx.commodityType.create({data:{commodityId:data.commodityId,name:data.name,slug:data.slug,description:data.description||null,marketName:data.marketName||null}});
     await audit("CATALOG_TYPE_CREATED",item.id);break;
    }
    case "publish":{
-    const item=await db.commodity.findUnique({where:{id:data.commodityId},include:{category:true}});
+    const item=await tx.commodity.findUnique({where:{id:data.commodityId},include:{category:true}});
     if(!item)throw new PublicError(404,"Commodity not found.");
     if(data.publish && (!item.active||!item.slug||!item.category?.active||!item.description))throw new PublicError(409,"An active commodity, approved category, slug and description are required before publication.");
-    await db.commodity.update({where:{id:item.id},data:{publicPublished:data.publish}});
+    await tx.commodity.update({where:{id:item.id},data:{publicPublished:data.publish}});
     await audit(data.publish?"CATALOG_PRODUCT_PUBLISHED":"CATALOG_PRODUCT_UNPUBLISHED",item.id);break;
    }
    case "publish-type":{
-    const item=await db.commodityType.findUnique({where:{id:data.typeId},include:{commodity:true}});
+    const item=await tx.commodityType.findUnique({where:{id:data.typeId},include:{commodity:true}});
     if(!item)throw new PublicError(404,"Commodity type not found.");
     if(data.publish&&!item.commodity.publicPublished)throw new PublicError(409,"Publish the parent commodity first.");
-    await db.commodityType.update({where:{id:item.id},data:{publicPublished:data.publish}});
+    await tx.commodityType.update({where:{id:item.id},data:{publicPublished:data.publish}});
     await audit(data.publish?"CATALOG_TYPE_PUBLISHED":"CATALOG_TYPE_UNPUBLISHED",item.id);break;
    }
    case "insight":{
-    const item=await db.insightArticle.create({data:{title:data.title,slug:data.slug,summary:data.summary,category:data.category,body:data.body}});
+    const item=await tx.insightArticle.create({data:{title:data.title,slug:data.slug,summary:data.summary,category:data.category,body:data.body}});
     await audit("INSIGHT_DRAFT_CREATED",item.id);break;
    }
    case "publish-insight":{
-    const item=await db.insightArticle.findUnique({where:{id:data.articleId}});
+    const item=await tx.insightArticle.findUnique({where:{id:data.articleId}});
     if(!item)throw new PublicError(404,"Insight not found.");
-    await db.insightArticle.update({where:{id:item.id},data:{published:data.publish,publishedAt:data.publish?(item.publishedAt??new Date()):null}});
+    await tx.insightArticle.update({where:{id:item.id},data:{published:data.publish,publishedAt:data.publish?(item.publishedAt??new Date()):null}});
     await audit(data.publish?"INSIGHT_PUBLISHED":"INSIGHT_UNPUBLISHED",item.id);break;
    }
   }
+  });
   return reply({ok:true,message:"Saved successfully. Review the updated catalog."});
  }catch(err){return errorReply(err);}
 }
