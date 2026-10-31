@@ -1,0 +1,1298 @@
+[
+  {
+    "id": "REG-001",
+    "route": "/signup",
+    "action": "Select role",
+    "next": "/signup?role=buyer OR /signup?role=farmer",
+    "error": "Remain on selector with accessible error",
+    "server": "CONDITIONAL",
+    "test": "TC-REG-001"
+  },
+  {
+    "id": "REG-002",
+    "route": "/signup?role=buyer",
+    "action": "Validate and submit",
+    "next": "/verify-email after confirmed server-side signup",
+    "error": "/signup with retained safe non-secret field values",
+    "server": "YES",
+    "test": "TC-REG-002"
+  },
+  {
+    "id": "REG-003",
+    "route": "/signup?role=farmer",
+    "action": "Validate and submit",
+    "next": "/verify-email after confirmed server-side signup",
+    "error": "/signup with retained safe non-secret field values",
+    "server": "YES",
+    "test": "TC-REG-003"
+  },
+  {
+    "id": "REG-004",
+    "route": "/signup",
+    "action": "Correct errors",
+    "next": "Correct fields, then remain on /signup",
+    "error": "/signup with inline field errors",
+    "server": "CONDITIONAL",
+    "test": "TC-REG-004"
+  },
+  {
+    "id": "REG-005",
+    "route": "/signup",
+    "action": "Correct errors",
+    "next": "Correct fields, then remain on /signup",
+    "error": "/signup with inline field errors",
+    "server": "CONDITIONAL",
+    "test": "TC-REG-005"
+  },
+  {
+    "id": "REG-006",
+    "route": "/signup",
+    "action": "Reveal and review guidance",
+    "next": "Correct fields, then remain on /signup",
+    "error": "/signup with inline field errors",
+    "server": "CONDITIONAL",
+    "test": "TC-REG-006"
+  },
+  {
+    "id": "REG-007",
+    "route": "/signup",
+    "action": "Correct password",
+    "next": "/verify-email",
+    "error": "/signup with safe retry/support",
+    "server": "CONDITIONAL",
+    "test": "TC-REG-007"
+  },
+  {
+    "id": "REG-008",
+    "route": "/signup",
+    "action": "Review policy and consent",
+    "next": "Correct fields, then remain on /signup",
+    "error": "/signup with inline field errors",
+    "server": "CONDITIONAL",
+    "test": "TC-REG-008"
+  },
+  {
+    "id": "REG-009",
+    "route": "/signup",
+    "action": "Prevent duplicate click",
+    "next": "/verify-email after confirmed server-side signup",
+    "error": "/signup with retained safe non-secret field values",
+    "server": "YES",
+    "test": "TC-REG-009"
+  },
+  {
+    "id": "REG-010",
+    "route": "/signup",
+    "action": "Sign in or recover account",
+    "next": "/login OR /forgot-password",
+    "error": "/signup; neutral error",
+    "server": "YES",
+    "test": "TC-REG-010"
+  },
+  {
+    "id": "REG-011",
+    "route": "/signup",
+    "action": "Retry or contact support",
+    "next": "/verify-email after confirmed server-side signup",
+    "error": "/signup with retained safe non-secret field values",
+    "server": "YES",
+    "test": "TC-REG-011"
+  },
+  {
+    "id": "REG-012",
+    "route": "/signup",
+    "action": "Check email",
+    "next": "/verify-email",
+    "error": "/signup with safe retry/support",
+    "server": "YES",
+    "test": "TC-REG-012"
+  },
+  {
+    "id": "EMV-001",
+    "route": "/verify-email",
+    "action": "Check mailbox",
+    "next": "/verify-email until verified; then /auth/redirect",
+    "error": "/account/help; no access bypass",
+    "server": "CONDITIONAL",
+    "test": "TC-EMV-001"
+  },
+  {
+    "id": "EMV-002",
+    "route": "/verify-email",
+    "action": "Review address",
+    "next": "/verify-email until verified; then /auth/redirect",
+    "error": "/account/help; no access bypass",
+    "server": "CONDITIONAL",
+    "test": "TC-EMV-002"
+  },
+  {
+    "id": "EMV-003",
+    "route": "/verify-email",
+    "action": "Request resend",
+    "next": "/verify-email until verified; then /auth/redirect",
+    "error": "/account/help; no access bypass",
+    "server": "YES",
+    "test": "TC-EMV-003"
+  },
+  {
+    "id": "EMV-004",
+    "route": "/verify-email",
+    "action": "Observe retry window",
+    "next": "/verify-email until verified; then /auth/redirect",
+    "error": "/account/help; no access bypass",
+    "server": "YES",
+    "test": "TC-EMV-004"
+  },
+  {
+    "id": "EMV-005",
+    "route": "/verify-email",
+    "action": "Retry or support",
+    "next": "/verify-email until verified; then /auth/redirect",
+    "error": "/account/help; no access bypass",
+    "server": "YES",
+    "test": "TC-EMV-005"
+  },
+  {
+    "id": "EMV-006",
+    "route": "/auth/confirm",
+    "action": "Continue automatically",
+    "next": "/auth/redirect after trusted callback",
+    "error": "/auth/error",
+    "server": "YES",
+    "test": "TC-EMV-006"
+  },
+  {
+    "id": "EMV-007",
+    "route": "/auth/confirm",
+    "action": "Continue",
+    "next": "Buyer: /dashboard; Farmer: /verify-phone if needed",
+    "error": "/verify-email; show trusted-state error",
+    "server": "YES",
+    "test": "TC-EMV-007"
+  },
+  {
+    "id": "EMV-008",
+    "route": "/auth/confirm",
+    "action": "Request fresh link",
+    "next": "/verify-email, request new link OR /login",
+    "error": "/account/help",
+    "server": "YES",
+    "test": "TC-EMV-008"
+  },
+  {
+    "id": "EMV-009",
+    "route": "/auth/confirm",
+    "action": "Go back / request new link",
+    "next": "/verify-email, request new link OR /login",
+    "error": "/account/help",
+    "server": "YES",
+    "test": "TC-EMV-009"
+  },
+  {
+    "id": "EMV-010",
+    "route": "/auth/confirm",
+    "action": "Sign in safely",
+    "next": "/verify-email, request new link OR /login",
+    "error": "/account/help",
+    "server": "YES",
+    "test": "TC-EMV-010"
+  },
+  {
+    "id": "EMV-011",
+    "route": "/auth/confirm",
+    "action": "Continue with account",
+    "next": "Buyer: /dashboard; Farmer: /verify-phone if needed",
+    "error": "/verify-email; show trusted-state error",
+    "server": "YES",
+    "test": "TC-EMV-011"
+  },
+  {
+    "id": "EMV-012",
+    "route": "/verify-email",
+    "action": "Resend or sign out",
+    "next": "/verify-email until verified; then /auth/redirect",
+    "error": "/account/help; no access bypass",
+    "server": "YES",
+    "test": "TC-EMV-012"
+  },
+  {
+    "id": "PHV-001",
+    "route": "/verify-phone",
+    "action": "Continue",
+    "next": "/verify-phone; transition to /farmer only after real OTP proof",
+    "error": "/verify-phone with resend/support",
+    "server": "CONDITIONAL",
+    "test": "TC-PHV-001"
+  },
+  {
+    "id": "PHV-002",
+    "route": "/verify-phone",
+    "action": "Review phone",
+    "next": "/verify-phone; transition to /farmer only after real OTP proof",
+    "error": "/verify-phone with resend/support",
+    "server": "CONDITIONAL",
+    "test": "TC-PHV-002"
+  },
+  {
+    "id": "PHV-003",
+    "route": "/verify-phone",
+    "action": "Submit code",
+    "next": "/verify-phone; transition to /farmer only after real OTP proof",
+    "error": "/verify-phone with resend/support",
+    "server": "YES",
+    "test": "TC-PHV-003"
+  },
+  {
+    "id": "PHV-004",
+    "route": "/verify-phone",
+    "action": "Retry",
+    "next": "/verify-phone; transition to /farmer only after real OTP proof",
+    "error": "/verify-phone with resend/support",
+    "server": "YES",
+    "test": "TC-PHV-004"
+  },
+  {
+    "id": "PHV-005",
+    "route": "/verify-phone",
+    "action": "Resend",
+    "next": "/verify-phone; transition to /farmer only after real OTP proof",
+    "error": "/verify-phone with resend/support",
+    "server": "YES",
+    "test": "TC-PHV-005"
+  },
+  {
+    "id": "PHV-006",
+    "route": "/verify-phone",
+    "action": "Resend code",
+    "next": "/verify-phone; transition to /farmer only after real OTP proof",
+    "error": "/verify-phone with resend/support",
+    "server": "YES",
+    "test": "TC-PHV-006"
+  },
+  {
+    "id": "PHV-007",
+    "route": "/verify-phone",
+    "action": "Review countdown",
+    "next": "/verify-phone; transition to /farmer only after real OTP proof",
+    "error": "/verify-phone with resend/support",
+    "server": "YES",
+    "test": "TC-PHV-007"
+  },
+  {
+    "id": "PHV-008",
+    "route": "/verify-phone",
+    "action": "Wait or contact support",
+    "next": "/verify-phone; transition to /farmer only after real OTP proof",
+    "error": "/verify-phone with resend/support",
+    "server": "YES",
+    "test": "TC-PHV-008"
+  },
+  {
+    "id": "PHV-009",
+    "route": "/verify-phone",
+    "action": "Retry or support",
+    "next": "/verify-phone; transition to /farmer only after real OTP proof",
+    "error": "/verify-phone with resend/support",
+    "server": "YES",
+    "test": "TC-PHV-009"
+  },
+  {
+    "id": "PHV-010",
+    "route": "/verify-phone",
+    "action": "Proceed to farmer area",
+    "next": "/farmer, after trusted email+phone check",
+    "error": "/verify-phone",
+    "server": "YES",
+    "test": "TC-PHV-010"
+  },
+  {
+    "id": "PHV-011",
+    "route": "/verify-phone",
+    "action": "Complete email verification",
+    "next": "/verify-email",
+    "error": "/account/help",
+    "server": "YES",
+    "test": "TC-PHV-011"
+  },
+  {
+    "id": "PHV-012",
+    "route": "/verify-phone",
+    "action": "Start secure contact change",
+    "next": "/account/security/phone",
+    "error": "/account/help",
+    "server": "CONDITIONAL",
+    "test": "TC-PHV-012"
+  },
+  {
+    "id": "PHV-013",
+    "route": "/verify-phone",
+    "action": "Contact support",
+    "next": "/account/help",
+    "error": "/verify-phone",
+    "server": "CONDITIONAL",
+    "test": "TC-PHV-013"
+  },
+  {
+    "id": "SES-001",
+    "route": "/login",
+    "action": "Email/password sign in",
+    "next": "/auth/redirect only after confirmed Supabase session",
+    "error": "/login with neutral error or /account/status",
+    "server": "YES",
+    "test": "TC-SES-001"
+  },
+  {
+    "id": "SES-002",
+    "route": "/login",
+    "action": "Email/password sign in",
+    "next": "/auth/redirect only after confirmed Supabase session",
+    "error": "/login with neutral error or /account/status",
+    "server": "YES",
+    "test": "TC-SES-002"
+  },
+  {
+    "id": "SES-003",
+    "route": "/login",
+    "action": "Email/password sign in",
+    "next": "/auth/redirect only after confirmed Supabase session",
+    "error": "/login with neutral error or /account/status",
+    "server": "YES",
+    "test": "TC-SES-003"
+  },
+  {
+    "id": "SES-004",
+    "route": "/login",
+    "action": "Show/hide",
+    "next": "/auth/redirect only after confirmed Supabase session",
+    "error": "/login with neutral error or /account/status",
+    "server": "CONDITIONAL",
+    "test": "TC-SES-004"
+  },
+  {
+    "id": "SES-005",
+    "route": "/login",
+    "action": "Correct fields",
+    "next": "/auth/redirect only after confirmed Supabase session",
+    "error": "/login with neutral error or /account/status",
+    "server": "CONDITIONAL",
+    "test": "TC-SES-005"
+  },
+  {
+    "id": "SES-006",
+    "route": "/login",
+    "action": "Prevent duplicate click",
+    "next": "/auth/redirect only after confirmed Supabase session",
+    "error": "/login with neutral error or /account/status",
+    "server": "YES",
+    "test": "TC-SES-006"
+  },
+  {
+    "id": "SES-007",
+    "route": "/login",
+    "action": "Recover / retry",
+    "next": "/auth/redirect only after confirmed Supabase session",
+    "error": "/login with neutral error or /account/status",
+    "server": "YES",
+    "test": "TC-SES-007"
+  },
+  {
+    "id": "SES-008",
+    "route": "/login",
+    "action": "Verify email",
+    "next": "/auth/redirect only after confirmed Supabase session",
+    "error": "/login with neutral error or /account/status",
+    "server": "YES",
+    "test": "TC-SES-008"
+  },
+  {
+    "id": "SES-009",
+    "route": "/login",
+    "action": "Verify phone",
+    "next": "/auth/redirect only after confirmed Supabase session",
+    "error": "/login with neutral error or /account/status",
+    "server": "YES",
+    "test": "TC-SES-009"
+  },
+  {
+    "id": "SES-010",
+    "route": "/login",
+    "action": "Continue to permitted area",
+    "next": "/auth/redirect only after confirmed Supabase session",
+    "error": "/login with neutral error or /account/status",
+    "server": "YES",
+    "test": "TC-SES-010"
+  },
+  {
+    "id": "SES-011",
+    "route": "/login",
+    "action": "Contact support",
+    "next": "/auth/redirect only after confirmed Supabase session",
+    "error": "/login with neutral error or /account/status",
+    "server": "YES",
+    "test": "TC-SES-011"
+  },
+  {
+    "id": "SES-012",
+    "route": "/auth/redirect",
+    "action": "Continue",
+    "next": "Trusted destination: buyer/farmer/field-agent/operations/admin",
+    "error": "/account/status OR /forbidden",
+    "server": "YES",
+    "test": "TC-SES-012"
+  },
+  {
+    "id": "SES-013",
+    "route": "/session-expired",
+    "action": "Sign in again",
+    "next": "/login?returnTo=<validated-local-path>",
+    "error": "/login",
+    "server": "CONDITIONAL",
+    "test": "TC-SES-013"
+  },
+  {
+    "id": "SES-014",
+    "route": "/logout",
+    "action": "Sign out",
+    "next": "/login OR /",
+    "error": "/auth/error",
+    "server": "YES",
+    "test": "TC-SES-014"
+  },
+  {
+    "id": "PWD-001",
+    "route": "/forgot-password",
+    "action": "Submit email",
+    "next": "/forgot-password/sent only after provider acknowledgment",
+    "error": "/forgot-password with neutral error",
+    "server": "YES",
+    "test": "TC-PWD-001"
+  },
+  {
+    "id": "PWD-002",
+    "route": "/forgot-password",
+    "action": "Correct email",
+    "next": "/forgot-password",
+    "error": "/account/help",
+    "server": "CONDITIONAL",
+    "test": "TC-PWD-002"
+  },
+  {
+    "id": "PWD-003",
+    "route": "/forgot-password",
+    "action": "Wait",
+    "next": "/forgot-password/sent only after provider acknowledgment",
+    "error": "/forgot-password with neutral error",
+    "server": "YES",
+    "test": "TC-PWD-003"
+  },
+  {
+    "id": "PWD-004",
+    "route": "/forgot-password/sent",
+    "action": "Return to sign in",
+    "next": "/login, await actual email",
+    "error": "/account/help",
+    "server": "YES",
+    "test": "TC-PWD-004"
+  },
+  {
+    "id": "PWD-005",
+    "route": "/forgot-password",
+    "action": "Retry later",
+    "next": "/reset-password or /account/security/password after trusted step",
+    "error": "Remain, correct errors; support if link expired",
+    "server": "YES",
+    "test": "TC-PWD-005"
+  },
+  {
+    "id": "PWD-006",
+    "route": "/auth/recovery",
+    "action": "Continue",
+    "next": "/reset-password if recovery session verified",
+    "error": "/auth/error or /forgot-password",
+    "server": "YES",
+    "test": "TC-PWD-006"
+  },
+  {
+    "id": "PWD-007",
+    "route": "/auth/recovery",
+    "action": "Request new reset",
+    "next": "/forgot-password",
+    "error": "/account/help",
+    "server": "YES",
+    "test": "TC-PWD-007"
+  },
+  {
+    "id": "PWD-008",
+    "route": "/auth/recovery",
+    "action": "Request new reset",
+    "next": "/forgot-password",
+    "error": "/account/help",
+    "server": "YES",
+    "test": "TC-PWD-008"
+  },
+  {
+    "id": "PWD-009",
+    "route": "/auth/recovery",
+    "action": "Request new reset",
+    "next": "/forgot-password",
+    "error": "/account/help",
+    "server": "YES",
+    "test": "TC-PWD-009"
+  },
+  {
+    "id": "PWD-010",
+    "route": "/reset-password",
+    "action": "Submit new password",
+    "next": "/reset-password/success after provider update",
+    "error": "/reset-password",
+    "server": "YES",
+    "test": "TC-PWD-010"
+  },
+  {
+    "id": "PWD-011",
+    "route": "/reset-password",
+    "action": "Correct new password",
+    "next": "/reset-password or /account/security/password after trusted step",
+    "error": "Remain, correct errors; support if link expired",
+    "server": "CONDITIONAL",
+    "test": "TC-PWD-011"
+  },
+  {
+    "id": "PWD-012",
+    "route": "/reset-password",
+    "action": "Wait",
+    "next": "/reset-password or /account/security/password after trusted step",
+    "error": "Remain, correct errors; support if link expired",
+    "server": "YES",
+    "test": "TC-PWD-012"
+  },
+  {
+    "id": "PWD-013",
+    "route": "/reset-password/success",
+    "action": "Return to login",
+    "next": "/login OR /account/security",
+    "error": "/auth/error",
+    "server": "YES",
+    "test": "TC-PWD-013"
+  },
+  {
+    "id": "PWD-014",
+    "route": "/account/security/password",
+    "action": "Verify and update",
+    "next": "/account/security/password after confirmed reauth",
+    "error": "/account/security",
+    "server": "YES",
+    "test": "TC-PWD-014"
+  },
+  {
+    "id": "PWD-015",
+    "route": "/account/security/password",
+    "action": "Confirm identity",
+    "next": "/account/security/password after confirmed reauth",
+    "error": "/account/security",
+    "server": "YES",
+    "test": "TC-PWD-015"
+  },
+  {
+    "id": "PWD-016",
+    "route": "/account/security/password",
+    "action": "Review sessions",
+    "next": "/login OR /account/security",
+    "error": "/auth/error",
+    "server": "YES",
+    "test": "TC-PWD-016"
+  },
+  {
+    "id": "INV-001",
+    "route": "/admin/staff/invite",
+    "action": "Choose role and invite",
+    "next": "/admin/staff/invites after real server action",
+    "error": "Stay on admin page; show safe failure",
+    "server": "YES",
+    "test": "TC-INV-001"
+  },
+  {
+    "id": "INV-002",
+    "route": "/admin/staff/invite",
+    "action": "Correct or view existing",
+    "next": "/admin/staff/invites after real server action",
+    "error": "Stay on admin page; show safe failure",
+    "server": "CONDITIONAL",
+    "test": "TC-INV-002"
+  },
+  {
+    "id": "INV-003",
+    "route": "/admin/staff/invite",
+    "action": "Wait",
+    "next": "/admin/staff/invites after real server action",
+    "error": "Stay on admin page; show safe failure",
+    "server": "YES",
+    "test": "TC-INV-003"
+  },
+  {
+    "id": "INV-004",
+    "route": "/admin/staff/invites",
+    "action": "View invite",
+    "next": "/admin/staff/invites after real server action",
+    "error": "Stay on admin page; show safe failure",
+    "server": "CONDITIONAL",
+    "test": "TC-INV-004"
+  },
+  {
+    "id": "INV-005",
+    "route": "/admin/staff/invites",
+    "action": "Confirm revoke",
+    "next": "/admin/staff/invites after real server action",
+    "error": "Stay on admin page; show safe failure",
+    "server": "YES",
+    "test": "TC-INV-005"
+  },
+  {
+    "id": "INV-006",
+    "route": "/admin/staff/invites",
+    "action": "Resend",
+    "next": "/admin/staff/invites after real server action",
+    "error": "Stay on admin page; show safe failure",
+    "server": "YES",
+    "test": "TC-INV-006"
+  },
+  {
+    "id": "INV-007",
+    "route": "/invite/accept",
+    "action": "Review role and continue",
+    "next": "/invite/profile after trusted invitation acceptance",
+    "error": "/invite/accept with correct error",
+    "server": "CONDITIONAL",
+    "test": "TC-INV-007"
+  },
+  {
+    "id": "INV-008",
+    "route": "/invite/accept",
+    "action": "Ask for a fresh invitation",
+    "next": "/login or request fresh authorized invitation",
+    "error": "/account/help",
+    "server": "YES",
+    "test": "TC-INV-008"
+  },
+  {
+    "id": "INV-009",
+    "route": "/invite/accept",
+    "action": "Request reissue",
+    "next": "/login or request fresh authorized invitation",
+    "error": "/account/help",
+    "server": "YES",
+    "test": "TC-INV-009"
+  },
+  {
+    "id": "INV-010",
+    "route": "/invite/accept",
+    "action": "Contact administrator",
+    "next": "/login or request fresh authorized invitation",
+    "error": "/account/help",
+    "server": "YES",
+    "test": "TC-INV-010"
+  },
+  {
+    "id": "INV-011",
+    "route": "/invite/accept",
+    "action": "Go to sign in",
+    "next": "/login or request fresh authorized invitation",
+    "error": "/account/help",
+    "server": "YES",
+    "test": "TC-INV-011"
+  },
+  {
+    "id": "INV-012",
+    "route": "/invite/accept",
+    "action": "Complete setup",
+    "next": "/invite/profile after trusted invitation acceptance",
+    "error": "/invite/accept with correct error",
+    "server": "YES",
+    "test": "TC-INV-012"
+  },
+  {
+    "id": "INV-013",
+    "route": "/invite/profile",
+    "action": "Save profile",
+    "next": "Assigned staff portal after committed profile",
+    "error": "/invite/profile, correct fields",
+    "server": "YES",
+    "test": "TC-INV-013"
+  },
+  {
+    "id": "INV-014",
+    "route": "/invite/complete",
+    "action": "Open permitted area",
+    "next": "/auth/redirect",
+    "error": "/invite/accept",
+    "server": "YES",
+    "test": "TC-INV-014"
+  },
+  {
+    "id": "PRF-001",
+    "route": "/account/profile",
+    "action": "View/edit permitted fields",
+    "next": "/account/profile OR /account/security after confirmed save",
+    "error": "Stay and display validation/retry",
+    "server": "CONDITIONAL",
+    "test": "TC-PRF-001"
+  },
+  {
+    "id": "PRF-002",
+    "route": "/account/profile",
+    "action": "Save changes",
+    "next": "/account/profile OR /account/security after confirmed save",
+    "error": "Stay and display validation/retry",
+    "server": "YES",
+    "test": "TC-PRF-002"
+  },
+  {
+    "id": "PRF-003",
+    "route": "/account/profile",
+    "action": "Correct fields",
+    "next": "/account/profile OR /account/security after confirmed save",
+    "error": "Stay and display validation/retry",
+    "server": "CONDITIONAL",
+    "test": "TC-PRF-003"
+  },
+  {
+    "id": "PRF-004",
+    "route": "/account/profile",
+    "action": "Wait",
+    "next": "/account/profile OR /account/security after confirmed save",
+    "error": "Stay and display validation/retry",
+    "server": "YES",
+    "test": "TC-PRF-004"
+  },
+  {
+    "id": "PRF-005",
+    "route": "/account/profile",
+    "action": "Return to profile",
+    "next": "/account/profile OR /account/security after confirmed save",
+    "error": "Stay and display validation/retry",
+    "server": "YES",
+    "test": "TC-PRF-005"
+  },
+  {
+    "id": "PRF-006",
+    "route": "/account/security",
+    "action": "Open security actions",
+    "next": "/account/profile OR /account/security after confirmed save",
+    "error": "Stay and display validation/retry",
+    "server": "CONDITIONAL",
+    "test": "TC-PRF-006"
+  },
+  {
+    "id": "PRF-007",
+    "route": "/account/security/email",
+    "action": "Enter new email",
+    "next": "/account/security/email until confirmed; then /account/security",
+    "error": "/account/security/email or /account/help",
+    "server": "YES",
+    "test": "TC-PRF-007"
+  },
+  {
+    "id": "PRF-008",
+    "route": "/account/security/email",
+    "action": "Check mailbox",
+    "next": "/account/security/email until confirmed; then /account/security",
+    "error": "/account/security/email or /account/help",
+    "server": "YES",
+    "test": "TC-PRF-008"
+  },
+  {
+    "id": "PRF-009",
+    "route": "/account/security/email",
+    "action": "Continue",
+    "next": "/account/security/email until confirmed; then /account/security",
+    "error": "/account/security/email or /account/help",
+    "server": "YES",
+    "test": "TC-PRF-009"
+  },
+  {
+    "id": "PRF-010",
+    "route": "/account/security/email",
+    "action": "Request again",
+    "next": "/account/security/email until confirmed; then /account/security",
+    "error": "/account/security/email or /account/help",
+    "server": "YES",
+    "test": "TC-PRF-010"
+  },
+  {
+    "id": "PRF-011",
+    "route": "/account/security/phone",
+    "action": "Enter new number",
+    "next": "/account/security/phone until verified; then /account/security",
+    "error": "/account/security/phone or /account/help",
+    "server": "YES",
+    "test": "TC-PRF-011"
+  },
+  {
+    "id": "PRF-012",
+    "route": "/account/security/phone",
+    "action": "Enter OTP",
+    "next": "/account/security/phone until verified; then /account/security",
+    "error": "/account/security/phone or /account/help",
+    "server": "YES",
+    "test": "TC-PRF-012"
+  },
+  {
+    "id": "PRF-013",
+    "route": "/account/security/phone",
+    "action": "Continue",
+    "next": "/account/security/phone until verified; then /account/security",
+    "error": "/account/security/phone or /account/help",
+    "server": "YES",
+    "test": "TC-PRF-013"
+  },
+  {
+    "id": "PRF-014",
+    "route": "/account/security/phone",
+    "action": "Retry / support",
+    "next": "/account/security/phone until verified; then /account/security",
+    "error": "/account/security/phone or /account/help",
+    "server": "YES",
+    "test": "TC-PRF-014"
+  },
+  {
+    "id": "PRF-015",
+    "route": "/account/preferences",
+    "action": "Update preferences",
+    "next": "/account/profile OR /account/security after confirmed save",
+    "error": "Stay and display validation/retry",
+    "server": "YES",
+    "test": "TC-PRF-015"
+  },
+  {
+    "id": "PRF-016",
+    "route": "/account/sessions",
+    "action": "Review sessions",
+    "next": "/account/sessions with trusted session state",
+    "error": "/account/security",
+    "server": "CONDITIONAL",
+    "test": "TC-PRF-016"
+  },
+  {
+    "id": "PRF-017",
+    "route": "/account/sessions",
+    "action": "Confirm revoke",
+    "next": "/account/sessions with trusted session state",
+    "error": "/account/security",
+    "server": "YES",
+    "test": "TC-PRF-017"
+  },
+  {
+    "id": "GAT-001",
+    "route": "/account/status",
+    "action": "Complete required check",
+    "next": "/account/status with specific next required action",
+    "error": "/account/help",
+    "server": "CONDITIONAL",
+    "test": "TC-GAT-001"
+  },
+  {
+    "id": "GAT-002",
+    "route": "/account/status",
+    "action": "Verify phone",
+    "next": "/verify-email",
+    "error": "/account/help",
+    "server": "CONDITIONAL",
+    "test": "TC-GAT-002"
+  },
+  {
+    "id": "GAT-003",
+    "route": "/account/status",
+    "action": "Verify email",
+    "next": "/verify-email",
+    "error": "/account/help",
+    "server": "CONDITIONAL",
+    "test": "TC-GAT-003"
+  },
+  {
+    "id": "GAT-004",
+    "route": "/account/status",
+    "action": "View allowed features",
+    "next": "/account/status with specific next required action",
+    "error": "/account/help",
+    "server": "CONDITIONAL",
+    "test": "TC-GAT-004"
+  },
+  {
+    "id": "GAT-005",
+    "route": "/account/status",
+    "action": "View allowed features",
+    "next": "/account/status with specific next required action",
+    "error": "/account/help",
+    "server": "CONDITIONAL",
+    "test": "TC-GAT-005"
+  },
+  {
+    "id": "GAT-006",
+    "route": "/account/status",
+    "action": "Provide required info",
+    "next": "/account/status with specific next required action",
+    "error": "/account/help",
+    "server": "CONDITIONAL",
+    "test": "TC-GAT-006"
+  },
+  {
+    "id": "GAT-007",
+    "route": "/account/status",
+    "action": "Contact support",
+    "next": "Trusted permitted portal only if account status allows",
+    "error": "/account/status or /account/help",
+    "server": "CONDITIONAL",
+    "test": "TC-GAT-007"
+  },
+  {
+    "id": "GAT-008",
+    "route": "/account/status",
+    "action": "Contact support",
+    "next": "Trusted permitted portal only if account status allows",
+    "error": "/account/status or /account/help",
+    "server": "CONDITIONAL",
+    "test": "TC-GAT-008"
+  },
+  {
+    "id": "GAT-009",
+    "route": "/account/status",
+    "action": "Sign in",
+    "next": "Trusted permitted portal only if account status allows",
+    "error": "/account/status or /account/help",
+    "server": "YES",
+    "test": "TC-GAT-009"
+  },
+  {
+    "id": "GAT-010",
+    "route": "/forbidden",
+    "action": "Return to permitted portal",
+    "next": "/auth/redirect or safe public home",
+    "error": "/account/help",
+    "server": "CONDITIONAL",
+    "test": "TC-GAT-010"
+  },
+  {
+    "id": "GAT-011",
+    "route": "/unauthorized",
+    "action": "Sign in",
+    "next": "/login",
+    "error": "/account/help",
+    "server": "CONDITIONAL",
+    "test": "TC-GAT-011"
+  },
+  {
+    "id": "GAT-012",
+    "route": "/account/status",
+    "action": "Return to right portal",
+    "next": "Trusted permitted portal only if account status allows",
+    "error": "/account/status or /account/help",
+    "server": "YES",
+    "test": "TC-GAT-012"
+  },
+  {
+    "id": "GAT-013",
+    "route": "/auth/redirect",
+    "action": "Contact administrator",
+    "next": "Trusted permitted portal only if account status allows",
+    "error": "/account/status or /account/help",
+    "server": "YES",
+    "test": "TC-GAT-013"
+  },
+  {
+    "id": "GAT-014",
+    "route": "/auth/redirect",
+    "action": "Return to originally requested page",
+    "next": "Trusted permitted portal only if account status allows",
+    "error": "/account/status or /account/help",
+    "server": "YES",
+    "test": "TC-GAT-014"
+  },
+  {
+    "id": "DEL-001",
+    "route": "/account/delete",
+    "action": "Read consequences",
+    "next": "/account/delete/confirm only after server preflight and reauth",
+    "error": "/account/delete; no destructive action",
+    "server": "CONDITIONAL",
+    "test": "TC-DEL-001"
+  },
+  {
+    "id": "DEL-002",
+    "route": "/account/delete",
+    "action": "Review blockers",
+    "next": "/account/delete/confirm only after server preflight and reauth",
+    "error": "/account/delete; no destructive action",
+    "server": "YES",
+    "test": "TC-DEL-002"
+  },
+  {
+    "id": "DEL-003",
+    "route": "/account/delete",
+    "action": "Continue to reauthentication",
+    "next": "/account/delete/confirm only after server preflight and reauth",
+    "error": "/account/delete; no destructive action",
+    "server": "YES",
+    "test": "TC-DEL-003"
+  },
+  {
+    "id": "DEL-004",
+    "route": "/account/delete/confirm",
+    "action": "Confirm identity",
+    "next": "/account/delete/confirm only after server preflight and reauth",
+    "error": "/account/delete; no destructive action",
+    "server": "YES",
+    "test": "TC-DEL-004"
+  },
+  {
+    "id": "DEL-005",
+    "route": "/account/delete/confirm",
+    "action": "Submit request",
+    "next": "/account/delete/requested after audited submission",
+    "error": "/account/delete with error",
+    "server": "YES",
+    "test": "TC-DEL-005"
+  },
+  {
+    "id": "DEL-006",
+    "route": "/account/delete/requested",
+    "action": "Track request",
+    "next": "/account/delete/pending",
+    "error": "/account/help",
+    "server": "YES",
+    "test": "TC-DEL-006"
+  },
+  {
+    "id": "DEL-007",
+    "route": "/account/delete/pending",
+    "action": "View status",
+    "next": "/account/delete/confirm only after server preflight and reauth",
+    "error": "/account/delete; no destructive action",
+    "server": "YES",
+    "test": "TC-DEL-007"
+  },
+  {
+    "id": "DEL-008",
+    "route": "/account/delete/cancel",
+    "action": "Cancel request",
+    "next": "/account/profile after confirmed cancellation",
+    "error": "/account/delete/pending",
+    "server": "YES",
+    "test": "TC-DEL-008"
+  },
+  {
+    "id": "DEL-009",
+    "route": "/account/delete/complete",
+    "action": "Return home",
+    "next": "/ (public site)",
+    "error": "/account/help",
+    "server": "YES",
+    "test": "TC-DEL-009"
+  },
+  {
+    "id": "DEL-010",
+    "route": "/account/delete/denied",
+    "action": "Read reason and support",
+    "next": "/account/help",
+    "error": "/account/delete",
+    "server": "YES",
+    "test": "TC-DEL-010"
+  },
+  {
+    "id": "DEL-011",
+    "route": "/account/delete/previously",
+    "action": "Contact support",
+    "next": "/ (public site)",
+    "error": "/account/help",
+    "server": "YES",
+    "test": "TC-DEL-011"
+  },
+  {
+    "id": "GOV-001",
+    "route": "/admin/staff",
+    "action": "Find user",
+    "next": "/admin/staff/[id] subject to permissions",
+    "error": "/admin/staff with safe empty/error state",
+    "server": "CONDITIONAL",
+    "test": "TC-GOV-001"
+  },
+  {
+    "id": "GOV-002",
+    "route": "/admin/staff/new",
+    "action": "Create/invite",
+    "next": "/admin/staff after authorized confirmation",
+    "error": "Stay; show scoped authorization or validation error",
+    "server": "YES",
+    "test": "TC-GOV-002"
+  },
+  {
+    "id": "GOV-003",
+    "route": "/admin/staff/[id]",
+    "action": "View account",
+    "next": "/admin/staff/[id] subject to permissions",
+    "error": "/admin/staff with safe empty/error state",
+    "server": "CONDITIONAL",
+    "test": "TC-GOV-003"
+  },
+  {
+    "id": "GOV-004",
+    "route": "/admin/staff/[id]/roles",
+    "action": "Assign/revoke",
+    "next": "/admin/staff after authorized confirmation",
+    "error": "Stay; show scoped authorization or validation error",
+    "server": "YES",
+    "test": "TC-GOV-004"
+  },
+  {
+    "id": "GOV-005",
+    "route": "/admin/staff/[id]/status",
+    "action": "Confirm status",
+    "next": "/admin/staff/[id] subject to permissions",
+    "error": "/admin/staff with safe empty/error state",
+    "server": "YES",
+    "test": "TC-GOV-005"
+  },
+  {
+    "id": "GOV-006",
+    "route": "/admin/staff/[id]/status",
+    "action": "Confirm status",
+    "next": "/admin/staff/[id] subject to permissions",
+    "error": "/admin/staff with safe empty/error state",
+    "server": "YES",
+    "test": "TC-GOV-006"
+  },
+  {
+    "id": "GOV-007",
+    "route": "/admin/staff/[id]/assignments",
+    "action": "Update region",
+    "next": "/admin/staff after authorized confirmation",
+    "error": "Stay; show scoped authorization or validation error",
+    "server": "YES",
+    "test": "TC-GOV-007"
+  },
+  {
+    "id": "GOV-008",
+    "route": "/admin/staff/[id]/activity",
+    "action": "View events",
+    "next": "/admin/staff/[id] subject to permissions",
+    "error": "/admin/staff with safe empty/error state",
+    "server": "CONDITIONAL",
+    "test": "TC-GOV-008"
+  },
+  {
+    "id": "GOV-009",
+    "route": "/operations/account",
+    "action": "Edit permitted fields",
+    "next": "/admin/staff after authorized confirmation",
+    "error": "Stay; show scoped authorization or validation error",
+    "server": "CONDITIONAL",
+    "test": "TC-GOV-009"
+  },
+  {
+    "id": "GOV-010",
+    "route": "/field-agent/account",
+    "action": "Edit permitted fields",
+    "next": "/admin/staff after authorized confirmation",
+    "error": "Stay; show scoped authorization or validation error",
+    "server": "CONDITIONAL",
+    "test": "TC-GOV-010"
+  },
+  {
+    "id": "GOV-011",
+    "route": "/admin/account",
+    "action": "Update allowed fields",
+    "next": "/admin/staff after authorized confirmation",
+    "error": "Stay; show scoped authorization or validation error",
+    "server": "CONDITIONAL",
+    "test": "TC-GOV-011"
+  },
+  {
+    "id": "GOV-012",
+    "route": "/admin/staff",
+    "action": "Return to portal",
+    "next": "/forbidden",
+    "error": "/auth/redirect",
+    "server": "YES",
+    "test": "TC-GOV-012"
+  },
+  {
+    "id": "HLP-001",
+    "route": "/auth/error",
+    "action": "Retry safely",
+    "next": "/account/help; actual confirmation only when support case persisted",
+    "error": "/account/help; retry or alternative support",
+    "server": "CONDITIONAL",
+    "test": "TC-HLP-001"
+  },
+  {
+    "id": "HLP-002",
+    "route": "/auth/error",
+    "action": "Try later",
+    "next": "/account/help; actual confirmation only when support case persisted",
+    "error": "/account/help; retry or alternative support",
+    "server": "YES",
+    "test": "TC-HLP-002"
+  },
+  {
+    "id": "HLP-003",
+    "route": "/auth/error",
+    "action": "Restart secure workflow",
+    "next": "/account/help; actual confirmation only when support case persisted",
+    "error": "/account/help; retry or alternative support",
+    "server": "YES",
+    "test": "TC-HLP-003"
+  },
+  {
+    "id": "HLP-004",
+    "route": "/account/help",
+    "action": "Choose recovery method",
+    "next": "/account/help; actual confirmation only when support case persisted",
+    "error": "/account/help; retry or alternative support",
+    "server": "CONDITIONAL",
+    "test": "TC-HLP-004"
+  },
+  {
+    "id": "HLP-005",
+    "route": "/account/help",
+    "action": "Start support recovery",
+    "next": "/account/help; actual confirmation only when support case persisted",
+    "error": "/account/help; retry or alternative support",
+    "server": "CONDITIONAL",
+    "test": "TC-HLP-005"
+  },
+  {
+    "id": "HLP-006",
+    "route": "/account/help",
+    "action": "Start support recovery",
+    "next": "/account/help; actual confirmation only when support case persisted",
+    "error": "/account/help; retry or alternative support",
+    "server": "CONDITIONAL",
+    "test": "TC-HLP-006"
+  },
+  {
+    "id": "HLP-007",
+    "route": "/account/help",
+    "action": "Contact approved channel",
+    "next": "/account/help; actual confirmation only when support case persisted",
+    "error": "/account/help; retry or alternative support",
+    "server": "CONDITIONAL",
+    "test": "TC-HLP-007"
+  },
+  {
+    "id": "HLP-008",
+    "route": "/account/help",
+    "action": "Review case reference",
+    "next": "/account/help; actual confirmation only when support case persisted",
+    "error": "/account/help; retry or alternative support",
+    "server": "YES",
+    "test": "TC-HLP-008"
+  },
+  {
+    "id": "HLP-009",
+    "route": "/account/help",
+    "action": "Retry or use alternative",
+    "next": "/account/help; actual confirmation only when support case persisted",
+    "error": "/account/help; retry or alternative support",
+    "server": "YES",
+    "test": "TC-HLP-009"
+  }
+]

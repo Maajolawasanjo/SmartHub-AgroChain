@@ -1,2 +1,16 @@
 import type { MetadataRoute } from "next";
-export default function robots(): MetadataRoute.Robots { return { rules: [{ userAgent: "*", allow: ["/"], disallow: ["/login", "/signup", "/dashboard", "/farmer", "/operations", "/admin"]] }; }
+
+export default function robots(): MetadataRoute.Robots {
+  return {
+    rules: [{
+      userAgent: "*",
+      allow: "/",
+      disallow: [
+        "/login", "/signup", "/verify-email", "/verify-phone", "/auth/",
+        "/forgot-password", "/reset-password", "/session-expired", "/logout",
+        "/account/", "/invite/", "/admin/", "/field-agent/", "/operations/",
+        "/auth-preview", "/unauthorized", "/forbidden",
+      ],
+    }],
+  };
+}
