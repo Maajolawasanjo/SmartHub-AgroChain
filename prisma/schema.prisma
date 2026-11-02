@@ -23,6 +23,8 @@ enum AccountStatus {
 
 enum InvitationStatus {
   PENDING
+  DELIVERY_FAILED
+  DELIVERY_UNCERTAIN
   ACCEPTED
   REVOKED
   EXPIRED
@@ -54,6 +56,8 @@ model Account {
   deletionRequests   DeletionRequest[]
   auditEvents        AuditEvent[]
   invitationsSent    StaffInvitation[] @relation("Inviter")
+  fieldAgentAssignments FieldAgentAssignment[] @relation("FieldAgentAssignments")
+  assignmentsCreated FieldAgentAssignment[] @relation("AssignmentCreator")
   farms              Farm[] @relation("FarmerFarms")
   farmerVerification FarmerVerification? @relation("FarmerVerificationOwner")
   verificationReviews FarmerVerification[] @relation("VerificationReviewer")
@@ -64,7 +68,8 @@ model Account {
   @@map("app_accounts")
 }
 
-// Server-issued public registration intent; never use untrusted Auth user metadata as a role claim.
+// Server-issued public registration intent; email verification is required before provisioning.
+// The intent is matched to the Auth user's confirmed email and is consumed once.
 model SignupIntent {
   id           String      @id @db.Uuid
   email        String      @db.VarChar(254)
@@ -105,7 +110,24 @@ model StaffInvitation {
   acceptedAt    DateTime?
   invitedBy     Account          @relation("Inviter", fields: [invitedById], references: [id])
   @@index([email, status])
+  @@index([status, expiresAt])
   @@map("staff_invitations")
+}
+
+model FieldAgentAssignment {
+  id           String   @id @default(uuid()) @db.Uuid
+  fieldAgentId String   @db.Uuid
+  state        String   @db.VarChar(60)
+  active       Boolean  @default(true)
+  assignedById String   @db.Uuid
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  fieldAgent   Account  @relation("FieldAgentAssignments", fields: [fieldAgentId], references: [id], onDelete: Restrict)
+  assignedBy   Account  @relation("AssignmentCreator", fields: [assignedById], references: [id], onDelete: Restrict)
+  @@unique([fieldAgentId, state])
+  @@index([fieldAgentId, active])
+  @@index([state, active])
+  @@map("field_agent_assignments")
 }
 
 model DeletionRequest {
@@ -124,9 +146,11 @@ model AuditEvent {
   actorId     String   @db.Uuid
   action      String   @db.VarChar(90)
   subjectId   String?  @db.Uuid
+  details     Json?
   createdAt   DateTime @default(now())
   actor       Account  @relation(fields: [actorId], references: [id])
   @@index([actorId, createdAt])
+  @@index([subjectId, createdAt])
   @@map("auth_audit_events")
 }
 

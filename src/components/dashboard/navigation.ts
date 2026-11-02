@@ -1,7 +1,7 @@
 /** Safe presentation metadata only. Authorization always comes from server account records. */
 export type WorkspaceRole = "BUYER" | "FARMER" | "FIELD_AGENT" | "OPERATIONS" | "SUPER_ADMIN";
 export type NavigationItem = { label: string; href: string; icon: IconName; availability: "active" | "planned" };
-export type IconName = "grid" | "leaf" | "box" | "receipt" | "clock" | "users" | "shield" | "settings" | "bell" | "map" | "check" | "clipboard" | "search" | "truck" | "wallet" | "chart" | "file" | "help" | "user" | "lock" | "tag" | "calendar";
+export type IconName = "grid" | "leaf" | "box" | "receipt" | "clock" | "users" | "shield" | "settings" | "bell" | "map" | "check" | "clipboard" | "search" | "truck" | "wallet" | "chart" | "file" | "help" | "user" | "lock" | "tag" | "calendar" | "mail";
 export type NavigationSection = { title: string; items: NavigationItem[] };
 const active=(label:string,href:string,icon:IconName):NavigationItem=>({label,href,icon,availability:"active"});
 const planned=(label:string,href:string,icon:IconName):NavigationItem=>({label,href,icon,availability:"planned"});
@@ -32,7 +32,7 @@ export const workspaceNavigation:Record<WorkspaceRole,NavigationSection[]>={
   {title:"Procurement pipeline",items:[planned("Buyer Requests","/operations/requests","clipboard"),planned("Matches & Quotes","/operations/matching","file"),planned("Orders & Logistics","/operations/orders","truck"),planned("Disputes","/operations/disputes","shield")]},
  ],
  SUPER_ADMIN:[
-  {title:"Governance",items:[active("Overview","/admin","grid"),active("Invite Staff","/admin/staff/invite","users"),planned("Staff Directory","/admin/staff","users"),planned("Roles & Permissions","/admin/permissions","shield"),planned("Platform Audit","/admin/audit","file")]},
+  {title:"Governance",items:[active("Overview","/admin","grid"),active("Invite Staff","/admin/staff/invite","users"),active("Staff Directory","/admin/staff","users"),active("Invitations","/admin/staff/invites","mail"),active("Roles & Permissions","/admin/permissions","shield"),active("Platform Audit","/admin/audit","file")]},
   {title:"Oversight",items:[planned("User Directory","/admin/users","user"),planned("Reports & Insights","/admin/reports","chart"),planned("Configuration","/admin/settings","settings")]},
  ],
 };
@@ -41,5 +41,9 @@ export const accountNavigation:NavigationSection={title:"ACCOUNT & SUPPORT",item
  active("My Profile","/account/profile","user"),active("Change Password","/account/security/password","lock"),active("Contact Support","/contact","help")
 ]};
 
-export function matchesWorkspacePath(path:string,href:string){return path===href||(path.startsWith(href+"/") && href!=="/dashboard" && href!=="/farmer" && href!=="/operations" && href!=="/admin" && href!=="/field-agent");}
+export function matchesWorkspacePath(path:string,href:string){
+ if(path===href)return true;
+ if(href==="/admin/staff"&&path.startsWith("/admin/staff/")){const section=path.split("/")[3];if(section==="invite"||section==="invites"||section==="new")return false;}
+ return path.startsWith(href+"/")&&href!=="/dashboard"&&href!=="/farmer"&&href!=="/operations"&&href!=="/admin"&&href!=="/field-agent";
+}
 export function isWorkspaceRouteAllowedInNavigation(role:WorkspaceRole,href:string){return workspaceNavigation[role].some(section=>section.items.some(item=>item.href===href && item.availability==="active"));}

@@ -1,6 +1,2 @@
-export const metadata = { robots: { index: false, follow: false } };
-import { AuthPage } from "@/features/auth/components/auth-page";
-
-export default function Page() {
-  return <AuthPage route="/admin/staff/new" />;
-}
+import {redirect} from "next/navigation";
+export default function NewStaffRedirect(){redirect("/admin/staff/invite");}

@@ -23,5 +23,6 @@ const paths:Record<IconName,ReactNode>={
  lock:<><rect x="5" y="11" width="14" height="11" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></>,
  tag:<><path d="M3 3h10l8 8-10 10-8-8V3Z"/><circle cx="8" cy="8" r="1"/></>,
  calendar:<><rect x="3" y="5" width="18" height="17" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/></>,
+ mail:<><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></>,
 };
 export function WorkspaceIcon({name,size=19}:{name:IconName;size?:number}){return <svg aria-hidden="true" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round">{paths[name]}</svg>}

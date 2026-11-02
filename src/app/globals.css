@@ -136,3 +136,70 @@ a:focus-visible, button:focus-visible { outline: 3px solid #d79416; outline-offs
 @media(max-width:900px){.public-home-grid,.public-detail-grid,.public-contact-area,.public-split{grid-template-columns:1fr}.public-home-grid{gap:28px}.public-audience-grid{grid-template-columns:1fr 1fr}.public-footer-grid{grid-template-columns:1fr 1fr}.public-hero-content{padding-block:68px}}
 @media(max-width:600px){.public-header-inner{min-height:70px;gap:10px}.public-logo{font-size:1.1rem}.public-actions{display:none}.public-home-grid{padding-block:55px}.public-section{padding-block:45px}.public-audience-grid,.public-contact-form{grid-template-columns:1fr}.public-cta-band{display:grid;padding:27px}.public-participant-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.public-footer-grid{grid-template-columns:1fr}.public-contact-form{padding:18px}.public-process-art{padding:23px}.public-hero-content h1,.public-home-copy h1{font-size:clamp(34px,9vw,45px)}.public-catalog-filters label{min-width:100%}.public-product-illustration{min-height:270px}}
 @media(prefers-reduced-motion:reduce){.public-header{backdrop-filter:none}}
+
+/* Phase 04 — staff governance, permissions and state-scope management */
+.staff-dashboard-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:16px}
+.staff-metric{display:block;font-size:34px;line-height:1.15;color:#123d2b;font-weight:850;margin:8px 0}
+.staff-text-link{display:inline-flex;align-items:center;gap:8px;color:#185b38;font-size:13px;font-weight:800;text-decoration:none;margin-top:10px}
+.staff-text-link:hover,.staff-table-link:hover{text-decoration:underline}
+.staff-toolbar{display:grid;gap:15px;margin-bottom:20px}
+.staff-filter-form{display:grid;grid-template-columns:minmax(200px,1.5fr) repeat(2,minmax(150px,1fr)) auto;gap:12px;align-items:end;background:#fff;border:1px solid #dce7de;border-radius:13px;padding:16px}
+.staff-field{display:grid;gap:7px;min-width:0;color:#2c4c38;font-size:12px;font-weight:750}
+.staff-field input,.staff-field select,.staff-field textarea{width:100%;min-width:0;border:1px solid #cbd9cd;border-radius:9px;background:#fff;color:#1c3b2a;padding:12px 13px;font:inherit;font-weight:500;line-height:1.45}
+.staff-field textarea{resize:vertical;min-height:110px}
+.staff-field input:focus-visible,.staff-field select:focus-visible,.staff-field textarea:focus-visible{outline:3px solid #e8b34f;outline-offset:2px;border-color:#8ba993}
+.staff-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px}
+.staff-primary-button,.staff-secondary-button,.staff-danger-button{display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:42px;padding:10px 15px;border:1px solid transparent;border-radius:9px;font-size:12px;line-height:1.4;font-weight:800;text-decoration:none;cursor:pointer}
+.staff-primary-button{background:#123d2b;color:#fff;border-color:#123d2b}.staff-primary-button:hover{background:#20563a}
+.staff-secondary-button{background:#fff;color:#244d35;border-color:#d3e0d4}.staff-secondary-button:hover{background:#eef5ef}
+.staff-danger-button{background:#fff0ef;color:#8e2f2a;border-color:#edc5c1}.staff-danger-button:hover{background:#ffe5e2}
+.staff-primary-button:disabled,.staff-secondary-button:disabled,.staff-danger-button:disabled{opacity:.55;cursor:not-allowed}
+.staff-table-link{color:#185b38;font-size:12px;font-weight:800;text-decoration:none;white-space:nowrap}
+.staff-cell-subtitle{display:block;margin-top:5px;color:#718176;font-size:11px;line-height:1.5;font-weight:500}
+.staff-muted{font-size:11px;color:#748477}
+.staff-pagination{display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:10px;margin-top:16px;color:#627467;font-size:12px}
+.staff-pagination span{margin-right:auto}
+.staff-page-narrow{max-width:760px}
+.staff-page-links{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin:0 0 20px;color:#536d5a;font-size:12px}
+.staff-page-links a{color:#185b38;font-weight:800;text-decoration:none}
+.staff-page-links a:hover{text-decoration:underline}
+.staff-profile-card{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:24px;background:#fff;border:1px solid #dce7de;border-radius:14px;margin-bottom:18px}
+.staff-profile-card h2{font-size:23px;letter-spacing:-.025em;color:#123d2b;margin:6px 0}
+.staff-profile-card p{font-size:13px;line-height:1.6;color:#627467;margin:3px 0}
+.staff-eyebrow{font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:850;color:#9a742b}
+.staff-detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:14px}
+.staff-meta-line{font-size:11px;color:#758579;line-height:1.6;margin-top:18px}
+.staff-form{display:grid;gap:18px;background:#fff;border:1px solid #dce7de;border-radius:14px;padding:24px;box-shadow:0 2px 12px #122f1d06}
+.staff-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.staff-form-hint{font-size:12px;line-height:1.65;color:#64766a;margin:-5px 0 0}
+.staff-form-message{font-size:12px;line-height:1.6;border-radius:9px;padding:11px 13px;margin:0}
+.staff-form-message--error{background:#fff0ef;border:1px solid #edc5c1;color:#8e2f2a}
+.staff-form-message--success{background:#edf7ef;border:1px solid #c8e0ce;color:#245c38}
+.staff-warning{background:#fff9e9;border:1px solid #ead9a9;color:#6e551c;border-radius:10px;padding:14px 16px;font-size:12px;line-height:1.65}
+.staff-warning strong{display:block;margin-bottom:4px;color:#62480f}
+.staff-warning p{margin:0}
+.staff-state-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.staff-state-option{display:flex;align-items:center;gap:9px;border:1px solid #dce7de;border-radius:9px;padding:10px 12px;background:#fbfdfb;color:#304c39;font-size:12px;line-height:1.4;cursor:pointer}
+.staff-state-option:has(input:checked){background:#edf5ee;border-color:#8fb69a}
+.staff-state-option input{accent-color:#123d2b;width:16px;height:16px;flex:0 0 auto}
+.staff-inline-form{display:grid;gap:8px;min-width:210px;max-width:270px}
+.staff-inline-form .staff-field{font-size:10px}
+.staff-inline-form .staff-field input{padding:8px 9px;font-size:11px}
+.staff-inline-form .staff-danger-button{min-height:34px;padding:7px 10px;font-size:10px}
+.staff-filter-tabs{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
+.staff-filter-tabs a{display:inline-flex;padding:8px 12px;border:1px solid #d6e3d8;border-radius:999px;background:#fff;color:#44604d;text-decoration:none;font-size:11px;font-weight:750}
+.staff-filter-tabs a.is-current{background:#123d2b;border-color:#123d2b;color:#fff}
+.staff-permission-table{border-collapse:separate;border-spacing:0;width:100%;min-width:940px;background:#fff;font-size:12px}
+.staff-table-wrap{max-width:100%;overflow-x:auto;border:1px solid #dce7de;border-radius:12px;background:#fff}
+.staff-permission-table th,.staff-permission-table td{padding:13px 15px;border-bottom:1px solid #e8efe8;text-align:left;vertical-align:middle}
+.staff-permission-table thead th{background:#edf4ed;color:#45624e;font-size:10px;letter-spacing:.04em;text-transform:uppercase}
+.staff-permission-table tbody th{font-weight:500;min-width:230px}
+.staff-permission-table tbody th strong{display:block;color:#234431;font-size:12px}
+.staff-permission-table tbody td{text-align:center}
+.staff-permission-yes{display:inline-flex;padding:5px 8px;border-radius:999px;background:#e9f4eb;color:#245e38;font-size:10px;font-weight:850}
+.staff-permission-no{color:#9aa89d;font-weight:700}
+.staff-audit-details{display:block;max-width:340px;white-space:normal;overflow-wrap:anywhere;color:#566d5d;font-size:10px}
+@media(max-width:880px){.staff-filter-form{grid-template-columns:repeat(2,minmax(0,1fr))}.staff-filter-form .staff-primary-button{align-self:end}.staff-form-grid{grid-template-columns:1fr}.staff-state-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.staff-filter-form{grid-template-columns:1fr}.staff-actions{justify-content:stretch}.staff-actions>*{flex:1}.staff-profile-card{padding:17px;flex-direction:column}.staff-form{padding:17px}.staff-state-grid{grid-template-columns:1fr}.staff-page-links{align-items:flex-start}.staff-pagination{justify-content:flex-start}.staff-pagination span{width:100%}}
+
+.staff-sync-section{margin-top:18px}

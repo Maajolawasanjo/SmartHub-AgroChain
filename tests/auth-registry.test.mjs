@@ -26,9 +26,13 @@ test("every one of the 48 documented authentication routes is an actual app rout
  assert.deepEqual(new Set(paths),normalized);
  for(const path of normalized)assert.ok(existsSync(join(root,"src/app",path,"page.tsx")),`Missing ${path}`);
 });
-test("every authentication page mounts one shared flow boundary",()=>{
+test("authentication pages use the shared flow and staff governance pages use server authorization",()=>{
  for(const path of paths){
   const content=source(join("src/app",path,"page.tsx"));
+  if(path.startsWith("/admin/staff")){
+   assert.ok(content.includes("requireSuperAdminPage") || path==="/admin/staff/new",path);
+   continue;
+  }
   assert.ok(content.includes("<AuthPage route=") || ["/auth/redirect","/account/status","/forgot-password/sent","/reset-password/success"].includes(path),path);
  }
 });
