@@ -42,3 +42,31 @@ a:focus-visible, button:focus-visible { outline: 3px solid #d79416; outline-offs
 @media(max-width:880px){.auth-layout{grid-template-columns:1fr}.auth-aside{min-height:unset;max-height:none;padding:24px;position:relative}.auth-aside-main{display:none}.auth-aside-bottom{display:none}.auth-main{padding:20px 18px}.auth-content{margin:34px auto}.auth-heading h1{font-size:36px}}
 @media(max-width:430px){.auth-environment{max-width:170px;font-size:9px}.auth-card{padding:20px 16px;border-radius:16px}.auth-content{margin:28px auto}.auth-tabs{gap:1px}.auth-tab{font-size:11px;padding:12px 4px}.auth-contract{grid-template-columns:1fr}.auth-contract dd{margin-bottom:6px}}
 .auth-generic-action{display:grid;gap:12px;margin-top:22px}.auth-secondary-submit{background:#f3f8f2;border-color:#d4e4d7;color:#27543c;font-size:13px;line-height:1.5;text-align:left}.auth-secondary-submit:hover{background:#e7f0e8}.auth-textarea{min-height:100px;resize:vertical}
+
+/* Farmer and Operations workspaces: real-data, action-oriented portal styles */
+.agro-dashboard{min-height:100vh;display:grid;grid-template-columns:260px minmax(0,1fr);background:#f5f7f5;color:#173b2d}
+.agro-sidebar{background:#123d2b;color:#f7faf6;padding:30px 18px;display:flex;flex-direction:column;gap:18px}
+.agro-brand{font-size:21px;font-weight:800;text-decoration:none;color:white;line-height:1.25;padding:3px 12px}
+.agro-brand span{color:#e8b34f}
+.agro-side-caption{font-size:11px;letter-spacing:.14em;color:#bfd6c4;padding:4px 12px}
+.agro-side-nav{display:grid;gap:4px}.agro-side-nav a{color:#e6efe6;padding:11px 12px;border-radius:9px;font-size:14px;text-decoration:none}
+.agro-side-nav a:hover,.agro-side-nav a[aria-current=page]{background:#245a40;color:#fff}
+.agro-account-link{margin-top:auto;display:flex;gap:18px;flex-wrap:wrap;padding:12px;font-size:13px}.agro-account-link a{color:#e8b34f}
+.agro-main{min-width:0}.agro-top{min-height:72px;background:#fff;border-bottom:1px solid #dae5db;padding:16px 36px;display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:700}
+.agro-user{font-weight:500;color:#536b59}.agro-content{max-width:1300px;margin:auto;padding:38px 36px 80px}
+.agro-page-head{margin-bottom:28px}.agro-page-head h1{font-size:clamp(1.7rem,3vw,2.3rem);font-weight:800;color:#123d2b;letter-spacing:-.03em}.agro-page-head p{color:#536b59;margin-top:8px;line-height:1.7}
+.agro-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}.agro-panel{border:1px solid #dce8dc;border-radius:14px;background:white;padding:25px;margin-bottom:18px}
+.agro-panel h2{font-size:1.15rem;font-weight:750;margin-bottom:8px}.agro-panel p{line-height:1.6;color:#586b5e}
+.agro-panel .action{display:inline-block;margin-top:14px}.agro-number{font-size:2.25rem;font-weight:800;color:#123d2b;margin:4px 0}
+.agro-empty{padding:34px}.agro-status{display:inline-block;border-radius:100px;background:#edf2e9;border:1px solid #d8e4d7;padding:5px 10px;font-size:12px;font-weight:700;text-transform:capitalize;color:#345945;white-space:nowrap}
+.agro-toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:14px 0 22px}.agro-toolbar a{font-size:14px}
+.agro-data-list{display:grid;gap:12px}.agro-record{background:white;border:1px solid #dce8dc;border-radius:12px;padding:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.agro-record h2{font-size:16px;font-weight:750}.agro-record p{font-size:14px;color:#586b5e;margin-top:6px}.agro-record a{color:#175737;text-decoration:underline;font-weight:700}
+.agro-form{display:grid;gap:16px;max-width:770px}.agro-form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:15px}
+.agro-field{display:grid;gap:6px}.agro-field label{font-weight:700;font-size:14px}.agro-field input,.agro-field select,.agro-field textarea{border:1px solid #c7d9ca;border-radius:9px;padding:12px 13px;width:100%;background:#fff;color:#173b2d}
+.agro-field textarea{min-height:95px}.agro-field input:focus,.agro-field select:focus,.agro-field textarea:focus{outline:2px solid #6f9e7e;outline-offset:1px}
+.agro-hint{font-size:12px;color:#576b5f;line-height:1.6}.agro-alert{background:#fff8df;border:1px solid #efd38c;padding:13px 16px;border-radius:9px;color:#4c3c0d;line-height:1.5;margin-bottom:18px}
+.agro-error{background:#fff0ef;border:1px solid #f0c4c0;color:#853c37;padding:13px 16px;border-radius:9px;margin-top:12px}
+.agro-success{background:#eaf7ec;border:1px solid #bbdec0;color:#245d32;padding:13px 16px;border-radius:9px;margin-top:12px}
+.agro-button{background:#123d2b;color:white;padding:12px 18px;border:0;border-radius:9px;font-weight:750;cursor:pointer}.agro-button:hover{background:#235841}.agro-button:disabled{opacity:.5;cursor:not-allowed}.agro-secondary{background:#e8efe7;color:#123d2b}.agro-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+@media(max-width:850px){.agro-dashboard{grid-template-columns:1fr}.agro-sidebar{padding:14px;gap:9px}.agro-side-nav{display:flex;overflow:auto;max-width:100%;padding:4px 0}.agro-side-nav a{white-space:nowrap}.agro-account-link{margin:0}.agro-top{padding:14px 20px}.agro-content{padding:26px 18px 60px}}
