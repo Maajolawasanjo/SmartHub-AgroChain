@@ -1,0 +1,53 @@
+name: Phase 00 application checks
+
+on:
+  push:
+    branches: ['feat/**']
+  pull_request:
+    branches: [main, 'feat/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: smarthub-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  structural:
+    name: Source safety and contract tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm test
+      - run: npm run verify:foundation -- --require-lock
+
+  build:
+    name: Reproducible Prisma, TypeScript and Next.js build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install exact committed dependency graph
+        run: npm ci --no-audit --no-fund
+      - name: Generate Prisma client
+        run: npm run db:generate
+      - name: Validate Prisma models without a database connection
+        env:
+          DATABASE_URL: postgresql://placeholder:placeholder@127.0.0.1:5432/smarthub?schema=public
+          DIRECT_URL: postgresql://placeholder:placeholder@127.0.0.1:5432/smarthub?schema=public
+        run: npx prisma validate
+      - run: npm run typecheck
+      - run: npm run verify:syntax
+      - run: npm test
+      - run: npm run build
+      - name: Confirm reviewed lockfile and foundation configuration
+        run: npm run verify:foundation -- --require-lock
