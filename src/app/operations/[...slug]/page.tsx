@@ -10,7 +10,7 @@ export default async function OperationsPage({params}:{params:Promise<{slug:stri
  if(view==="catalog"){
   const list=await db.commodity.findMany({orderBy:{name:"asc"}});
   return <PortalFrame name={account.fullName} role="OPERATIONS" route="/operations/catalog" title="Commodity Catalog" subtitle="Configure approved agricultural products before farmers add crops or declarations.">
-   <section className="agro-panel"><h2>Add supported commodity</h2><p>Only authorized Operations staff may create catalog items. No example catalog is published as actual data.</p></section><CommodityForm/>
+   <section className="agro-panel"><h2>Add supported commodity</h2><p>Only authorized Operations staff may create catalog items. Public publication requires separate approval; this does not create stock.</p><Link className="action action-outline" href="/operations/catalog/manage">Manage public catalog & insights</Link></section><CommodityForm/>
    <section className="agro-panel"><h2>Configured commodities ({list.length})</h2>{list.length?<div className="agro-data-list">{list.map(c=><div className="agro-record" key={c.id}><h2>{c.name}</h2><StateTag status={c.active?"ACTIVE":"INACTIVE"}/></div>)}</div>:<p>No commodities configured yet.</p>}</section>
   </PortalFrame>;
  }

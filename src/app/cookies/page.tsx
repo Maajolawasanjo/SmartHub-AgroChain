@@ -1,0 +1,4 @@
+import Link from "next/link";
+import {PublicShell} from "@/components/public-shell";
+export const metadata={title:"Cookie Policy — Review Pending",robots:{index:false,follow:false}};
+export default function Cookies(){return <PublicShell><section className="container public-section"><span className="eyebrow">Policy review required</span><h1 className="public-legal-heading">Cookie Policy</h1><p className="public-prose">The final legally approved Cookie Policy has not been provided for the new SmartHub AgroChain platform. This page does not represent an approved legal policy. Necessary session cookies are intended for secure account functionality; any future optional analytics or marketing cookies require separate review and appropriate controls before activation.</p><Link className="action action-outline" href="/contact">Ask a privacy question</Link></section></PublicShell>}

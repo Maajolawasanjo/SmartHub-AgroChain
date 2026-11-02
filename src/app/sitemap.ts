@@ -1,3 +1,4 @@
 import type { MetadataRoute } from "next";
-const pages = ["", "/product", "/products", "/how-it-works", "/for-buyers", "/for-farmers", "/about", "/contact"];
-export default function sitemap(): MetadataRoute.Sitemap {return pages.map(path => ({url:`https://www.smarthubagrochain.online${path}`,changeFrequency:"monthly"}));}
+const root="https://www.smarthubagrochain.online";
+const staticPages=["", "/product", "/products", "/how-it-works", "/for-buyers", "/for-farmers", "/about", "/insights", "/faq", "/contact", "/accessibility"];
+export default function sitemap():MetadataRoute.Sitemap{return staticPages.map(path=>({url:`${root}${path}`,changeFrequency:"monthly" as const}));}

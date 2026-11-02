@@ -28,7 +28,7 @@ export const workspaceNavigation:Record<WorkspaceRole,NavigationSection[]>={
   {title:"Field operations",items:[active("Overview","/field-agent","grid"),planned("Assigned Farmers","/field-agent/farmers","users"),planned("Field Visits","/field-agent/visits","calendar"),planned("Inspections & Evidence","/field-agent/inspections","clipboard"),planned("Submitted Reports","/field-agent/reports","file")]},
  ],
  OPERATIONS:[
-  {title:"Reviews",items:[active("Overview","/operations","grid"),active("Farmer Verification","/operations/verification","check"),active("Supply Reviews","/operations/supply","leaf"),active("Commodity Catalog","/operations/catalog","tag")]},
+  {title:"Reviews",items:[active("Overview","/operations","grid"),active("Farmer Verification","/operations/verification","check"),active("Supply Reviews","/operations/supply","leaf"),active("Commodity Catalog","/operations/catalog","tag"),active("Public Enquiries","/operations/enquiries","file")]},
   {title:"Procurement pipeline",items:[planned("Buyer Requests","/operations/requests","clipboard"),planned("Matches & Quotes","/operations/matching","file"),planned("Orders & Logistics","/operations/orders","truck"),planned("Disputes","/operations/disputes","shield")]},
  ],
  SUPER_ADMIN:[

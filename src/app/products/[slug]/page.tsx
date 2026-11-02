@@ -1,0 +1,21 @@
+import Link from "next/link";
+import {notFound} from "next/navigation";
+import type {Metadata} from "next";
+import {PublicShell} from "@/components/public-shell";
+import {publicProduct,safeCatalogSlug} from "@/lib/public/catalog";
+export const dynamic="force-dynamic";
+export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{const {slug}=await params;const result=await publicProduct(slug);return result.item?{title:`${result.item.name} | Agricultural Products`,description:result.item.description??`Learn about ${result.item.name} within the SmartHub AgroChain managed sourcing catalogue.`}:{title:"Product information | SmartHub AgroChain",robots:{index:false,follow:false}};}
+export default async function ProductDetails({params}:{params:Promise<{slug:string}>}){
+ const {slug}=await params;if(!safeCatalogSlug(slug))notFound();
+ const result=await publicProduct(slug);
+ if(result.state==="ready"&&!result.item)notFound();
+ const item=result.item;
+ return <PublicShell><section className="container public-section">
+ <nav aria-label="Breadcrumb" className="public-breadcrumb"><Link href="/">Home</Link><span aria-hidden="true">/</span><Link href="/products">Products</Link>{item&&<><span aria-hidden="true">/</span><span aria-current="page">{item.name}</span></>}</nav>
+ {item?<div className="public-detail-grid"><div className="public-product-illustration" aria-label="Product category visual, not verified supply photograph"><span>{item.category?.name??"Agricultural product"}</span><strong>{item.name}</strong><small>Product reference · Not a stock photograph</small></div><div><span className="public-kicker">{item.category?.name??"SmartHub catalogue"}</span><h1 className="public-legal-heading">{item.name}</h1><p className="public-prose">{item.description??"Sourcing information is assessed for each individual enquiry."}</p><div className="public-information-panel"><h2>Product & sourcing information</h2><dl><div><dt>Product category</dt><dd>{item.category?.name??"Not specified"}</dd></div><div><dt>Publication</dt><dd>Approved reference information</dd></div><div><dt>Availability</dt><dd>Not confirmed — enquire with SmartHub</dd></div><div><dt>Price & quantity</dt><dd>Provided only with an authorized, assessed request</dd></div></dl></div><div className="public-hero-actions"><Link className="action action-primary" href={`/contact?interest=buyer&product=${encodeURIComponent(slug)}`}>Enquire about {item.name}</Link><Link className="action action-outline" href="/products">Browse other products</Link></div></div></div>:
+ <div className="public-empty"><h1>Product details are unavailable</h1><p>The catalogue is not connected to an approved database. No stock, pricing or verified-source claims can be displayed.</p><Link className="action action-outline" href="/products">Back to products</Link></div>}
+ {item&&<div className="public-section"><h2>Types and variations</h2>{item.types.length?<div className="public-card-grid">{item.types.map(t=><article className="public-feature-card" key={t.id}><h3>{t.name}</h3><p>{t.description??"Availability and sourcing requirements must be confirmed."}</p>{t.marketName&&<p>Trade/market name: {t.marketName}</p>}</article>)}</div>:<p className="public-prose">No type-specific reference information has been published. Contact SmartHub to clarify the product required.</p>}</div>}
+ {item&&item.specifications.length>0&&<div className="public-section"><h2>Specification information</h2><p className="public-prose">These are approved product specification fields—not confirmation of a particular lot, quality grade or stock availability.</p><div className="public-card-grid">{item.specifications.map(spec=><article className="public-feature-card" key={spec.id}><h3>{spec.name}{spec.unit?` (${spec.unit})`:""}</h3><p>{spec.description??"Specify your requirement when discussing sourcing with SmartHub."}</p></article>)}</div></div>}
+ <div className="public-section public-cta-band"><div><h2>What happens after your enquiry?</h2><p>SmartHub reviews your sourcing needs, identifies potentially suitable supply and clarifies next steps. No order or payment is created by this enquiry.</p></div><Link href="/how-it-works" className="action action-primary">How SmartHub works</Link></div>
+ </section></PublicShell>;
+}
