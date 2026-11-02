@@ -1,5 +1,3 @@
-// Phase 0D foundation only. No production tables are defined or migrated yet.
-// Explicit business and data decisions must be approved before introducing models.
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -7,4 +5,101 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+enum AccountRole {
+  BUYER
+  FARMER
+  FIELD_AGENT
+  OPERATIONS
+  SUPER_ADMIN
+}
+
+enum AccountStatus {
+  ACTIVE
+  SUSPENDED
+  DISABLED
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REVOKED
+  EXPIRED
+}
+
+enum DeletionStatus {
+  REQUESTED
+  UNDER_REVIEW
+  DENIED
+  COMPLETED
+  CANCELLED
+}
+
+model Account {
+  /// Matches auth.users.id. Authentication lives in Supabase Auth, not this table.
+  id                 String           @id @db.Uuid
+  role               AccountRole
+  status             AccountStatus    @default(ACTIVE)
+  email              String           @unique @db.VarChar(254)
+  fullName           String           @db.VarChar(160)
+  phone              String           @db.VarChar(20)
+  phoneVerifiedAt    DateTime?
+  pendingPhone       String?          @db.VarChar(20)
+  farmName           String?          @db.VarChar(160)
+  state              String?          @db.VarChar(60)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  phoneOtp           PhoneOtpThrottle?
+  deletionRequests   DeletionRequest[]
+  auditEvents        AuditEvent[]
+  invitationsSent    StaffInvitation[] @relation("Inviter")
+
+  @@map("app_accounts")
+}
+
+model PhoneOtpThrottle {
+  accountId       String   @id @db.Uuid
+  lastRequestedAt DateTime
+  windowStartedAt DateTime
+  countInWindow   Int      @default(1)
+  account         Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  @@map("phone_otp_throttles")
+}
+
+model StaffInvitation {
+  id            String           @id @default(uuid()) @db.Uuid
+  email         String           @db.VarChar(254)
+  role          AccountRole
+  status        InvitationStatus @default(PENDING)
+  invitedUserId String?          @unique @db.Uuid
+  invitedById   String           @db.Uuid
+  expiresAt     DateTime
+  createdAt     DateTime         @default(now())
+  acceptedAt    DateTime?
+  invitedBy     Account          @relation("Inviter", fields: [invitedById], references: [id])
+  @@index([email, status])
+  @@map("staff_invitations")
+}
+
+model DeletionRequest {
+  id          String         @id @default(uuid()) @db.Uuid
+  accountId   String         @db.Uuid
+  status      DeletionStatus @default(REQUESTED)
+  requestedAt DateTime       @default(now())
+  reviewedAt  DateTime?
+  account     Account        @relation(fields: [accountId], references: [id])
+  @@index([accountId, status])
+  @@map("account_deletion_requests")
+}
+
+model AuditEvent {
+  id          String   @id @default(uuid()) @db.Uuid
+  actorId     String   @db.Uuid
+  action      String   @db.VarChar(90)
+  subjectId   String?  @db.Uuid
+  createdAt   DateTime @default(now())
+  actor       Account  @relation(fields: [actorId], references: [id])
+  @@index([actorId, createdAt])
+  @@map("auth_audit_events")
 }

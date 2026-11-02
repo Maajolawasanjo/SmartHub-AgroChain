@@ -66,10 +66,10 @@ const related:Record<string,{href:string;label:string}[]> = {
  "/admin/staff/invites":[{href:"/admin/staff/invite",label:"Create invitation"}],
 };
 
-const privateRoute = (path:string) => path.startsWith("/account/") || path.startsWith("/admin/") || path.startsWith("/operations/") || path.startsWith("/field-agent/");
-const blockedInfo = "No identity provider, SMS gateway or production database is connected to this foundation. Sensitive actions cannot complete yet.";
+const privateRoute = (path:string) => (path.startsWith("/account/") && path!=="/account/help") || path.startsWith("/admin/") || path.startsWith("/operations/") || path.startsWith("/field-agent/");
+const blockedInfo = "This screen is informational until its specific backend policy and authorization flow are enabled. No sensitive operation has occurred.";
 
-export function AuthExperience({route,previewEnabled}:{route:string;previewEnabled:boolean}){
+export function AuthExperience({route,previewEnabled,authenticated=false}:{route:string;previewEnabled:boolean;authenticated?:boolean}){
  const scenarios = useMemo(()=>states.filter(s=>s.route.split("?")[0]===route),[route]);
  const [selected,setSelected]=useState<string|undefined>();
  useEffect(()=>{if(previewEnabled){const requested=new URLSearchParams(window.location.search).get("preview");if(requested&&scenarios.some(s=>s.id===requested))setSelected(requested);}},[previewEnabled,scenarios]);
@@ -77,7 +77,7 @@ export function AuthExperience({route,previewEnabled}:{route:string;previewEnabl
  const transition=transitions.find(t=>t.id===screen?.id);
  const titleInfo = headline[route] ?? {eyebrow:scenarios[0]?.module??"Account journey",title:route.split("/").filter(Boolean).at(-1)?.replaceAll("-"," ")??"Account access",description:"This account lifecycle step needs authenticated, server-authorized state before it can change records."};
  const reviewPaths = related[route] ?? [{href:"/account/help",label:"Account help"},{href:"/login",label:"Sign in"}];
- const locked=(privateRoute(route)||["/reset-password/success","/invite/complete","/account/delete/complete","/forgot-password/sent"].includes(route))&&!previewEnabled;
+ const locked=(privateRoute(route)&&!authenticated || ["/invite/complete","/account/delete/complete"].includes(route))&&!previewEnabled;
  return <div className="auth-layout">
   <aside className="auth-aside">
    <Link href="/" className="auth-logo">SmartHub<span>AgroChain</span></Link>

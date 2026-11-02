@@ -12,6 +12,10 @@ test("authentication routes delegate to the shared audited UI, not old inactive 
 test("no real credentials are embedded in environment example",()=>{
  const config=readFileSync(join(root,".env.example"),"utf8");assert.ok(!/eyJhbGciOi|sb_secret_|service_role|postgresql:\/\//.test(config));
 });
-test("Prisma database migration remains gated pending approval",()=>{
- const schema=readFileSync(join(root,"prisma/schema.prisma"),"utf8");assert.ok(!/^model\s+/m.test(schema));
+test("Prisma auth schema is defined but no migration is auto-applied",()=>{
+ const schema=readFileSync(join(root,"prisma/schema.prisma"),"utf8");
+ assert.match(schema,/model Account/);
+ const pkg=JSON.parse(readFileSync(join(root,"package.json"),"utf8"));
+ assert.ok(!pkg.scripts.postinstall.includes("migrate"));
+ assert.equal(pkg.scripts["db:migrate"],"prisma migrate deploy");
 });
