@@ -58,6 +58,11 @@ model Account {
   invitationsSent    StaffInvitation[] @relation("Inviter")
   fieldAgentAssignments FieldAgentAssignment[] @relation("FieldAgentAssignments")
   assignmentsCreated FieldAgentAssignment[] @relation("AssignmentCreator")
+  fieldVisitsAsAgent FieldVisit[] @relation("FieldVisitAgent")
+  fieldVisitsAsFarmer FieldVisit[] @relation("FieldVisitFarmer")
+  fieldVisitsReviewed FieldVisit[] @relation("FieldVisitReviewer")
+  fieldVisitEvidenceUploads FieldVisitEvidence[] @relation("FieldVisitEvidenceUploader")
+  fieldVisitEvents FieldVisitEvent[] @relation("FieldVisitEventActor")
   farms              Farm[] @relation("FarmerFarms")
   farmerVerification FarmerVerification? @relation("FarmerVerificationOwner")
   verificationReviews FarmerVerification[] @relation("VerificationReviewer")
@@ -128,6 +133,117 @@ model FieldAgentAssignment {
   @@index([fieldAgentId, active])
   @@index([state, active])
   @@map("field_agent_assignments")
+}
+
+
+enum FieldVisitStatus {
+  DRAFT
+  IN_PROGRESS
+  SUBMITTED
+  REVIEWED
+  RETURNED
+  CANCELLED
+}
+
+enum FieldVisitPurpose {
+  FARMER_VERIFICATION
+  FARM_ASSESSMENT
+  CROP_ASSESSMENT
+  PRODUCTION_OBSERVATION
+}
+
+enum FieldVisitReviewDecision {
+  ACCEPT_REPORT
+  RETURN_FOR_CHANGES
+}
+
+enum FieldVisitEventType {
+  CREATED
+  STARTED
+  UPDATED
+  SUBMITTED
+  ACCEPTED
+  RETURNED
+  CANCELLED
+  EVIDENCE_ADDED
+  EVIDENCE_REMOVED
+}
+
+enum FieldVisitEvidenceStatus {
+  UPLOADING
+  READY
+  FAILED
+  DELETING
+}
+
+model FieldVisit {
+  id                       String                    @id @default(uuid()) @db.Uuid
+  fieldAgentId             String                    @db.Uuid
+  farmerId                 String                    @db.Uuid
+  farmId                   String                    @db.Uuid
+  purpose                  FieldVisitPurpose
+  status                   FieldVisitStatus           @default(DRAFT)
+  visitDate                DateTime                  @db.Date
+  farmerPresent            Boolean?
+  cropObservations         String?                   @db.VarChar(3000)
+  productionObservations   String?                   @db.VarChar(3000)
+  fieldNotes               String?                   @db.VarChar(5000)
+  followUpRequired         Boolean                   @default(false)
+  followUpNotes            String?                   @db.VarChar(2000)
+  submittedAt              DateTime?
+  reviewedAt               DateTime?
+  reviewedById             String?                   @db.Uuid
+  reviewDecision           FieldVisitReviewDecision?
+  reviewerNote             String?                   @db.VarChar(2000)
+  createdAt                DateTime                  @default(now())
+  updatedAt                DateTime                  @updatedAt
+  fieldAgent               Account                   @relation("FieldVisitAgent", fields: [fieldAgentId], references: [id], onDelete: Restrict)
+  farmer                   Account                   @relation("FieldVisitFarmer", fields: [farmerId], references: [id], onDelete: Restrict)
+  farm                     Farm                      @relation(fields: [farmId, farmerId], references: [id, farmerId], onDelete: Restrict)
+  reviewer                 Account?                  @relation("FieldVisitReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  evidence                 FieldVisitEvidence[]
+  events                   FieldVisitEvent[]
+
+  @@index([fieldAgentId, status, createdAt])
+  @@index([farmerId, createdAt])
+  @@index([farmId, createdAt])
+  @@index([status, submittedAt])
+  @@map("field_visits")
+}
+
+model FieldVisitEvidence {
+  id           String                   @id @default(uuid()) @db.Uuid
+  visitId      String                   @db.Uuid
+  uploadedById String                   @db.Uuid
+  objectPath   String                   @unique @db.VarChar(500)
+  originalName String                   @db.VarChar(180)
+  contentType  String                   @db.VarChar(80)
+  sizeBytes    Int
+  caption      String?                  @db.VarChar(500)
+  status       FieldVisitEvidenceStatus  @default(UPLOADING)
+  createdAt    DateTime                 @default(now())
+  updatedAt    DateTime                 @updatedAt
+  visit        FieldVisit               @relation(fields: [visitId], references: [id], onDelete: Restrict)
+  uploadedBy   Account                  @relation("FieldVisitEvidenceUploader", fields: [uploadedById], references: [id], onDelete: Restrict)
+
+  @@index([visitId, status, createdAt])
+  @@map("field_visit_evidence")
+}
+
+model FieldVisitEvent {
+  id        String               @id @default(uuid()) @db.Uuid
+  visitId   String               @db.Uuid
+  actorId   String               @db.Uuid
+  eventType FieldVisitEventType
+  status    FieldVisitStatus
+  note      String?              @db.VarChar(2000)
+  createdAt DateTime             @default(now())
+  visit     FieldVisit           @relation(fields: [visitId], references: [id], onDelete: Restrict)
+  actor     Account              @relation("FieldVisitEventActor", fields: [actorId], references: [id], onDelete: Restrict)
+
+  @@index([visitId, createdAt])
+  @@index([actorId, createdAt])
+  @@map("field_visit_events")
 }
 
 model DeletionRequest {
@@ -305,7 +421,10 @@ model Farm {
   farmer       Account  @relation("FarmerFarms", fields: [farmerId], references: [id], onDelete: Restrict)
   crops        FarmerCrop[]
   supplies     SupplyDeclaration[]
+  fieldVisits  FieldVisit[]
 
+  @@unique([id, farmerId], map: "farms_id_farmerId_key")
+  @@index([state, createdAt])
   @@index([farmerId, createdAt])
   @@map("farms")
 }

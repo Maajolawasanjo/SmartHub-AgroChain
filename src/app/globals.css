@@ -203,3 +203,53 @@ a:focus-visible, button:focus-visible { outline: 3px solid #d79416; outline-offs
 @media(max-width:520px){.staff-filter-form{grid-template-columns:1fr}.staff-actions{justify-content:stretch}.staff-actions>*{flex:1}.staff-profile-card{padding:17px;flex-direction:column}.staff-form{padding:17px}.staff-state-grid{grid-template-columns:1fr}.staff-page-links{align-items:flex-start}.staff-pagination{justify-content:flex-start}.staff-pagination span{width:100%}}
 
 .staff-sync-section{margin-top:18px}
+
+
+/* Phase 05 — Field Agent visits, private evidence and independent Operations review */
+.field-agent-scope-note{display:grid;gap:7px;margin-bottom:18px;padding:18px 20px;border:1px solid #d7e4d8;border-left:4px solid #123d2b;border-radius:12px;background:#f8fbf8;color:#31513b;font-size:13px;line-height:1.6}
+.field-agent-scope-note strong{color:#123d2b;font-size:14px}
+.field-agent-scope-note span{font-weight:800}
+.field-agent-scope-note p{margin:0;color:#63786a;font-size:12px}
+.field-agent-home-actions,.field-agent-page-links{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:18px 0}
+.field-agent-page-links{justify-content:space-between;margin:0 0 18px;color:#185b38;font-size:12px;font-weight:800}
+.field-agent-page-links a{color:#185b38;text-decoration:none}
+.field-agent-page-links a:hover{text-decoration:underline}
+.field-agent-search{grid-template-columns:minmax(220px,1fr) auto auto;margin-bottom:18px}
+.field-agent-static{padding:12px 13px;border:1px solid #dce7de;border-radius:9px;background:#f7faf7;color:#244d35;font-size:13px;font-weight:750}
+.field-agent-section-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px}
+.field-agent-section-head h2{margin:0 0 7px;color:#173f2b;font-size:20px;font-weight:800}
+.field-agent-section-head p{margin:0;color:#65796a;font-size:12px;line-height:1.65;max-width:760px}
+.field-agent-count{flex:0 0 auto;padding:6px 10px;border:1px solid #d9e6da;border-radius:999px;background:#f3f8f3;color:#315a3c;font-size:11px;font-weight:800}
+.field-agent-detail-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:20px}
+.field-agent-detail-heading h2{margin:7px 0;color:#123d2b;font-size:22px;font-weight:850}
+.field-agent-detail-heading p{margin:4px 0;color:#627467;font-size:12px;line-height:1.6}
+.field-agent-detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:18px 0 0}
+.field-agent-detail-grid>div{padding:12px 14px;border:1px solid #e1eae2;border-radius:9px;background:#fbfdfb;min-width:0}
+.field-agent-detail-grid dt{color:#738276;font-size:10px;font-weight:750;text-transform:uppercase;letter-spacing:.04em}
+.field-agent-detail-grid dd{margin:6px 0 0;color:#244532;font-size:12px;line-height:1.6;overflow-wrap:anywhere}
+.field-agent-subheading{margin:20px 0 7px;color:#244b32;font-size:13px;font-weight:850}
+.field-agent-preserve{white-space:pre-wrap;overflow-wrap:anywhere;color:#405c49;font-size:13px;line-height:1.8;margin:0}
+.field-agent-full{grid-column:1/-1}
+.field-agent-check{display:flex!important;align-items:center;gap:9px!important;min-height:42px}
+.field-agent-check input{width:17px;height:17px;accent-color:#123d2b}
+.field-agent-action-row{display:grid;gap:12px;margin-top:16px}
+.field-agent-cancel-row{display:flex;gap:10px;flex-wrap:wrap}
+.field-agent-cancel-row input{flex:1;min-width:210px;border:1px solid #cbd9cd;border-radius:9px;padding:10px 12px;font:inherit;font-size:12px}
+.field-agent-upload-form{display:grid;grid-template-columns:minmax(220px,1.2fr) minmax(180px,1fr) auto;gap:12px;align-items:end;margin-top:18px;padding-top:18px;border-top:1px solid #e5ece6}
+.field-agent-upload-form input[type=file]{font-size:11px;padding:9px}
+.field-agent-evidence-list{display:grid;gap:10px}
+.field-agent-evidence{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px;border:1px solid #e0e9e1;border-radius:10px;background:#fbfdfb}
+.field-agent-evidence>div{min-width:0}
+.field-agent-evidence strong{display:block;color:#244532;font-size:12px;overflow-wrap:anywhere}
+.field-agent-evidence p{margin:5px 0;color:#718075;font-size:11px;line-height:1.5;overflow-wrap:anywhere}
+.field-agent-evidence-status{display:inline-block;margin-top:3px;color:#718075;font-size:10px;font-weight:800}
+.field-agent-evidence-status.ready{color:#2c6940}
+.field-agent-evidence-status.failed{color:#9b453d}
+.field-agent-evidence .action{flex:0 0 auto}
+.field-agent-history{display:grid;gap:0}
+.field-agent-history article{display:grid;grid-template-columns:14px 1fr;gap:12px;padding:0 0 17px;position:relative}
+.field-agent-history article:not(:last-child):before{content:"";position:absolute;left:5px;top:12px;bottom:0;width:1px;background:#dce7de}
+.field-agent-history-dot{width:11px;height:11px;margin-top:3px;border-radius:50%;background:#e8b34f;border:2px solid #fff;box-shadow:0 0 0 1px #c4d6c6;z-index:1}
+.field-agent-history strong{color:#2d4d38;font-size:12px}
+.field-agent-history p{margin:5px 0 0;color:#748176;font-size:11px;line-height:1.6}
+@media(max-width:760px){.field-agent-upload-form{grid-template-columns:1fr}.field-agent-search{grid-template-columns:1fr}.field-agent-detail-heading{flex-direction:column}.field-agent-evidence{align-items:flex-start;flex-wrap:wrap}.field-agent-evidence .action{min-height:38px}}

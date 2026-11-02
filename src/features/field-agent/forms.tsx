@@ -1,0 +1,75 @@
+"use client";
+import {useState,type FormEvent} from "react";
+import {useRouter} from "next/navigation";
+import Link from "next/link";
+
+type Purpose="FARMER_VERIFICATION"|"FARM_ASSESSMENT"|"CROP_ASSESSMENT"|"PRODUCTION_OBSERVATION";
+type Evidence={id:string;originalName:string;contentType:string;sizeBytes:number;caption:string|null;status:"READY"|"FAILED"|"UPLOADING"|"DELETING";createdAt:string;updatedAt:string};
+const purposeOptions:[Purpose,string][]=[
+ ["FARMER_VERIFICATION","Farmer verification visit"],
+ ["FARM_ASSESSMENT","Farm assessment"],
+ ["CROP_ASSESSMENT","Crop observation"],
+ ["PRODUCTION_OBSERVATION","Production observation"],
+];
+async function send(url:string,method:string,body?:BodyInit,contentType="application/json"){
+ const headers:Record<string,string>={};if(contentType)headers["Content-Type"]=contentType;
+ const response=await fetch(url,{method,headers,body,credentials:"same-origin",cache:"no-store"});
+ const data=await response.json().catch(()=>({error:"Unexpected server response."}));
+ if(!response.ok||!data.ok)throw new Error(data.error||"The request could not be completed.");
+ return data;
+}
+function Message({error,success}:{error:string;success:string}){return <>{error&&<p className="agro-error" role="alert">{error}</p>}{success&&<p className="agro-success" role="status">{success}</p>}</>}
+
+export function FieldVisitCreateForm({farmId,farmName}:{farmId:string;farmName:string}){
+ const router=useRouter();const[busy,setBusy]=useState(false);const[error,setError]=useState("");
+ const[success,setSuccess]=useState("");const[purpose,setPurpose]=useState<Purpose>("FARMER_VERIFICATION");
+ const[visitDate,setVisitDate]=useState(new Date().toISOString().slice(0,10));
+ async function submit(e:FormEvent<HTMLFormElement>){e.preventDefault();if(busy)return;setBusy(true);setError("");setSuccess("");try{const data=await send("/api/field-agent/visits","POST",JSON.stringify({farmId,purpose,visitDate}));setSuccess("Visit draft created.");router.push(data.next);router.refresh();}catch(e){setError(e instanceof Error?e.message:"Could not create this visit.");}finally{setBusy(false);}}
+ return <form className="agro-panel agro-form" onSubmit={submit}><div className="agro-form-grid">
+  <div className="agro-field"><label>Farmer / farm</label><div className="field-agent-static">{farmName}</div><p className="agro-hint">The farm is taken from your active state assignment; it cannot be changed in this form.</p></div>
+  <div className="agro-field"><label htmlFor="visit-purpose">Visit purpose</label><select id="visit-purpose" value={purpose} onChange={e=>setPurpose(e.target.value as Purpose)}>{purposeOptions.map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></div>
+  <div className="agro-field"><label htmlFor="visit-date">Visit date</label><input id="visit-date" type="date" value={visitDate} max={new Date().toISOString().slice(0,10)} onChange={e=>setVisitDate(e.target.value)} required/></div>
+ </div><div className="agro-actions"><button className="agro-button" disabled={busy}>{busy?"Creating…":"Create visit draft"}</button><Link className="action action-outline" href="/field-agent/farmers">Cancel</Link></div><Message error={error} success={success}/></form>;
+}
+
+export function FieldVisitEditor({visitId,status,farmerPresent,cropObservations,productionObservations,fieldNotes,followUpRequired,followUpNotes}:{visitId:string;status:string;farmerPresent:boolean|null;cropObservations:string|null;productionObservations:string|null;fieldNotes:string|null;followUpRequired:boolean;followUpNotes:string|null}){
+ const router=useRouter();const[busy,setBusy]=useState(false);const[error,setError]=useState("");const[success,setSuccess]=useState("");
+ const[present,setPresent]=useState(farmerPresent===true?"yes":farmerPresent===false?"no":"unknown");
+ const[crops,setCrops]=useState(cropObservations||"");const[production,setProduction]=useState(productionObservations||"");const[notes,setNotes]=useState(fieldNotes||"");const[followUp,setFollowUp]=useState(followUpRequired);const[followUpText,setFollowUpText]=useState(followUpNotes||"");const[cancelReason,setCancelReason]=useState("");
+ const editable=["DRAFT","IN_PROGRESS","RETURNED"].includes(status);
+ async function save(e:FormEvent<HTMLFormElement>){e.preventDefault();if(busy)return;setBusy(true);setError("");setSuccess("");try{await send(`/api/field-agent/visits/${visitId}`,"PATCH",JSON.stringify({farmerPresent:present,cropObservations:crops,productionObservations:production,fieldNotes:notes,followUpRequired:followUp,followUpNotes:followUpText}));setSuccess("Report notes saved.");router.refresh();}catch(e){setError(e instanceof Error?e.message:"Could not save this report.");}finally{setBusy(false);}}
+ async function action(endpoint:string,body?:unknown,confirmText?:string){if(busy)return;if(confirmText&&!window.confirm(confirmText))return;setBusy(true);setError("");setSuccess("");try{if(endpoint==="start"||endpoint==="submit"){await send(`/api/field-agent/visits/${visitId}`,"PATCH",JSON.stringify({farmerPresent:present,cropObservations:crops,productionObservations:production,fieldNotes:notes,followUpRequired:followUp,followUpNotes:followUpText}));}await send(`/api/field-agent/visits/${visitId}/${endpoint}`,"POST",JSON.stringify(body??{}));setSuccess("Visit status updated.");router.refresh();}catch(e){setError(e instanceof Error?e.message:"Could not update visit status.");}finally{setBusy(false);}}
+ return <section className="agro-panel"><div className="field-agent-section-head"><div><h2>Field report</h2><p>Record observations from this visit. Farmer-reported information and field observations are not an Operations verification decision.</p></div></div>
+  <form className="agro-form" onSubmit={save}><div className="agro-form-grid">
+   <div className="agro-field"><label htmlFor="farmer-present">Farmer present</label><select id="farmer-present" value={present} onChange={e=>setPresent(e.target.value)} disabled={!editable}><option value="unknown">Not recorded</option><option value="yes">Yes</option><option value="no">No</option></select></div>
+   <div className="agro-field field-agent-full"><label htmlFor="crop-observations">Crop observations</label><textarea id="crop-observations" rows={3} maxLength={3000} value={crops} onChange={e=>setCrops(e.target.value)} disabled={!editable} placeholder="Record crop details observed during this visit."/></div>
+   <div className="agro-field field-agent-full"><label htmlFor="production-observations">Production / available stock observations</label><textarea id="production-observations" rows={3} maxLength={3000} value={production} onChange={e=>setProduction(e.target.value)} disabled={!editable} placeholder="Record what was observed; do not treat estimates as verified stock."/></div>
+   <div className="agro-field field-agent-full"><label htmlFor="field-notes">Field notes <span aria-hidden="true">*</span></label><textarea id="field-notes" rows={5} maxLength={5000} value={notes} onChange={e=>setNotes(e.target.value)} disabled={!editable} placeholder="Describe what was checked, what the farmer reported, and any limits or discrepancies. At least 20 characters are required to submit."/><p className="agro-hint">{notes.length}/5000 characters. Submit requires at least one evidence file.</p></div>
+   <div className="agro-field"><label className="field-agent-check"><input type="checkbox" checked={followUp} onChange={e=>{setFollowUp(e.target.checked);if(!e.target.checked)setFollowUpText("");}} disabled={!editable}/> Follow-up required</label></div>
+   {followUp&&<div className="agro-field field-agent-full"><label htmlFor="follow-up-notes">Follow-up details</label><textarea id="follow-up-notes" rows={3} maxLength={2000} minLength={5} value={followUpText} onChange={e=>setFollowUpText(e.target.value)} disabled={!editable} required placeholder="What needs follow-up and why?"/></div>}
+  </div>
+  {editable&&<div className="agro-actions"><button className="agro-button agro-secondary" type="submit" disabled={busy}>{busy?"Saving…":"Save report notes"}</button></div>}
+  </form>
+  {status==="DRAFT"&&<div className="field-agent-action-row"><button className="agro-button" type="button" disabled={busy} onClick={()=>action("start",{},"Start this field visit now?")}>{busy?"Updating…":"Start visit"}</button></div>}
+  {(status==="IN_PROGRESS"||status==="RETURNED")&&<div className="field-agent-action-row"><button className="agro-button" type="button" disabled={busy} onClick={()=>action("submit",{confirmation:true},"Submit this field report to Operations? You will not be able to edit it unless it is returned for changes.")}>{busy?"Submitting…":"Submit report to Operations"}</button><div className="field-agent-cancel-row"><input aria-label="Cancellation reason" value={cancelReason} onChange={e=>setCancelReason(e.target.value)} maxLength={500} minLength={8} placeholder="Reason if cancelling"/><button className="agro-button agro-secondary" type="button" disabled={busy||cancelReason.trim().length<8} onClick={()=>action("cancel",{reason:cancelReason},"Cancel this field visit? This action is recorded and cannot be undone.")}>Cancel visit</button></div></div>}
+  <Message error={error} success={success}/>
+ </section>;
+}
+
+export function FieldVisitEvidencePanel({visitId,status,initialEvidence}:{visitId:string;status:string;initialEvidence:Evidence[]}){
+ const router=useRouter();const[busy,setBusy]=useState(false);const[error,setError]=useState("");const[success,setSuccess]=useState("");const[file,setFile]=useState<File|null>(null);const[caption,setCaption]=useState("");
+ const editable=["DRAFT","IN_PROGRESS","RETURNED"].includes(status);
+ async function upload(e:FormEvent<HTMLFormElement>){e.preventDefault();if(!file||busy)return;setBusy(true);setError("");setSuccess("");try{const form=new FormData();form.append("file",file);form.append("caption",caption);const data=await send(`/api/field-agent/visits/${visitId}/evidence`,"POST",form,"");setSuccess(`Attached ${data.item.originalName}.`);setFile(null);setCaption("");const input=document.getElementById("field-evidence-file") as HTMLInputElement|null;if(input)input.value="";router.refresh();}catch(e){setError(e instanceof Error?e.message:"Evidence upload failed.");}finally{setBusy(false);}}
+ async function remove(evidenceId:string){if(busy||!window.confirm("Remove this evidence file before submitting the report?"))return;setBusy(true);setError("");setSuccess("");try{await send(`/api/field-agent/visits/${visitId}/evidence?evidenceId=${encodeURIComponent(evidenceId)}`,"DELETE");setSuccess("Evidence removed.");router.refresh();}catch(e){setError(e instanceof Error?e.message:"Evidence could not be removed.");}finally{setBusy(false);}}
+ return <section className="agro-panel"><div className="field-agent-section-head"><div><h2>Evidence</h2><p>Private evidence is visible only to authorized Field Agents and Operations. Upload JPEG, PNG, WebP or PDF, up to 10 MB each.</p></div><span className="field-agent-count">{initialEvidence.filter(e=>e.status==="READY").length} ready</span></div>
+  {initialEvidence.length?<div className="field-agent-evidence-list">{initialEvidence.map(item=><div className="field-agent-evidence" key={item.id}><div><strong>{item.originalName}</strong><p>{item.contentType} · {(item.sizeBytes/1024/1024).toFixed(2)} MB{item.caption?` · ${item.caption}`:""}</p><span className={`field-agent-evidence-status ${item.status.toLowerCase()}`}>{item.status==="READY"?"Ready":item.status==="FAILED"?"Upload failed — remove and retry":item.status==="UPLOADING"?"Upload in progress — cleanup available if stuck for 15 minutes":"Removal in progress — retry cleanup if stuck for 15 minutes"}</span></div>{item.status==="READY"&&<Link className="action action-outline" href={`/api/field-agent/visits/${visitId}/evidence/${item.id}`} target="_blank" rel="noreferrer">Open evidence</Link>}{editable&&(["READY","FAILED"].includes(item.status)||((item.status==="UPLOADING"||item.status==="DELETING")&&Date.now()-new Date(item.updatedAt).getTime()>15*60*1000))&&<button className="action action-outline" type="button" disabled={busy} onClick={()=>remove(item.id)}>{item.status==="UPLOADING"||item.status==="DELETING"?"Retry cleanup":"Remove"}</button>}</div>)}</div>:<p className="agro-hint">No evidence attached yet. At least one completed upload is required before report submission.</p>}
+  {editable&&<form className="field-agent-upload-form" onSubmit={upload}><div className="agro-field"><label htmlFor="field-evidence-file">Add evidence</label><input id="field-evidence-file" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" required onChange={e=>setFile(e.target.files?.[0]||null)} disabled={busy}/></div><div className="agro-field"><label htmlFor="field-evidence-caption">Caption (optional)</label><input id="field-evidence-caption" value={caption} maxLength={500} onChange={e=>setCaption(e.target.value)} disabled={busy} placeholder="What does this evidence show?"/></div><button className="agro-button agro-secondary" type="submit" disabled={busy||!file}>{busy?"Uploading…":"Upload evidence"}</button></form>}
+  <Message error={error} success={success}/>
+ </section>;
+}
+
+export function FieldVisitReviewForm({visitId}:{visitId:string}){
+ const router=useRouter();const[decision,setDecision]=useState<"accept"|"return">("accept");const[note,setNote]=useState("");const[busy,setBusy]=useState(false);const[error,setError]=useState("");const[success,setSuccess]=useState("");
+ async function submit(e:FormEvent<HTMLFormElement>){e.preventDefault();if(busy)return;setBusy(true);setError("");setSuccess("");try{await send(`/api/operations/field-visits/${visitId}/review`,"POST",JSON.stringify({decision,note}));setSuccess("Field report review recorded.");router.push("/operations/field-visits");router.refresh();}catch(e){setError(e instanceof Error?e.message:"Could not record the review.");}finally{setBusy(false);}}
+ return <form className="agro-panel agro-form" onSubmit={submit}><h2>Operations review</h2><p>Accepting this report records that Operations reviewed the field report. It does not approve the farmer, verify supply or publish stock.</p><div className="agro-form-grid"><div className="agro-field"><label htmlFor="field-review-decision">Decision</label><select id="field-review-decision" value={decision} onChange={e=>setDecision(e.target.value as "accept"|"return")}><option value="accept">Accept report</option><option value="return">Return for changes</option></select></div><div className="agro-field field-agent-full"><label htmlFor="field-review-note">Review note</label><textarea id="field-review-note" rows={4} minLength={8} maxLength={2000} value={note} onChange={e=>setNote(e.target.value)} required placeholder="Record the review rationale and any required corrections."/></div></div><div className="agro-actions"><button className="agro-button" type="submit" disabled={busy||note.trim().length<8}>{busy?"Saving review…":"Record review"}</button></div><Message error={error} success={success}/></form>;
+}
