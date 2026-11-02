@@ -1,0 +1,3 @@
+export const metadata = { robots: { index: false, follow: false } };
+import Link from "next/link";
+export default function Privacy(){return <main className="container py-20"><Link href="/signup">← Back to registration</Link><p className="eyebrow mt-12">Document pending approval</p><h1 className="mt-5 text-4xl font-bold">Privacy Notice</h1><p className="mt-5 max-w-2xl leading-8">The approved SmartHub AgroChain Privacy Notice has not yet been connected to this implementation. Registration, identity verification, data retention and contact-data processing must not go live until the notice is finalized and published.</p><Link href="/contact" className="action action-outline mt-8">Contact SmartHub</Link></main>}

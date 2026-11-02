@@ -1,0 +1,3 @@
+export const metadata = { robots: { index: false, follow: false } };
+import Link from "next/link";
+export default function Terms(){return <main className="container py-20"><Link href="/signup">← Back to registration</Link><p className="eyebrow mt-12">Document pending approval</p><h1 className="mt-5 text-4xl font-bold">Terms of Service</h1><p className="mt-5 max-w-2xl leading-8">The legally approved Terms of Service have not yet been supplied for this new website. Do not open account registration or treat any frontend consent as legally effective until the final terms are reviewed and published.</p><Link href="/contact" className="action action-outline mt-8">Contact SmartHub</Link></main>}

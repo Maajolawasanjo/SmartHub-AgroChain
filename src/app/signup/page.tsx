@@ -1,4 +1,6 @@
-import Link from "next/link";
-import type { Metadata } from "next";
-export const metadata:Metadata={title:"Create account"};
-export default function SignUp(){return <main className="container flex min-h-screen items-center justify-center py-12"><div className="surface w-full max-w-lg p-10"><Link href="/" className="font-bold text-[#123d2b]">SmartHub AgroChain</Link><p className="eyebrow mt-8">Registration</p><h1 className="mt-3 text-3xl font-bold">Registration is being prepared</h1><p className="mt-4 leading-7 text-[#526858]">Buyer and farmer registration requires secure email verification, and farmer registration also requires SMS verification. This workflow is not active on this staging foundation.</p><Link href="/" className="action action-primary mt-8">Return to homepage</Link></div></main>;}
+export const metadata = { robots: { index: false, follow: false } };
+import { AuthPage } from "@/features/auth/components/auth-page";
+
+export default function Page() {
+  return <AuthPage route="/signup" />;
+}
