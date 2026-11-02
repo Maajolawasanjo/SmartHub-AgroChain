@@ -14,7 +14,8 @@ export async function POST(request:NextRequest){
   const ctx=await getIdentity();
   if(!ctx?.user?.email || !ctx.user.email_confirmed_at)throw new PublicError(403,"An authenticated, confirmed invitation session is required.");
   const db=getPrisma();
-  const invitation=await db.staffInvitation.findFirst({where:{invitedUserId:ctx.user.id,email:ctx.user.email.toLowerCase(),
+  const invitation=await db.staffInvitation.findFirst({where:{email:ctx.user.email.toLowerCase(),
+    OR:[{invitedUserId:ctx.user.id},{invitedUserId:null}],
     status:"PENDING",expiresAt:{gt:new Date()}}});
   if(!invitation || !["FIELD_AGENT","OPERATIONS"].includes(invitation.role))throw new PublicError(403,"Your staff invitation is invalid, expired or already used.");
   const existing=await db.account.findUnique({where:{id:ctx.user.id}});
@@ -24,7 +25,7 @@ export async function POST(request:NextRequest){
   if(update.error)throw new PublicError(400,"Unable to set account credentials.");
   await db.$transaction(async tx=>{
     const claimed=await tx.staffInvitation.updateMany({where:{id:invitation.id,status:"PENDING",expiresAt:{gt:new Date()}},
-       data:{status:"ACCEPTED",acceptedAt:new Date()}});
+       data:{status:"ACCEPTED",acceptedAt:new Date(),invitedUserId:ctx.user.id}});
     if(claimed.count!==1)throw new PublicError(409,"Invitation already processed.");
     await tx.account.create({data:{id:ctx.user.id,email:ctx.user.email!.toLowerCase(),fullName,phone:"",role:invitation.role}});
     await tx.auditEvent.create({data:{actorId:ctx.user.id,action:"STAFF_INVITATION_ACCEPTED"}});

@@ -6,6 +6,7 @@ import { getAccountContext, getIdentity, accountDestination } from "@/server/aut
 import { PublicError, assertSameOrigin, errorReply, readJson, reply, requireConfig } from "@/server/auth/http";
 import { publicSignupReady, siteUrl } from "@/server/auth/env";
 import { emailSchema, passwordSchema, signupSchema } from "@/server/auth/validators";
+import { createSignupIntent, SIGNUP_INTENT_METADATA_KEY, reconcilePublicAccount } from "@/server/auth/provisioning";
 import { validateRecoveryTicket, clearRecoveryTicket } from "@/server/auth/recovery";
 
 export const runtime="nodejs";
@@ -21,22 +22,19 @@ async function handle(request:NextRequest, action:string){
   case "signup": {
    if(!publicSignupReady())throw new PublicError(503,"Registration will open after the service and legal-policy configuration is approved.");
    const data=signupSchema.parse(input);
+   // Persist server-authoritative public role/profile details before the external Auth call.
+   // If Auth succeeds and the response is lost, the verified email callback can recover safely.
+   const intentId=await createSignupIntent(data);
    const {data:result,error}=await supabase.auth.signUp({
      email:data.email,password:data.password,
-     options:{emailRedirectTo:`${siteUrl()}/auth/callback`,data:{full_name:data.fullName}},
+     options:{emailRedirectTo:`${siteUrl()}/auth/callback?type=email`,
+       data:{[SIGNUP_INTENT_METADATA_KEY]:intentId}},
    });
    if(error)throw new PublicError(400,"Registration could not be completed. Please check your details or contact support.");
-   // Supabase can supply a fake user for an existing address to prevent enumeration.
-   if(!result.user || result.user.identities?.length===0)return reply({ok:true,next:"/verify-email"});
-   try {
-    await db.account.create({data:{id:result.user.id,email:data.email,fullName:data.fullName,phone:data.phone,
-      role:data.role==="farmer"?"FARMER":"BUYER",farmName:data.role==="farmer"?data.farmName:null,
-      state:data.role==="farmer"?data.state:null}});
-   }catch(e){
-    console.error("Registration profile write failed",e instanceof Error?e.name:"unknown");
-    // No dashboard access exists for an Auth user without a trusted account row.
-    throw new PublicError(503,"Account setup is incomplete. Please contact support before retrying registration.");
-   }
+   // Supabase may send an obfuscated user for an existing email; never create a profile from it.
+   if(result.user?.identities?.length===0)return reply({ok:true,next:"/verify-email"});
+   // Email confirmation is mandatory. Profile reconciliation happens only after it succeeds.
+   if(result.user?.email_confirmed_at) await reconcilePublicAccount(result.user,db);
    return reply({ok:true,next:"/verify-email"},201);
   }
   case "login": {
@@ -44,8 +42,9 @@ async function handle(request:NextRequest, action:string){
    const {data:result,error}=await supabase.auth.signInWithPassword(data);
    if(error?.code==="email_not_confirmed")return reply({ok:true,next:"/verify-email"});
    if(error || !result.user)throw new PublicError(401,"Invalid email or password.");
-   const account=await db.account.findUnique({where:{id:result.user.id}});
-   if(!account){await supabase.auth.signOut();throw new PublicError(403,"Account provisioning is incomplete. Contact support.");}
+   const account=await db.account.findUnique({where:{id:result.user.id}})
+      || await reconcilePublicAccount(result.user,db);
+   if(!account){await supabase.auth.signOut();throw new PublicError(403,"Account provisioning is incomplete. Please contact support.");}
    if(account.status!=="ACTIVE"){
     await supabase.auth.signOut();throw new PublicError(403,"Account access is restricted. Please contact support.");
    }
@@ -88,21 +87,25 @@ async function handle(request:NextRequest, action:string){
    if(!ctx.account.pendingPhone && ctx.user.phone_confirmed_at && ctx.user.phone===ctx.account.phone)return reply({ok:true,next:"/auth/redirect"});
    const now=new Date();const previous=await db.phoneOtpThrottle.findUnique({where:{accountId:ctx.account.id}});
    if(previous){
+    if(previous.lockedUntil && previous.lockedUntil>now)throw new PublicError(429,"Too many incorrect codes. Try again later.");
     if(now.getTime()-previous.lastRequestedAt.getTime()<60_000)throw new PublicError(429,"Please wait one minute before resending.");
     if(now.getTime()-previous.windowStartedAt.getTime()<3_600_000 && previous.countInWindow>=5)throw new PublicError(429,"Too many SMS requests. Try again later.");
    }
    const sameWindow=!!previous && now.getTime()-previous.windowStartedAt.getTime()<3_600_000;
    if(previous){
     const changed=await db.phoneOtpThrottle.updateMany({where:{accountId:ctx.account.id,lastRequestedAt:previous.lastRequestedAt},
-      data:{lastRequestedAt:now,windowStartedAt:sameWindow?previous.windowStartedAt:now,countInWindow:sameWindow?previous.countInWindow+1:1}});
+      data:{lastRequestedAt:now,windowStartedAt:sameWindow?previous.windowStartedAt:now,countInWindow:sameWindow?previous.countInWindow+1:1,
+        attempts:0,lockedUntil:null,targetPhone}});
     if(changed.count!==1)throw new PublicError(429,"A verification request is already processing.");
    }else{
-    try{await db.phoneOtpThrottle.create({data:{accountId:ctx.account.id,lastRequestedAt:now,windowStartedAt:now,countInWindow:1}});}
+    try{await db.phoneOtpThrottle.create({data:{accountId:ctx.account.id,lastRequestedAt:now,windowStartedAt:now,countInWindow:1,attempts:0,targetPhone}});}
     catch{throw new PublicError(429,"A verification request is already processing.");}
    }
    // Sends an Auth-managed phone-change OTP, subject to configured Supabase SMS provider.
    // Supabase provides a dedicated resend method for an already pending phone change.
-   const result=previous
+   // A prior throttle entry is NOT proof that the provider has a pending phone change.
+   // Supabase's trusted new_phone property tells us whether to resend or initiate.
+   const result=ctx.user.new_phone===targetPhone
       ? await supabase.auth.resend({type:"phone_change",phone:targetPhone})
       : await supabase.auth.updateUser({phone:targetPhone});
    if(result.error)throw new PublicError(503,"SMS delivery is unavailable. Please try again later.");
@@ -115,12 +118,33 @@ async function handle(request:NextRequest, action:string){
    if(!ctx.user.email_confirmed_at)throw new PublicError(403,"Email verification is required first.");
    const targetPhone=ctx.account.pendingPhone || (ctx.account.role==="FARMER"?ctx.account.phone:null);
    if(!targetPhone)throw new PublicError(403,"No pending verification exists.");
-   const {error}=await supabase.auth.verifyOtp({phone:targetPhone,token,type:"phone_change"});
-   if(error)throw new PublicError(400,"Code invalid, expired or already used.");
+   const throttle=await db.phoneOtpThrottle.findUnique({where:{accountId:ctx.account.id}});
+   if(!throttle || throttle.targetPhone!==targetPhone || !throttle.lastRequestedAt ||
+       Date.now()-throttle.lastRequestedAt.getTime()>10*60_000)
+     throw new PublicError(403,"Request a fresh verification code first.");
+   if(throttle.lockedUntil && throttle.lockedUntil>new Date())
+     throw new PublicError(429,"Too many incorrect codes. Request a new code later.");
+   const {data:verified,error}=await supabase.auth.verifyOtp({phone:targetPhone,token,type:"phone_change"});
+   if(!error && verified.user?.id!==ctx.account.id){
+     // Never leave the browser signed into an unintended identity after provider ambiguity.
+     await supabase.auth.signOut();
+     throw new PublicError(403,"Verification identity mismatch. Your session was ended; contact support.");
+   }
+   if(error){
+     const nextAttempts=throttle.attempts+1;
+     await db.phoneOtpThrottle.updateMany({where:{accountId:ctx.account.id,targetPhone},data:{
+       attempts:{increment:1},...(nextAttempts>=5?{lockedUntil:new Date(Date.now()+15*60_000)}:{}),
+     }});
+     throw new PublicError(400,"Code invalid, expired or already used.");
+   }
    const {data,error:userError}=await supabase.auth.getUser();
-   if(userError || !data.user || !data.user.phone_confirmed_at || data.user.phone!==targetPhone)
-    throw new PublicError(403,"The phone number was not verified. Request another code.");
-   await db.account.update({where:{id:ctx.account.id},data:{phone:targetPhone,pendingPhone:null,phoneVerifiedAt:new Date()}});
+   if(userError || data.user?.id!==ctx.account.id || !data.user.phone_confirmed_at || data.user.phone!==targetPhone)
+    throw new PublicError(403,"The phone number was not verified for your account. Contact support.");
+   await db.$transaction([
+     db.account.update({where:{id:ctx.account.id},data:{phone:targetPhone,pendingPhone:null,phoneVerifiedAt:new Date()}}),
+     db.phoneOtpThrottle.update({where:{accountId:ctx.account.id},data:{attempts:0,lockedUntil:null,targetPhone:null}}),
+     db.auditEvent.create({data:{actorId:ctx.account.id,action:"PHONE_VERIFIED"}}),
+   ]);
    return reply({ok:true,next:ctx.account.pendingPhone?"/account/security/phone":"/auth/redirect"});
   }
   case "me": {

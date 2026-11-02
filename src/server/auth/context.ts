@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getPrisma } from "@/server/db/prisma";
 import { authConfigReady } from "@/server/auth/env";
 import type { AccountRole } from "@/generated/prisma/client";
+import { reconcilePublicAccount } from "./provisioning";
 
 export async function getIdentity() {
   if (!authConfigReady()) return null;
@@ -16,6 +17,7 @@ export async function getAccountContext() {
   const identity=await getIdentity();
   if (!identity) return null;
   let account=await getPrisma().account.findUnique({where:{id:identity.user.id}});
+  if (!account) account=await reconcilePublicAccount(identity.user);
   if (!account) return null;
   // Verified provider email is authoritative after a completed change-email callback.
   if(identity.user.email_confirmed_at && identity.user.email && identity.user.email.toLowerCase()!==account.email){
