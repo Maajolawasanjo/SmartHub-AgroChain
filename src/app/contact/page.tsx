@@ -1,0 +1,4 @@
+import { PublicShell } from "@/components/public-shell";
+import type { Metadata } from "next";
+export const metadata:Metadata={title:"Contact"};
+export default function Contact(){return <PublicShell><section className="container py-24"><p className="eyebrow">Contact SmartHub</p><h1 className="mt-4 text-4xl font-bold text-[#123d2b]">Let's talk agricultural sourcing.</h1><p className="mt-5 max-w-xl leading-8 text-[#526858]">For questions about agricultural supply, buyer requirements or participating in the SmartHub network, contact our team by email.</p><div className="surface mt-10 inline-block p-8"><p className="text-sm text-[#526858]">Business enquiries</p><a className="mt-2 block break-all text-xl font-bold text-[#123d2b] underline" href="mailto:info@smarthubagrochain.online">info@smarthubagrochain.online</a></div></section></PublicShell>;}

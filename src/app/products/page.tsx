@@ -1,0 +1,4 @@
+import { SectionPage } from "@/components/section-page";
+import type { Metadata } from "next";
+export const metadata:Metadata={title:"Agricultural Products"};
+export default function Products(){return <SectionPage eyebrow="Agricultural catalogue" title="Explore agricultural products and available supply" body="Our product catalogue will distinguish verified currently available supply from commodities that can be requested for sourcing. Until operational product records are connected, no listings, prices or quantities are shown as live." items={[{title:"Products and variations",description:"Category, commodity, variety and specification information will be organised for clear sourcing decisions."},{title:"Availability is verified, not assumed",description:"A commodity can be described without making a claim that a specific quantity is in stock."}]}/>;}
