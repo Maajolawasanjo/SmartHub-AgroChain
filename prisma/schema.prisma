@@ -1477,11 +1477,37 @@ model DeliveryIssue {
 
 // Phase 14 — farmer-specific contract terms and independently reconciled outward transfers.
 // Buyer quote prices are not supplier prices; delivery completion is not payout settlement.
-enum SupplierAgreementStatus { PROPOSED ACCEPTED DECLINED }
-enum SupplierObligationStatus { PENDING_APPROVAL APPROVED TRANSFER_PENDING REVIEW_REQUIRED SETTLED }
-enum SupplierTransferStatus { INITIATING UNKNOWN PENDING FAILED VERIFIED REVIEW_REQUIRED }
-enum SupplierReconciliationOutcome { PENDING FAILED VERIFIED MISMATCH LATE_REVIEW }
-enum PayoutAccountStatus { VERIFIED BLOCKED }
+enum SupplierAgreementStatus {
+  PROPOSED
+  ACCEPTED
+  DECLINED
+}
+enum SupplierObligationStatus {
+  PENDING_APPROVAL
+  APPROVED
+  TRANSFER_PENDING
+  REVIEW_REQUIRED
+  SETTLED
+}
+enum SupplierTransferStatus {
+  INITIATING
+  UNKNOWN
+  PENDING
+  FAILED
+  VERIFIED
+  REVIEW_REQUIRED
+}
+enum SupplierReconciliationOutcome {
+  PENDING
+  FAILED
+  VERIFIED
+  MISMATCH
+  LATE_REVIEW
+}
+enum PayoutAccountStatus {
+  VERIFIED
+  BLOCKED
+}
 
 model FarmerPayoutAccount {
  id String @id @default(uuid()) @db.Uuid
