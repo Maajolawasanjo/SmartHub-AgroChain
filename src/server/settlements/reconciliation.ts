@@ -26,13 +26,14 @@ export async function reconcileSupplierTransfer(reference:string,trigger:Trigger
   const obligation=attempt.obligation;
   const duplicate=providerId?await tx.supplierSettlementAttempt.findFirst({where:{
    providerTransferId:providerId,id:{not:attempt.id}},select:{id:true}}):null;
-  const bank=obligation.farmer.payoutAccount;
-  // Verify exact bank destination as independently resolved, not just the provider's transfer status.
-  const approvedDestination=bank&&bank.status==="VERIFIED"&&bank.fingerprint===obligation.bankFingerprint&&bank.version===obligation.bankVersion;
+  // Verify the immutable approved bank snapshot. The farmer may later change bank
+  // without making an old, legitimately settled transfer fail reconciliation.
   const expected=secretKey().startsWith("sk_test_")?"test":"live";
-  const destinationMatches=approvedDestination&&proof.recipient.recipient_code===attempt.recipientCode&&
+  const destinationMatches=attempt.recipientFingerprint===obligation.bankFingerprint&&
+   proof.recipient.recipient_code===attempt.recipientCode&&
    proof.recipient.currency==="NGN"&&proof.recipient.domain===expected&&
-   proof.recipient.details.bank_code===bank.bankCode&&proof.recipient.details.account_number===decryptNumber(bank.encryptedNumber);
+   proof.recipient.details.bank_code===attempt.recipientBankCode&&
+   proof.recipient.details.account_number===decryptNumber(attempt.recipientEncryptedNumber);
   const mismatched=proof.reference!==reference||amount!==obligation.amountMinor||proof.currency!=="NGN"||
    proof.domain!==expected||!providerId||!!duplicate||!destinationMatches||
    (!!attempt.providerTransferId&&attempt.providerTransferId!==providerId);
