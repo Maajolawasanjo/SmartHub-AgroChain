@@ -57,7 +57,7 @@ export function OpportunityResponseForm({matchId}:{matchId:string}){
 type MatchOption={id:string;label:string};
 type QuoteRow={requestLineId:string;title:string;matches:MatchOption[]};
 export function QuoteBuilder({requestId,rows,expectedVersion,initialTerms="",initialValidUntil="",initialLines=[]}:{requestId:string;rows:QuoteRow[];expectedVersion?:number;initialTerms?:string;initialValidUntil?:string;initialLines?:{requestLineId:string;matchId:string;unitPriceNgn:string}[]}){
- const router=useRouter();const[terms,setTerms]=useState(initialTerms);const[validUntil,setValidUntil]=useState(initialValidUntil);
+ const router=useRouter();const[terms,setTerms]=useState(initialTerms);const[validUntil,setValidUntil]=useState(()=>{if(!initialValidUntil)return "";const date=new Date(initialValidUntil);return new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16);});
  const[choices,setChoices]=useState(rows.map(x=>{const saved=initialLines.find(y=>y.requestLineId===x.requestLineId);return {requestLineId:x.requestLineId,matchId:saved?.matchId??x.matches[0]?.id??"",unitPriceNgn:saved?.unitPriceNgn??""};}));
  const[busy,setBusy]=useState(false);const[error,setError]=useState("");
  async function send(e:FormEvent<HTMLFormElement>){
