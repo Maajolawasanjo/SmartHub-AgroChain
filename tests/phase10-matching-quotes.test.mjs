@@ -39,7 +39,7 @@ test("opportunities are farmer-owned and require recorded invitation before resp
 test("quotes have immutable submitted revisions, independent approval and optimistic versioning",()=>{
  assert.match(schema,/@@unique\(\[quoteId,number\]\)/);
  assert.match(service,/quote\.version!==value\.expectedVersion/);
- assert.match(service,/actor\.role==="SUPER_ADMIN"/);
+ assert.match(service,/account\.role==="SUPER_ADMIN"/);
  assert.match(service,/revision\.createdById===account\.id/);
  assert.match(service,/where:\{id,version:quote\.version,status:quote\.status\}/);
  assert.match(service,/buyerDecidedAt:new Date\(\)/);
