@@ -9,7 +9,7 @@ export default async function MatchingCase({params}:{params:Promise<{id:string}>
  const {account,db}=await requirePortal("OPERATIONS");const {id}=await params;
  if(!z.uuid().safeParse(id).success)notFound();
  const request=await db.buyerRequest.findFirst({where:{id,status:"SOURCING_IN_PROGRESS",submittedAt:{not:null}},include:{
-  organization:{select:{businessName:true}},assignment:true,lines:{orderBy:{position:"asc"},include:{matchProposals:{orderBy:{createdAt:"desc"},include:{supply:{include:{farmer:{select:{fullName:true}}}},interests:true}}}},quotation:true}});
+  organization:{select:{businessName:true}},assignment:true,lines:{orderBy:{position:"asc"},include:{matchProposals:{orderBy:{createdAt:"desc"},include:{supply:{include:{farmer:{select:{fullName:true}}}},interests:true}}}},quotation:{select:{id:true,status:true,version:true}}}});
  if(!request)notFound();
  const assigned=account.role==="OPERATIONS"&&request.assignment?.assignedToId===account.id;
  const ids=request.lines.map(l=>l.commodityId).filter((v):v is string=>Boolean(v));
