@@ -95,7 +95,7 @@ export function paidAmountMinor(data:Verification):bigint|null{
  const value=data.amount;
  if(typeof value==="number"&&(!Number.isSafeInteger(value)||value<=0))return null;
  if(typeof value==="string"&&!/^[1-9]\d{0,16}$/.test(value))return null;
- try{const amount=BigInt(value);return amount>0n&&amount<=BigInt(Number.MAX_SAFE_INTEGER)?amount:null;}
+ try{const amount=BigInt(value);return amount>BigInt(0)&&amount<=BigInt(Number.MAX_SAFE_INTEGER)?amount:null;}
  catch{return null;}
 }
 export function providerTransactionId(data:Verification):string|null{
