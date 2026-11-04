@@ -4,7 +4,7 @@ import {WorkspaceEmpty,StatusPill} from "@/components/dashboard/dashboard-ui";
 import {requireBuyerPage,buyerMembership} from "@/server/buyer/guard";
 export const dynamic="force-dynamic";
 export const metadata={robots:{index:false,follow:false}};
-const fmt=(minor:bigint)=>"₦"+(minor/100n).toLocaleString("en-NG")+"."+(minor%100n).toString().padStart(2,"0");
+const fmt=(minor:bigint)=>"₦"+(minor/BigInt(100)).toLocaleString("en-NG")+"."+(minor%BigInt(100)).toString().padStart(2,"0");
 export default async function BuyerPayments({searchParams}:{searchParams:Promise<{page?:string}>}){
  const {account,db}=await requireBuyerPage();
  const membership=await buyerMembership(db,account.id);
