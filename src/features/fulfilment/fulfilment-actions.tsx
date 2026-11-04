@@ -67,7 +67,7 @@ export function MilestoneForm({shipmentId,status,evidence}:{shipmentId:string;st
  const unused=evidence.filter(e=>!e.used);
  async function submit(action:string){if(!window.confirm("Record "+action+" for this real shipment? This does not mark the order received or consume stock."))return;
   setBusy(true);setError("");
-  try{await send("/api/operations/fulfilment/shipments/"+shipmentId+"/milestone",{action,note,...action==="cancel"?{}:{evidenceId}});router.refresh();setNote("");setEvidenceId("");}
+  try{await send("/api/operations/fulfilment/shipments/"+shipmentId+"/milestone",{action,note,...(action==="cancel"?{}:{evidenceId})});router.refresh();setNote("");setEvidenceId("");}
   catch(e){setError(e instanceof Error?e.message:"Milestone was not recorded.");}finally{setBusy(false);}
  }
  return <section className="agro-panel agro-field"><h2>Controlled transport milestone</h2><p>Current shipment state: {status}. Real pickup, dispatch and arrival require a separate, unused evidence attachment. These events are not buyer receipt.</p>
