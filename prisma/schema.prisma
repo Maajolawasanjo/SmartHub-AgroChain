@@ -742,6 +742,8 @@ enum BuyerRequestEventKind {
 model BuyerRequest {
   id                String @id @default(uuid()) @db.Uuid
   reference         String @unique @db.VarChar(40)
+  clientRequestKey  String @db.Uuid
+  clientRequestHash String @db.VarChar(64)
   organizationId    String @db.Uuid
   createdById       String @db.Uuid
   status            BuyerRequestStatus @default(DRAFT)
@@ -763,6 +765,7 @@ model BuyerRequest {
   clarifications    BuyerRequestClarification[]
   assignment        BuyerRequestAssignment?
 
+  @@unique([organizationId,clientRequestKey])
   @@index([organizationId,status,updatedAt])
   @@index([status,submittedAt])
   @@map("buyer_requests")
