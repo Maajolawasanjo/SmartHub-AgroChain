@@ -47,7 +47,7 @@ test("farmer and operations navigation reflects actual implemented and planned d
  for(const link of ["/farmer/kyc","/farmer/my-supply","/farmer/orders","/farmer/opportunities","/farmer/wallet","/farmer/notifications","/farmer/settings","/operations/verification","/operations/supply","/operations/catalog"]){
   assert.ok(navigation.includes(link),link);
  }
- assert.match(navigation,/planned\("Orders & Transactions","\/farmer\/orders"/);
+ assert.match(navigation,/active\("Supply Allocations","\/farmer\/orders"/);
  assert.match(navigation,/active\("Supply Reviews","\/operations\/supply"/);
  assert.match(read("src/components/agriculture/portal-frame.tsx"),/DashboardFrame/);
 });
