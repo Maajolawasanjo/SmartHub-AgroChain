@@ -5,7 +5,7 @@ import {PortalFrame,requirePortal,StateTag} from "@/components/agriculture/porta
 import {VerifyPayment} from "@/features/payments/payment-actions";
 export const dynamic="force-dynamic";
 export const metadata={robots:{index:false,follow:false}};
-const fmt=(minor:bigint)=>"₦"+(minor/100n).toLocaleString("en-NG")+"."+(minor%100n).toString().padStart(2,"0");
+const fmt=(minor:bigint)=>"₦"+(minor/BigInt(100)).toLocaleString("en-NG")+"."+(minor%BigInt(100)).toString().padStart(2,"0");
 export default async function PaymentReconciliationDetail({params}:{params:Promise<{id:string}>}){
  const {account,db}=await requirePortal("OPERATIONS");const {id}=await params;
  if(!z.uuid().safeParse(id).success)notFound();
