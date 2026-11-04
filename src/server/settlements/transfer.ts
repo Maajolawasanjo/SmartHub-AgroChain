@@ -41,7 +41,9 @@ export async function initiateSupplierSettlement(obligationId:string,input:unkno
    conflict("The beneficiary changed after approval. Require formal review, not an automatic transfer.");
   const uuid=randomUUID(),reference="stl_"+uuid.replaceAll("-","").toLowerCase();
   const attempt=await tx.supplierSettlementAttempt.create({data:{
-   id:uuid,obligationId,initiatedById:account.id,reference,status:"INITIATING"
+   id:uuid,obligationId,initiatedById:account.id,reference,status:"INITIATING",
+   recipientBankCode:bank.bankCode,recipientEncryptedNumber:bank.encryptedNumber,
+   recipientFingerprint:bank.fingerprint,recipientAccountName:bank.accountName
   }});
   await tx.supplierObligation.update({where:{id:obligationId},data:{status:"TRANSFER_PENDING"}});
   await audit(tx,account.id,attempt.id,"SUPPLIER_TRANSFER_INTENT_RECORDED",{
