@@ -22,7 +22,7 @@ export async function receivePaystackWebhook(raw:Buffer,headers:Headers){
  const db=getPrisma(),payloadHash=hashPayload(raw);
  const known=reference?await db.paymentAttempt.findUnique({where:{reference},select:{id:true}}):null;
  const row=await db.paymentProviderEvent.upsert({where:{payloadHash},create:{
-  payloadHash,eventName:event,signatureMode,attemptId:known?.id??null
+  payloadHash,eventName:event,reference:reference.slice(0,60)||null,signatureMode,attemptId:known?.id??null
  },update:{},select:{id:true,status:true}});
  if(row.status==="VERIFIED"||row.status==="IGNORED"||row.status==="REVIEW_REQUIRED")
   return {ok:true,duplicate:true};
