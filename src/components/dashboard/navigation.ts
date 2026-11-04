@@ -17,8 +17,8 @@ export const workspaceMeta:Record<WorkspaceRole,{title:string;home:string;descri
 /** A planned item is visible but never navigates to a nonexistent or incomplete feature. */
 export const workspaceNavigation:Record<WorkspaceRole,NavigationSection[]>={
  BUYER:[
-  {title:"Procurement",items:[active("Overview","/dashboard","grid"),planned("Products & Supply","/dashboard/products","leaf"),planned("Requests & Quotes","/dashboard/requests","clipboard"),planned("Orders & Fulfilment","/dashboard/orders","box"),planned("Payments & Transactions","/dashboard/payments","receipt")]},
-  {title:"My business",items:[planned("Business Profile & Settings","/dashboard/settings","settings")]},
+  {title:"Procurement",items:[active("Dashboard","/dashboard","grid"),active("Products & Supply","/dashboard/products","leaf"),active("My Requests & Quotes","/dashboard/requests","clipboard"),active("Orders & Fulfilment","/dashboard/orders","box"),active("Payments & Transactions","/dashboard/payments","receipt")]},
+  {title:"My business",items:[active("Business Profile & Settings","/dashboard/settings","settings")]},
  ],
  FARMER:[
   {title:"Farm management",items:[active("Overview","/farmer","grid"),active("My Supply","/farmer/my-supply","leaf"),planned("Opportunities","/farmer/opportunities","search"),planned("Orders & Transactions","/farmer/orders","box"),planned("Payments & Settlements","/farmer/wallet","wallet")]},
