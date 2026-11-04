@@ -4,6 +4,7 @@ import {PublicError} from "@/server/auth/http";
 import {requireActor} from "@/server/agriculture/policies";
 import {hasPermission} from "@/server/admin/permissions";
 import {getPrisma} from "@/server/db/prisma";
+import {buyerProfileCompletion} from "@/lib/buyer/profile";
 
 export type Tx=Prisma.TransactionClient;
 const cfg={isolationLevel:Prisma.TransactionIsolationLevel.Serializable,timeout:30000,maxWait:10000} as const;
@@ -66,7 +67,7 @@ export async function assignedRequest(tx:Tx,id:string,reviewerId:string){
  const request=await tx.buyerRequest.findUnique({where:{id},include:{assignment:true,organization:true}});
  if(!request||request.status!=="SOURCING_IN_PROGRESS"||request.assignment?.assignedToId!==reviewerId)
   throw new PublicError(403,"An active sourcing request and its assigned Operations reviewer are required.");
- if(request.organization.verificationStatus!=="VERIFIED")
-  conflict("Independent business verification is required before reserving a buyer order.");
+ if(!buyerProfileCompletion(request.organization).complete||request.organization.verificationStatus==="REJECTED")
+  conflict("Complete the buyer business profile and resolve any rejected verification before creating a pending order.");
  return request;
 }
