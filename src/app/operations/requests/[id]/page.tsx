@@ -7,7 +7,7 @@ export const dynamic="force-dynamic";
 export const metadata={robots:{index:false,follow:false}};
 export default async function BuyerDemandDetail({params}:{params:Promise<{id:string}>}){
  const {account,db}=await requirePortal("OPERATIONS");const {id}=await params;if(!z.uuid().safeParse(id).success)notFound();
- const request=await db.buyerRequest.findUnique({where:{id},include:{organization:true,createdBy:{select:{fullName:true,email:true,phone:true}},
+ const request=await db.buyerRequest.findFirst({where:{id,submittedAt:{not:null}},include:{organization:true,createdBy:{select:{fullName:true,email:true,phone:true}},
   lines:{orderBy:{position:"asc"}},events:{orderBy:{createdAt:"desc"},take:80,include:{actor:{select:{fullName:true}}}},
   clarifications:{orderBy:{askedAt:"desc"},take:30},assignment:{include:{assignedTo:{select:{fullName:true}}}}}});
  if(!request)notFound();
