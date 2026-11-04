@@ -27,6 +27,7 @@ export default async function BuyerOrderDetail({params}:{params:Promise<{id:stri
  {order.lines.map(l=><article className="buyer-list-item" key={l.id}><div><strong>{l.description}</strong><p>{l.quantity.toString()} {l.unit} × ₦{l.unitPriceNgn.toString()} = ₦{l.totalNgn.toString()}</p></div></article>)}</section>
  {payment&&<section className="buyer-panel"><h2>Payment record</h2><p>Payment obligation: {payment.status.replaceAll("_"," ")}</p><Link className="action action-outline" href={"/dashboard/payments/"+payment.id}>Review Paystack verification and attempts</Link></section>}
  {canPay&&<StartPayment orderId={order.id} canPay={canPay}/>}
+ {order.status==="PAYMENT_REVIEW"&&<section className="buyer-panel"><h2>Payment requires investigation</h2><p>SmartHub identified a provider verification exception. This order is not cleared for dispatch; contact the official support team for resolution.</p></section>}
  <section className="buyer-panel"><h2>Recorded status history</h2><ol className="request-timeline">{order.events.map(e=><li key={e.id}><strong>{e.status.replaceAll("_"," ")}</strong><p>{e.createdAt.toLocaleString("en-NG")}</p></li>)}</ol></section>
  <section className="buyer-note"><strong>Provider-verification boundary.</strong><p>An order marked pending payment is not a receipt or proof of collection. Use only the secure Paystack checkout if configured, then check the recorded provider status. Do not transfer funds to unverified accounts.</p><Link href="/contact">Contact SmartHub support</Link></section>
  </DashboardFrame>;
