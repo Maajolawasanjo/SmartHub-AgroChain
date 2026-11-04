@@ -37,11 +37,12 @@ export async function reconcileSupplierTransfer(reference:string,trigger:Trigger
   const mismatched=proof.reference!==reference||amount!==obligation.amountMinor||proof.currency!=="NGN"||
    proof.domain!==expected||!providerId||!!duplicate||!destinationMatches||
    (!!attempt.providerTransferId&&attempt.providerTransferId!==providerId);
+  const attemptId=attempt.id;
   async function log(outcome:"VERIFIED"|"PENDING"|"FAILED"|"MISMATCH"|"LATE_REVIEW",message:string){
-   await tx.supplierSettlementReconciliation.create({data:{attemptId:attempt.id,actorId,trigger,outcome,
+   await tx.supplierSettlementReconciliation.create({data:{attemptId,actorId,trigger,outcome,
     providerStatus:proof.status.slice(0,40),providerTransferId:providerId,
     amountMinor:amount,currency:proof.currency.slice(0,3),note:message.slice(0,1500)}});
-   await tx.supplierSettlementAttempt.update({where:{id:attempt.id},data:{lastCheckedAt:new Date()}});
+   await tx.supplierSettlementAttempt.update({where:{id:attemptId},data:{lastCheckedAt:new Date()}});
   }
   if(mismatched){
    await log("MISMATCH","Provider transfer did not match unique reference, approved farmer bank, amount, currency, recipient or environment.");
