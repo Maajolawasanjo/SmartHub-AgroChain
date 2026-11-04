@@ -1,5 +1,6 @@
 -- Phase 12 — provider-backed payments, reconciliation and buyer refund review cases.
 -- No public Data API access. All writes use server-verified identity and payment-provider checks.
+ALTER TYPE "OrderStatus" ADD VALUE IF NOT EXISTS 'PAYMENT_REVIEW';
 CREATE TYPE "PaymentObligationStatus" AS ENUM ('UNPAID','PAID','REVIEW_REQUIRED','CANCELLED');
 CREATE TYPE "PaymentAttemptStatus" AS ENUM ('INITIATING','READY','UNKNOWN','FAILED','VERIFIED');
 CREATE TYPE "PaymentEventStatus" AS ENUM ('RECEIVED','IGNORED','VERIFIED','REVIEW_REQUIRED');
