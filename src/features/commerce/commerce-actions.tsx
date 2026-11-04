@@ -56,9 +56,9 @@ export function OpportunityResponseForm({matchId}:{matchId:string}){
 }
 type MatchOption={id:string;label:string};
 type QuoteRow={requestLineId:string;title:string;matches:MatchOption[]};
-export function QuoteBuilder({requestId,rows,expectedVersion}:{requestId:string;rows:QuoteRow[];expectedVersion?:number}){
- const router=useRouter();const[terms,setTerms]=useState("");const[validUntil,setValidUntil]=useState("");
- const[choices,setChoices]=useState(rows.map(x=>({requestLineId:x.requestLineId,matchId:x.matches[0]?.id||"",unitPriceNgn:""})));
+export function QuoteBuilder({requestId,rows,expectedVersion,initialTerms="",initialValidUntil="",initialLines=[]}:{requestId:string;rows:QuoteRow[];expectedVersion?:number;initialTerms?:string;initialValidUntil?:string;initialLines?:{requestLineId:string;matchId:string;unitPriceNgn:string}[]}){
+ const router=useRouter();const[terms,setTerms]=useState(initialTerms);const[validUntil,setValidUntil]=useState(initialValidUntil);
+ const[choices,setChoices]=useState(rows.map(x=>{const saved=initialLines.find(y=>y.requestLineId===x.requestLineId);return {requestLineId:x.requestLineId,matchId:saved?.matchId??x.matches[0]?.id??"",unitPriceNgn:saved?.unitPriceNgn??""};}));
  const[busy,setBusy]=useState(false);const[error,setError]=useState("");
  async function send(e:FormEvent<HTMLFormElement>){
   e.preventDefault();if(choices.some(x=>!x.matchId)){setError("Every requested commodity needs an interested supplier match.");return;}
