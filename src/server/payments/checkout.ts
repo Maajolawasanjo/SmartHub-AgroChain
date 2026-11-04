@@ -7,7 +7,8 @@ import {atomic,buyerOwner,conflict,lockOrder,payable,audit} from "./common";
 
 export async function initializeCheckout(input:unknown){
  const {orderId}=checkoutCreate.parse(input);
- // Fail before any DB attempt if provider credentials or approved callback origin are missing.
+ // Fail before any DB attempt if launch policy, provider credentials or approved callback origin are missing.
+ if(process.env.PAYMENTS_ENABLED!=="true")throw new PublicError(503,"Secure checkout is not enabled for this deployment.");
  secretKey();checkoutCallback();
  const {account,member,db}=await buyerOwner();
  // Create the payment intent BEFORE the provider call; a lost provider response cannot silently create a second charge.
