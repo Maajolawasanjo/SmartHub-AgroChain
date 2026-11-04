@@ -1,12 +1,12 @@
 import "server-only";
 import {PublicError} from "@/server/auth/http";
-import type {Prisma} from "@/generated/prisma/client";
+import type {Prisma,OrderStatus} from "@/generated/prisma/client";
 import {getPrisma} from "@/server/db/prisma";
 import {verifyProvider,paidAmountMinor,providerDomainValid,providerTransactionId} from "./paystack";
 import {atomic,lockOrder,conflict,audit,buyerOwner,financeActor,ensureFinanceScope} from "./common";
 import {uuid} from "./validation";
 type Trigger="WEBHOOK"|"BUYER"|"OPERATIONS";
-async function freezeVerifiedOrder(tx:Prisma.TransactionClient,order:{id:string;status:string},payerId:string,reason:string){
+async function freezeVerifiedOrder(tx:Prisma.TransactionClient,order:{id:string;status:OrderStatus},payerId:string,reason:string){
  if(!["PAYMENT_VERIFIED","FULFILLING"].includes(order.status))return;
  const changed=await tx.order.updateMany({where:{id:order.id,status:order.status},data:{status:"PAYMENT_REVIEW",version:{increment:1}}});
  if(changed.count!==1)conflict("The order changed during financial exception review.");
