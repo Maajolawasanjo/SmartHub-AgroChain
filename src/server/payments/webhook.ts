@@ -4,6 +4,7 @@ import {PublicError} from "@/server/auth/http";
 import {getPrisma} from "@/server/db/prisma";
 import {hashPayload,verifyWebhookSignature} from "./paystack";
 import {reconcileReference} from "./reconciliation";
+import {reconcileSupplierTransfer} from "@/server/settlements/reconciliation";
 
 const envelope=z.object({event:z.string().min(1).max(100),
  data:z.unknown()}).passthrough();
@@ -26,6 +27,19 @@ export async function receivePaystackWebhook(raw:Buffer,headers:Headers){
  },update:{},select:{id:true,status:true}});
  if(row.status==="VERIFIED"||row.status==="IGNORED"||row.status==="REVIEW_REQUIRED")
   return {ok:true,duplicate:true};
+ if(["transfer.success","transfer.failed","transfer.reversed"].includes(event)){
+  const attempt=/^stl_[0-9a-f]{32}$/.test(reference)?
+    await db.supplierSettlementAttempt.findUnique({where:{reference},select:{id:true}}):null;
+  if(!attempt){
+   await db.paymentProviderEvent.update({where:{id:row.id},data:{status:"REVIEW_REQUIRED",processedAt:new Date()}});
+   return {ok:true,reviewRequired:true};
+  }
+  // The signed provider event is only a notification; verify transfer independently.
+  const check=await reconcileSupplierTransfer(reference,"WEBHOOK");
+  const outcome=check.status==="SETTLED"?"VERIFIED":check.status==="REVIEW_REQUIRED"?"REVIEW_REQUIRED":"RECEIVED";
+  await db.paymentProviderEvent.update({where:{id:row.id},data:{status:outcome,processedAt:new Date()}});
+  return {ok:true,processed:outcome};
+ }
  if(event!=="charge.success"){
   await db.paymentProviderEvent.update({where:{id:row.id},data:{status:"IGNORED",processedAt:new Date()}});
   return {ok:true,ignored:true};
