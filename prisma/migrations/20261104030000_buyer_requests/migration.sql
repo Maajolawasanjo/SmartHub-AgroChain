@@ -7,6 +7,8 @@ CREATE TYPE "BuyerRequestEventKind" AS ENUM ('CREATED','DRAFT_UPDATED','SUBMITTE
 CREATE TABLE "buyer_requests" (
  "id" UUID NOT NULL DEFAULT gen_random_uuid(),
  "reference" VARCHAR(40) NOT NULL,
+ "clientRequestKey" UUID NOT NULL,
+ "clientRequestHash" VARCHAR(64) NOT NULL,
  "organizationId" UUID NOT NULL,
  "createdById" UUID NOT NULL,
  "status" "BuyerRequestStatus" NOT NULL DEFAULT 'DRAFT',
@@ -23,10 +25,12 @@ CREATE TABLE "buyer_requests" (
  "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
  CONSTRAINT "buyer_requests_pkey" PRIMARY KEY ("id"),
  CONSTRAINT "buyer_requests_version_positive" CHECK ("version" > 0),
+ CONSTRAINT "buyer_requests_idempotency_hash" CHECK ("clientRequestHash" ~ '^[0-9a-f]{64}$'),
  CONSTRAINT "buyer_requests_reference_format" CHECK ("reference" ~ '^REQ-[0-9A-F]{32}$'),
  CONSTRAINT "buyer_requests_submitted_fields" CHECK ("status" = 'DRAFT' OR "status" = 'CANCELLED' OR ("submittedAt" IS NOT NULL AND "deliveryState" IS NOT NULL AND "deliveryCity" IS NOT NULL AND "requiredDate" IS NOT NULL AND "fulfilmentMethod" IS NOT NULL))
 );
 CREATE UNIQUE INDEX "buyer_requests_reference_key" ON "buyer_requests"("reference");
+CREATE UNIQUE INDEX "buyer_requests_organization_clientRequestKey_key" ON "buyer_requests"("organizationId","clientRequestKey");
 CREATE INDEX "buyer_requests_organizationId_status_updatedAt_idx" ON "buyer_requests"("organizationId","status","updatedAt");
 CREATE INDEX "buyer_requests_status_submittedAt_idx" ON "buyer_requests"("status","submittedAt");
 ALTER TABLE "buyer_requests" ADD CONSTRAINT "buyer_requests_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "buyer_organizations"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
