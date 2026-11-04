@@ -48,7 +48,7 @@ async function paystack<T>(path:string,method:"GET"|"POST",body:unknown,schema:z
 const banks=z.object({status:z.literal(true),data:z.array(z.object({code:z.string(),name:z.string(),active:z.boolean().optional()}))});
 export async function listSupportedBanks(){
  const result=await paystack("/bank?currency=NGN","GET",null,banks);
- return result.data.filter(x=>x.active!==false&&/^\\d{3,12}$/.test(x.code)).map(x=>({code:x.code,name:x.name})).sort((a,b)=>a.name.localeCompare(b.name));
+ return result.data.filter(x=>x.active!==false&&/^\d{3,12}$/.test(x.code)).map(x=>({code:x.code,name:x.name})).sort((a,b)=>a.name.localeCompare(b.name));
 }
 const account=z.object({status:z.literal(true),data:z.object({account_number:z.string(),account_name:z.string().min(3)})});
 export async function resolveAccount(bankCode:string,accountNumber:string){
