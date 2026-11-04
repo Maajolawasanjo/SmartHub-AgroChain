@@ -44,3 +44,11 @@ Implementation follows `docs/implementation/MASTER_IMPLEMENTATION_ROADMAP_V2.md`
 5. Verify no Data API access to sensitive request tables from public/normal Auth clients; run browser/mobile accessibility checks, error/empty/loading state checks and full Next.js CI.
 
 **Status:** Code implementation and automated CI pending; not deployed or staging-verified.
+
+## Phase 09 hardening (post-implementation review)
+
+- New buyer request creation uses a client-generated UUID idempotency key, scoped uniquely to its buyer organization, with a SHA-256 fingerprint of the canonical action and request payload. Retrying the same create after a lost response returns the previously created request; attempting to reuse a key for changed details (or a different creator) fails with a conflict instead of creating another request.
+- The buyer's private, unsubmitted drafts (including cancelled drafts that were never submitted) are excluded from both Operations queue and direct detail lookup; Operations review services independently reject unsubmitted records.
+- Added contract regression checks for these access-control and retry safeguards.
+
+These checks are code-level protections, not a substitute for real Supabase/PostgreSQL staging tests of duplicate concurrent submissions, RLS and multi-role browser behavior.
