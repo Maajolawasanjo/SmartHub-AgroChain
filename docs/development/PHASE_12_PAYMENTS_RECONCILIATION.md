@@ -28,7 +28,7 @@ Only an active buyer owner with a real organization-scoped PENDING_PAYMENT order
 Provider init happens after recording a unique durable attempt. Ambiguous network failure becomes UNKNOWN rather than launching another possible charge.
 Paystack verify must independently match reference, success status, exact NGN kobo, currency, payer email, unique transaction ID, key environment and still-active unexpired order hold.
 Serializable order locks ensure payment verification and order cancellation cannot both win. Only after every check succeeds do the obligation and order become PAID and PAYMENT_VERIFIED.
-Wrong amounts, already-used transactions, late/expired/cancelled orders and reversed/changed provider statuses move to REVIEW_REQUIRED. They do not restore stock or automatically refund a payer.
+Wrong amounts, already-used transactions, late/expired/cancelled orders and reversed/changed provider statuses move to REVIEW_REQUIRED. A previously verified but not-yet-dispatched order moves to PAYMENT_REVIEW, blocking later fulfilment from relying on a stale verified status. These exceptions do not restore stock or automatically refund a payer.
 Buyer and Operations can initiate independent server-to-server reconciliation; Operations requires an assigned case or Super Admin role. A signed webhook cannot bypass provider verification.
 Buyer callback is informational and never writes payment state. Super Admin refund review cannot initiate transfers, refunds or manual mark-paid actions.
 New financial tables enable RLS and revoke Data API permissions from anon/authenticated roles.
