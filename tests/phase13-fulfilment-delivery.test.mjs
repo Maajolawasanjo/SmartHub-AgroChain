@@ -51,7 +51,7 @@ test("split shipments are quantity bounded across all active shipments",()=>{
  assert.match(ops,/status:\{not:"CANCELLED"\}/);
  assert.match(ops,/new Map<string,Prisma\.Decimal>/);
  assert.match(ops,/allocated\.gt\(original\.quantity\)/);
- assert.match(ops,/status:"CANCELLED"/);
+ assert.match(ops,/cancel:"CANCELLED"/);
  assert.match(sql,/shipment_lines_shipmentId_orderLineId_key/);
 });
 test("partial receipts record accepted and shortfall separately and never release missing goods",()=>{
@@ -61,7 +61,7 @@ test("partial receipts record accepted and shortfall separately and never releas
  assert.match(receipts,/line\.quantity\.minus\(accepted\)/);
  assert.match(receipts,/status:"REVIEW_REQUIRED"/);
  assert.match(receipts,/SHORTAGE_REPORTED/);
- assert.match(receipts,/accepted\.lte\(0\)continue/);
+ assert.match(receipts,/if\(accepted\.lte\(0\)\)continue/);
  assert.match(receipts,/consumed\.gt\(line\.orderLine\.quantity\)/);
 });
 test("completion checks all ordered quantities, all receipts and unresolved issue count",()=>{
