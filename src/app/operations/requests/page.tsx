@@ -8,7 +8,7 @@ export default async function BuyerDemandQueue({searchParams}:{searchParams:Prom
  const {account,db}=await requirePortal("OPERATIONS");const query=await searchParams;
  const status=(statuses.find(s=>s===query.status)??"SUBMITTED") as BuyerRequestStatus;
  const q=(query.q??"").trim().slice(0,80);const page=Math.min(500,Math.max(1,Number.parseInt(query.page??"1",10)||1));
- const where:Prisma.BuyerRequestWhereInput={status,...(q?{OR:[{reference:{contains:q,mode:"insensitive"}},{organization:{is:{businessName:{contains:q,mode:"insensitive"}}}}]}:{})};
+ const where:Prisma.BuyerRequestWhereInput={status,submittedAt:{not:null},...(q?{OR:[{reference:{contains:q,mode:"insensitive"}},{organization:{is:{businessName:{contains:q,mode:"insensitive"}}}}]}:{})};
  const [rows,total]=await Promise.all([db.buyerRequest.findMany({where,orderBy:[{submittedAt:"asc"},{id:"asc"}],skip:(page-1)*25,take:25,
   select:{id:true,reference:true,status:true,submittedAt:true,updatedAt:true,organization:{select:{businessName:true,state:true}},lines:{orderBy:{position:"asc"},take:3,select:{commodityName:true,quantity:true,unit:true}},assignment:{select:{assignedTo:{select:{fullName:true}}}}}}),db.buyerRequest.count({where})]);
  const href=(s:string,p=1)=>`/operations/requests?${new URLSearchParams({status:s,...q?{q}:{},page:String(p)})}`;
