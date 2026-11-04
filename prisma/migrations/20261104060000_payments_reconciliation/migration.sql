@@ -41,7 +41,7 @@ ALTER TABLE "payment_attempts" ADD CONSTRAINT "payment_attempts_payerId_fkey" FO
 
 CREATE TABLE "payment_provider_events" (
  "id" UUID NOT NULL DEFAULT gen_random_uuid(), "payloadHash" VARCHAR(64) NOT NULL,
- "eventName" VARCHAR(100) NOT NULL, "attemptId" UUID,
+ "eventName" VARCHAR(100) NOT NULL, "reference" VARCHAR(60), "attemptId" UUID,
  "signatureMode" VARCHAR(20) NOT NULL, "status" "PaymentEventStatus" NOT NULL DEFAULT 'RECEIVED',
  "receivedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "processedAt" TIMESTAMP(3),
  CONSTRAINT "payment_provider_events_pkey" PRIMARY KEY ("id"),
