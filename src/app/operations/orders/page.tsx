@@ -3,7 +3,7 @@ import type {Prisma,OrderStatus} from "@/generated/prisma/client";
 import {PortalFrame,requirePortal,StateTag,EmptyState} from "@/components/agriculture/portal-frame";
 export const dynamic="force-dynamic";
 export const metadata={robots:{index:false,follow:false}};
-const states=["PENDING_PAYMENT","CANCELLED","EXPIRED","PAYMENT_VERIFIED","FULFILLING","COMPLETED"] as const;
+const states=["PENDING_PAYMENT","CANCELLED","EXPIRED","PAYMENT_VERIFIED","PAYMENT_REVIEW","FULFILLING","COMPLETED"] as const;
 export default async function OperationsOrders({searchParams}:{searchParams:Promise<{status?:string;page?:string}>}){
  const {account,db}=await requirePortal("OPERATIONS");const p=await searchParams;
  const status=states.find(s=>s===p.status) as OrderStatus|undefined;
