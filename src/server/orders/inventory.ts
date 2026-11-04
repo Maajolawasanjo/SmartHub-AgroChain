@@ -1,6 +1,5 @@
 import "server-only";
-import {PublicError} from "@/server/auth/http";
-import {lotCreate,orderId} from "./validation";
+import {lotCreate,lotHold,orderId} from "./validation";
 import {transact,requireOperator,lockActor,inspectionEligibility,audit,conflict,lockLot} from "./common";
 
 export async function registerPhysicalLot(input:unknown){
@@ -25,17 +24,17 @@ export async function registerPhysicalLot(input:unknown){
 
 export async function holdPhysicalLot(id:string,input:unknown){
  orderId.parse(id);
- const value=(await import("./validation")).lotHold.parse(input);
+ const value=lotHold.parse(input);
  const {account,db}=await requireOperator();
  return transact(db,async tx=>{
   await lockActor(tx,account.id);
+  const candidate=await tx.supplyLot.findUnique({where:{id},select:{supplyId:true}});
+  if(!candidate)throw new Error("Physical sourced lot was not found.");
+  const eligibility=value.status==="AVAILABLE"?await inspectionEligibility(tx,candidate.supplyId):null;
   const lot=await lockLot(tx,id);
   if(lot.status===value.status)return {id,status:lot.status};
-  if(value.status==="AVAILABLE"){
-   const {inspection,eligible}=await inspectionEligibility(tx,lot.supplyId);
-   if(inspection.id!==lot.inspectionId||eligible.lt(lot.quantity))
-    conflict("Supply inspection changed. Resolve it before reopening this physical lot.");
-  }
+  if(eligibility&&(eligibility.inspection.id!==lot.inspectionId||eligibility.eligible.lt(lot.quantity)))
+   conflict("Supply inspection changed. Resolve it before reopening this physical lot.");
   const updated=await tx.supplyLot.update({where:{id},data:{status:value.status}});
   await audit(tx,account.id,id,"PHYSICAL_LOT_STATUS_CHANGED",{from:lot.status,to:updated.status,reason:value.reason});
   return {id,status:updated.status};
