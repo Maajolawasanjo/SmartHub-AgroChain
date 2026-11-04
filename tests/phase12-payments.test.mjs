@@ -101,6 +101,8 @@ test("buyers cannot change amounts and callback page is informational",()=>{
 });
 test("refund review never issues provider transfers or unverified disbursements",()=>{
  assert.match(refund,/obligation\.status!=="PAID"/);
+ assert.match(refund,/PAYMENT_VERIFIED","FULFILLING","COMPLETED/);
+ assert.match(read("src/server/orders/orders.ts"),/paymentObligation\.updateMany\(\{where:\{orderId:id,status:"UNPAID"\}/);
  assert.match(refund,/account\.role!=="SUPER_ADMIN"/);
  assert.doesNotMatch(refund,/fetch\(|transfer|providerRefund/);
  assert.match(schema,/enum RefundCaseStatus/);
