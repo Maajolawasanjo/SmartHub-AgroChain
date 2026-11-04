@@ -7,7 +7,7 @@ import {requireBuyerPage,buyerMembership} from "@/server/buyer/guard";
 import {StartPayment,VerifyPayment,RefundRequestForm} from "@/features/payments/payment-actions";
 export const dynamic="force-dynamic";
 export const metadata={robots:{index:false,follow:false}};
-const fmt=(minor:bigint)=>"₦"+(minor/100n).toLocaleString("en-NG")+"."+(minor%100n).toString().padStart(2,"0");
+const fmt=(minor:bigint)=>"₦"+(minor/BigInt(100)).toLocaleString("en-NG")+"."+(minor%BigInt(100)).toString().padStart(2,"0");
 export default async function BuyerPaymentDetail({params}:{params:Promise<{id:string}>}){
  const {account,db}=await requireBuyerPage(),{id}=await params;
  if(!z.uuid().safeParse(id).success)notFound();
