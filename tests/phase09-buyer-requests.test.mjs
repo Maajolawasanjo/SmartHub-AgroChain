@@ -82,3 +82,15 @@ test("Operations cannot access buyer drafts, including cancelled unsubmitted dra
  assert.match(queue,/submittedAt:\{not:null\}/);
  assert.match(service,/buyerRequest\.findFirst\(\{where:\{id,submittedAt:\{not:null\}\}\}/);
 });
+
+test("full-sized valid requests and clarification answers fit the request-only body limit",()=>{
+ const http=read("src/server/auth/http.ts");
+ assert.match(http,/readJson\(request:NextRequest,maxCharacters=12000\)/);
+ assert.match(http,/raw\.length>maxCharacters/);
+ for(const path of [
+  "src/app/api/buyer/requests/route.ts",
+  "src/app/api/buyer/requests/[id]/route.ts",
+  "src/app/api/buyer/requests/[id]/respond/route.ts",
+  "src/app/api/buyer/requests/[id]/clarification/draft/route.ts"
+ ])assert.match(read(path),/readJson\(req,24000\)/,path);
+});
