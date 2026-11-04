@@ -1,5 +1,6 @@
 import "server-only";
 import {randomUUID} from "node:crypto";
+import {Prisma} from "@/generated/prisma/client";
 import {PublicError,requireConfig} from "@/server/auth/http";
 import {getAccountContext} from "@/server/auth/context";
 import {getPrisma} from "@/server/db/prisma";
@@ -26,7 +27,7 @@ async function actor(){
   throw new PublicError(403,"This account may not view or upload shipment evidence.");
  return ctx;
 }
-async function requireScope(tx:Parameters<Parameters<ReturnType<typeof getPrisma>["$transaction"]>[0]>[0],actorId:string,role:string,shipmentId:string){
+async function requireScope(tx:Prisma.TransactionClient,actorId:string,role:string,shipmentId:string){
  await lockAccount(tx,actorId,[role]);
  const {order,shipment}=await shipmentRecord(tx,shipmentId);
  if(role==="BUYER"){
