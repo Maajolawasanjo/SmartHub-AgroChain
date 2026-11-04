@@ -64,3 +64,21 @@ test("no request submission claims a quote, order, reservation or payment",()=>{
  assert.doesNotMatch(service,/\b(?:quotation|order|payment|stockReservation|matchProposal)\.create\(/);
  assert.match(read("src/app/dashboard/requests/page.tsx"),/Quotations, proposal decisions, orders and payments are separate future workflows/);
 });
+
+test("retrying a buyer create is idempotent and never silently creates duplicate demand",()=>{
+ const schema=read("prisma/schema.prisma");
+ const form=read("src/features/requests/request-form.tsx");
+ assert.match(validation,/idempotencyKey:z\.uuid\(\)/);
+ assert.match(schema,/@@unique\(\[organizationId,clientRequestKey\]\)/);
+ assert.match(migration,/buyer_requests_organization_clientRequestKey_key/);
+ assert.match(service,/clientRequestHash!==fingerprint/);
+ assert.match(service,/organizationId_clientRequestKey/);
+ assert.match(form,/createKey\.current=crypto\.randomUUID\(\)/);
+});
+test("Operations cannot access buyer drafts, including cancelled unsubmitted drafts",()=>{
+ const detail=read("src/app/operations/requests/[id]/page.tsx");
+ const queue=read("src/app/operations/requests/page.tsx");
+ assert.match(detail,/buyerRequest\.findFirst\(\{where:\{id,submittedAt:\{not:null\}\}/);
+ assert.match(queue,/submittedAt:\{not:null\}/);
+ assert.match(service,/buyerRequest\.findFirst\(\{where:\{id,submittedAt:\{not:null\}\}\}/);
+});
