@@ -1,10 +1,19 @@
 import "server-only";
 import {PublicError} from "@/server/auth/http";
+import type {Prisma} from "@/generated/prisma/client";
 import {getPrisma} from "@/server/db/prisma";
 import {verifyProvider,paidAmountMinor,providerDomainValid,providerTransactionId} from "./paystack";
 import {atomic,lockOrder,conflict,audit,buyerOwner,financeActor,ensureFinanceScope} from "./common";
 import {uuid} from "./validation";
 type Trigger="WEBHOOK"|"BUYER"|"OPERATIONS";
+async function freezeVerifiedOrder(tx:Prisma.TransactionClient,order:{id:string;status:string},payerId:string,reason:string){
+ if(order.status!=="PAYMENT_VERIFIED")return;
+ const changed=await tx.order.updateMany({where:{id:order.id,status:"PAYMENT_VERIFIED"},data:{status:"PAYMENT_REVIEW",version:{increment:1}}});
+ if(changed.count!==1)conflict("The order changed during financial exception review.");
+ await tx.orderStatusEvent.create({data:{orderId:order.id,actorId:payerId,status:"PAYMENT_REVIEW",
+  note:"Server-originated provider reconciliation exception: "+reason.slice(0,1600)}});
+}
+
 
 export async function reconcileReference(reference:string,trigger:Trigger,actorId:string|null=null){
  if(!/^SMH-[0-9A-F]{32}$/.test(reference))throw new PublicError(400,"Invalid payment reference.");
@@ -30,6 +39,7 @@ export async function reconcileReference(reference:string,trigger:Trigger,actorI
   if(verified.status!=="success"&&repeatVerified){
    await store("MISMATCH","Previously verified charge no longer has a successful provider status. Financial investigation required.");
    await tx.paymentObligation.update({where:{id:obligation.id},data:{status:"REVIEW_REQUIRED"}});
+   await freezeVerifiedOrder(tx,order,attempt.payerId,"Previously verified charge changed its provider status.");
    return {status:"REVIEW_REQUIRED" as const,orderId:order.id,attemptId:attempt.id};
   }
   if(verified.status!=="success"){
@@ -50,6 +60,7 @@ export async function reconcileReference(reference:string,trigger:Trigger,actorI
    await store("MISMATCH","Provider success could not be matched to a unique reference, amount, payer email, currency, environment, or transaction ID.");
    await tx.paymentObligation.update({where:{id:obligation.id},data:{status:"REVIEW_REQUIRED"}});
    if(attempt.status!=="VERIFIED")await tx.paymentAttempt.update({where:{id:attempt.id},data:{status:"UNKNOWN"}});
+   await freezeVerifiedOrder(tx,order,attempt.payerId,"Provider amount, payer identity, reference or transaction ID failed independent verification.");
    return {status:"REVIEW_REQUIRED" as const,orderId:order.id,attemptId:attempt.id};
   }
   const reservationsCurrent=order.lines.length>0&&order.lines.every(l=>l.reservation?.status==="ACTIVE"&&l.reservation.expiresAt.getTime()>Date.now());
@@ -58,6 +69,7 @@ export async function reconcileReference(reference:string,trigger:Trigger,actorI
    await store("LATE_PAYMENT","Provider reports a genuine payment, but the active hold, order state or earlier review is no longer eligible. Financial resolution required.");
    await tx.paymentObligation.update({where:{id:obligation.id},data:{status:"REVIEW_REQUIRED"}});
    await tx.paymentAttempt.update({where:{id:attempt.id},data:{status:"UNKNOWN"}});
+   await freezeVerifiedOrder(tx,order,attempt.payerId,"Payment is late or order/reservation no longer supports automatic credit.");
    return {status:"REVIEW_REQUIRED" as const,orderId:order.id,attemptId:attempt.id};
   }
   const changed=await tx.order.updateMany({where:{id:order.id,status:"PENDING_PAYMENT",version:order.version},
