@@ -14,3 +14,8 @@ export const orderRelease=z.strictObject({
  expectedVersion:z.number().int().positive(),
  reason:z.string().trim().min(10).max(2000)
 });
+
+export const lotHold=z.strictObject({
+ status:z.enum(["AVAILABLE","ON_HOLD"]),
+ reason:z.string().trim().min(10).max(1000)
+});
