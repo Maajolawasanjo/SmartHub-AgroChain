@@ -29,11 +29,11 @@ export const workspaceNavigation:Record<WorkspaceRole,NavigationSection[]>={
  ],
  OPERATIONS:[
   {title:"Reviews",items:[active("Overview","/operations","grid"),active("Farmer Verification","/operations/verification","check"),active("Supply Reviews","/operations/supply","leaf"),active("Commodity Catalog","/operations/catalog","tag"),active("Public Enquiries","/operations/enquiries","file"),active("Field Visit Reports","/operations/field-visits","clipboard")]},
-  {title:"Procurement pipeline",items:[active("Buyer Requests","/operations/requests","clipboard"),active("Matches & Quotes","/operations/matching","file"),active("Orders & Reservations","/operations/orders","truck"),active("Verified Physical Lots","/operations/inventory","box"),planned("Disputes","/operations/disputes","shield")]},
+  {title:"Procurement pipeline",items:[active("Buyer Requests","/operations/requests","clipboard"),active("Matches & Quotes","/operations/matching","file"),active("Orders & Reservations","/operations/orders","truck"),active("Payment Reconciliation","/operations/payments","receipt"),active("Verified Physical Lots","/operations/inventory","box"),planned("Disputes","/operations/disputes","shield")]},
  ],
  SUPER_ADMIN:[
   {title:"Governance",items:[active("Overview","/admin","grid"),active("Invite Staff","/admin/staff/invite","users"),active("Staff Directory","/admin/staff","users"),active("Invitations","/admin/staff/invites","mail"),active("Roles & Permissions","/admin/permissions","shield"),active("Platform Audit","/admin/audit","file")]},
-  {title:"Oversight",items:[active("Field Visit Reports","/operations/field-visits","clipboard"),active("Buyer Requests","/operations/requests","clipboard"),active("Quote Approvals","/admin/quotes","receipt"),active("Orders & Reservations","/operations/orders","truck"),active("Verified Lots","/operations/inventory","box"),planned("User Directory","/admin/users","user"),planned("Reports & Insights","/admin/reports","chart"),planned("Configuration","/admin/settings","settings")]},
+  {title:"Oversight",items:[active("Field Visit Reports","/operations/field-visits","clipboard"),active("Buyer Requests","/operations/requests","clipboard"),active("Quote Approvals","/admin/quotes","receipt"),active("Payment Reconciliation","/operations/payments","receipt"),active("Refund Case Reviews","/admin/payments/refunds","shield"),active("Orders & Reservations","/operations/orders","truck"),active("Verified Lots","/operations/inventory","box"),planned("User Directory","/admin/users","user"),planned("Reports & Insights","/admin/reports","chart"),planned("Configuration","/admin/settings","settings")]},
  ],
 };
 
