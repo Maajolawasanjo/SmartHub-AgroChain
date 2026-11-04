@@ -1,5 +1,5 @@
 import "server-only";
-import {randomUUID} from "node:crypto";
+import {createHash,randomUUID} from "node:crypto";
 import {Prisma} from "@/generated/prisma/client";
 import {PublicError} from "@/server/auth/http";
 import {requireBuyerApi} from "@/server/buyer/guard";
@@ -40,7 +40,7 @@ async function lockOperations(tx:Tx,actorId:string){
 }
 async function lockOperationsRequest(tx:Tx,id:string){
  await tx.$queryRaw`SELECT "id" FROM "buyer_requests" WHERE "id" = ${id}::uuid FOR UPDATE`;
- const record=await tx.buyerRequest.findUnique({where:{id}});
+ const record=await tx.buyerRequest.findFirst({where:{id,submittedAt:{not:null}}});
  if(!record)throw new PublicError(404,"Sourcing request not found.");
  return record;
 }
@@ -77,15 +77,22 @@ async function audit(tx:Tx,actorId:string,requestId:string,action:string,details
 }
 export async function createRequest(input:unknown){
  const value=requestCreate.parse(input);const {account,db}=await requireBuyerApi();
+ const fingerprint=createHash("sha256").update(JSON.stringify({action:value.action,payload:value.payload})).digest("hex");
  if(value.action==="submit")try{validateSubmittedDraft(value.payload);}catch(e){fail(e instanceof Error?e.message:"Invalid request.");}
  return db.$transaction(async tx=>{
   const org=await lockBuyer(tx,account.id);
+  const existing=await tx.buyerRequest.findUnique({where:{organizationId_clientRequestKey:{organizationId:org.id,clientRequestKey:value.idempotencyKey}}});
+  if(existing){
+   if(existing.createdById!==account.id||existing.clientRequestHash!==fingerprint)
+    throw new PublicError(409,"This submission key was already used for different request details. Reload the form before starting a new request.");
+   return {id:existing.id,reference:existing.reference,status:existing.status,version:existing.version};
+  }
   if(value.action==="submit"&&!buyerProfileCompletion(org).complete)throw new PublicError(409,"Complete the required business profile fields before submitting. Independent verification is not required for an initial request.");
   if(value.action==="draft"&&await tx.buyerRequest.count({where:{organizationId:org.id,status:"DRAFT"}})>=MAX_OPEN_DRAFTS)
    throw new PublicError(409,"You have reached the limit of 30 open drafts. Finish or cancel an existing draft first.");
   const id=randomUUID();const reference=`REQ-${id.replaceAll("-","").toUpperCase()}`;
   const submitted=value.action==="submit";
-  const request=await tx.buyerRequest.create({data:{id,reference,organizationId:org.id,createdById:account.id,status:submitted?"SUBMITTED":"DRAFT",
+  const request=await tx.buyerRequest.create({data:{id,reference,organizationId:org.id,clientRequestKey:value.idempotencyKey,clientRequestHash:fingerprint,createdById:account.id,status:submitted?"SUBMITTED":"DRAFT",
    ...(submitted?header(value.payload):{}),draftPayload:submitted?Prisma.DbNull:payloadJson(value.payload),submittedAt:submitted?new Date():null}});
   if(submitted)await replaceLines(tx,id,value.payload);
   await event(tx,id,account.id,submitted?"SUBMITTED":"CREATED",request.status);
