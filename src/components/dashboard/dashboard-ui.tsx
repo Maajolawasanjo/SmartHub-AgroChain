@@ -7,8 +7,8 @@ export function WorkspaceCard({title,description,children,href,action}:{title:st
 }
 const statusTone:Record<string,"positive"|"warning"|"negative"|"neutral">={
  VERIFIED:"positive",APPROVED:"positive",ACTIVE:"positive",COMPLETED:"positive",ACCEPTED:"positive",REVIEWED:"positive",PAID:"positive",DELIVERED:"positive",
- PENDING_REVIEW:"warning",PENDING_VERIFICATION:"warning",MORE_INFO_REQUIRED:"warning",PENDING:"warning",SUBMITTED:"warning",RETURNED:"warning",DRAFT:"neutral",PROFILE_INCOMPLETE:"warning",IN_PROGRESS:"warning",
- REJECTED:"negative",DISABLED:"negative",SUSPENDED:"negative",FAILED:"negative",EXPIRED:"negative",CANCELLED:"neutral",WITHDRAWN:"neutral",
+ PENDING_REVIEW:"warning",UNDER_REVIEW:"warning",SOURCING_IN_PROGRESS:"warning",PENDING_VERIFICATION:"warning",MORE_INFO_REQUIRED:"warning",PENDING:"warning",SUBMITTED:"warning",RETURNED:"warning",DRAFT:"neutral",PROFILE_INCOMPLETE:"warning",IN_PROGRESS:"warning",
+ REJECTED:"negative",DISABLED:"negative",SUSPENDED:"negative",FAILED:"negative",EXPIRED:"negative",CANCELLED:"neutral",CLOSED:"neutral",WITHDRAWN:"neutral",
 };
 export function StatusPill({status}:{status:string}){
  const normalized=status.toUpperCase().trim().replaceAll(/\s+/g,"_");

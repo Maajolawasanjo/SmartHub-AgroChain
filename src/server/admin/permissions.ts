@@ -16,6 +16,7 @@ export const PERMISSIONS = [
   "operations.supply.review",
   "operations.catalog.manage",
   "operations.enquiries.manage",
+  "operations.requests.review",
   "staff.invite",
   "staff.manage",
   "staff.assign",
@@ -28,8 +29,8 @@ const ROLE_PERMISSIONS: Record<AccountRole, readonly Permission[]> = {
   BUYER: ["buyer.request.create"],
   FARMER: ["farmer.supply.manage"],
   FIELD_AGENT: ["field.assigned.read", "field.visit.manage", "field.evidence.submit"],
-  OPERATIONS: ["operations.verification.review", "operations.supply.review", "operations.catalog.manage", "operations.enquiries.manage"],
-  SUPER_ADMIN: ["operations.verification.review", "operations.supply.review", "operations.catalog.manage", "operations.enquiries.manage", "staff.invite", "staff.manage", "staff.assign", "staff.audit.read", "permissions.view"],
+  OPERATIONS: ["operations.verification.review", "operations.supply.review", "operations.catalog.manage", "operations.enquiries.manage", "operations.requests.review"],
+  SUPER_ADMIN: ["operations.verification.review", "operations.supply.review", "operations.catalog.manage", "operations.enquiries.manage", "operations.requests.review", "staff.invite", "staff.manage", "staff.assign", "staff.audit.read", "permissions.view"],
 };
 
 export const PERMISSION_DETAILS: ReadonlyArray<{permission:Permission;label:string;description:string}> = [
@@ -42,6 +43,7 @@ export const PERMISSION_DETAILS: ReadonlyArray<{permission:Permission;label:stri
   {permission:"operations.supply.review",label:"Review supply declarations",description:"Review supply declarations and evidence."},
   {permission:"operations.catalog.manage",label:"Manage public catalog",description:"Prepare catalog metadata and publication requests."},
   {permission:"operations.enquiries.manage",label:"Manage public enquiries",description:"Review and close public contact enquiries."},
+  {permission:"operations.requests.review",label:"Review buyer sourcing requests",description:"Claim, clarify, assess and close buyer demand requests."},
   {permission:"staff.invite",label:"Invite staff",description:"Issue invitations for approved staff roles."},
   {permission:"staff.manage",label:"Manage staff identity",description:"Change staff roles and active/suspended status."},
   {permission:"staff.assign",label:"Manage field scopes",description:"Assign or remove Field Agent state scopes."},
