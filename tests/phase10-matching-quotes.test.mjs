@@ -75,7 +75,8 @@ test("Phase 09 closure cannot strand pending, issued or accepted quotations",()=
  assert.match(requestService,/PENDING_APPROVAL","APPROVED","ISSUED/);
  assert.match(requestService,/quote\?\.status==="ACCEPTED"/);
  assert.match(requestService,/CANCELLED","EXPIRED","COMPLETED/);
- assert.match(requestService,/active or accepted quotation/);
+ assert.match(requestService,/This request has an active quotation/);
+ assert.match(requestService,/An accepted quotation has an active or unprocessed order/);
 });
 
 test("only an assigned Operations reviewer or Super Admin can see internal quote terms",()=>{
