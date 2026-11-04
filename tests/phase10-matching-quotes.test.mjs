@@ -75,3 +75,18 @@ test("Phase 09 closure cannot strand pending, issued or accepted quotations",()=
  assert.match(requestService,/PENDING_APPROVAL","APPROVED","ISSUED","ACCEPTED/);
  assert.match(requestService,/active or accepted quotation/);
 });
+
+test("only an assigned Operations reviewer or Super Admin can see internal quote terms",()=>{
+ const detail=read("src/app/operations/quotes/[id]/page.tsx");
+ assert.match(detail,/account\.role==="OPERATIONS"/);
+ assert.match(detail,/assignedToId!==account\.id/);
+ assert.match(detail,/notFound\(\)/);
+});
+test("saved quote drafts retain prior terms, prices and expiry on edit",()=>{
+ const form=read("src/features/commerce/commerce-actions.tsx");
+ const page=read("src/app/operations/matching/[id]/page.tsx");
+ assert.match(form,/initialTerms/);
+ assert.match(form,/initialLines/);
+ assert.match(form,/initialValidUntil/);
+ assert.match(page,/revisions:\{orderBy:\{number:"desc"\}/);
+});
