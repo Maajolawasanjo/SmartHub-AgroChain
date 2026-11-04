@@ -1,6 +1,6 @@
 "use client";
 import {useRouter} from "next/navigation";
-import {useState,type FormEvent} from "react";
+import {useRef,useState,type FormEvent} from "react";
 import {NIGERIA_STATES} from "@/features/auth/auth-rules";
 import type {RequestDraft} from "@/server/requests/validation";
 import {blankLine} from "@/server/requests/presentation";
@@ -11,7 +11,7 @@ type Mode="create"|"edit"|"clarification";
 type Destination={id:string;label:string;state:string;city:string;addressLine:string};
 type Props={mode:Mode;id?:string;version?:number;initial:RequestDraft;commodities:Commodity[];destinations?:Destination[];profileReady:boolean;question?:string};
 export function SourcingRequestForm({mode,id,version,initial,commodities,destinations=[],profileReady,question}:Props){
- const router=useRouter();const [draft,setDraft]=useState<RequestDraft>(initial);const [answer,setAnswer]=useState("");
+ const router=useRouter();const createKey=useRef<string|null>(null);const [draft,setDraft]=useState<RequestDraft>(initial);const [answer,setAnswer]=useState("");
  const [busy,setBusy]=useState(false);const [error,setError]=useState("");const [notice,setNotice]=useState("");
  const change=(field:keyof Omit<RequestDraft,"lines">,value:string)=>setDraft(v=>({...v,[field]:value}));
  const lineChange=(index:number,field:keyof RequestDraft["lines"][number],value:string|boolean)=>setDraft(v=>({...v,lines:v.lines.map((l,i)=>i===index?{...l,[field]:value,...(field==="commodityId"?{typeId:"",specificationId:"",commodityName:""}:{})}:l)}));
@@ -23,7 +23,8 @@ export function SourcingRequestForm({mode,id,version,initial,commodities,destina
   if(mode==="clarification"&&action==="submit"&&answer.trim().length<5){setError("Explain how you addressed the Operations question.");return;}
   const endpoint=mode==="create"?"/api/buyer/requests":mode==="edit"?`/api/buyer/requests/${id}`:action==="draft"?`/api/buyer/requests/${id}/clarification/draft`:`/api/buyer/requests/${id}/respond`;
   const method=mode==="create"||mode==="clarification"&&action==="submit"?"POST":"PATCH";
-  const body=mode==="create"?{action,payload:draft}:mode==="clarification"&&action==="submit"?{expectedVersion:version,answer,payload:draft}:{action,expectedVersion:version,payload:draft};
+  if(mode==="create"&&!createKey.current)createKey.current=crypto.randomUUID();
+  const body=mode==="create"?{action,payload:draft,idempotencyKey:createKey.current}:mode==="clarification"&&action==="submit"?{expectedVersion:version,answer,payload:draft}:{action,expectedVersion:version,payload:draft};
   setBusy(true);setError("");setNotice("");
   try{
    const response=await fetch(endpoint,{method,credentials:"same-origin",cache:"no-store",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
