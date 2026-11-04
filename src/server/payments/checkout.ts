@@ -2,11 +2,13 @@ import "server-only";
 import {randomUUID} from "node:crypto";
 import {PublicError} from "@/server/auth/http";
 import {checkoutCreate} from "./validation";
-import {initializeProvider} from "./paystack";
+import {initializeProvider,secretKey,checkoutCallback} from "./paystack";
 import {atomic,buyerOwner,conflict,lockOrder,payable,audit} from "./common";
 
 export async function initializeCheckout(input:unknown){
  const {orderId}=checkoutCreate.parse(input);
+ // Fail before any DB attempt if provider credentials or approved callback origin are missing.
+ secretKey();checkoutCallback();
  const {account,member,db}=await buyerOwner();
  // Create the payment intent BEFORE the provider call; a lost provider response cannot silently create a second charge.
  const intent=await atomic(db,async tx=>{
