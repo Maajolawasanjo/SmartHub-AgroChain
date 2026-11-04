@@ -1231,6 +1231,7 @@ model PaymentProviderEvent {
   id          String @id @default(uuid()) @db.Uuid
   payloadHash String @unique @db.VarChar(64)
   eventName   String @db.VarChar(100)
+  reference   String? @db.VarChar(60)
   attemptId   String? @db.Uuid
   signatureMode String @db.VarChar(20)
   status      PaymentEventStatus @default(RECEIVED)
