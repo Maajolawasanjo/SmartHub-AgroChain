@@ -1,5 +1,6 @@
 import "server-only";
 import {lotCreate,lotHold,orderId} from "./validation";
+import {PublicError} from "@/server/auth/http";
 import {transact,requireOperator,lockActor,inspectionEligibility,audit,conflict,lockLot} from "./common";
 
 export async function registerPhysicalLot(input:unknown){
@@ -29,7 +30,7 @@ export async function holdPhysicalLot(id:string,input:unknown){
  return transact(db,async tx=>{
   await lockActor(tx,account.id);
   const candidate=await tx.supplyLot.findUnique({where:{id},select:{supplyId:true}});
-  if(!candidate)throw new Error("Physical sourced lot was not found.");
+  if(!candidate)throw new PublicError(404,"Physical sourced lot not found.");
   const eligibility=value.status==="AVAILABLE"?await inspectionEligibility(tx,candidate.supplyId):null;
   const lot=await lockLot(tx,id);
   if(lot.status===value.status)return {id,status:lot.status};
