@@ -15,7 +15,7 @@ export async function prepareFulfillment(input:unknown){
   if(existing)return {id:existing.id,status:existing.status,existing:true};
   const request=order.quotation.request;
   if(request.fulfilmentMethod===null)conflict("A buyer-confirmed pickup/delivery method is required.");
-  if(request.fulfilmentMethod==="DELIVERY"){
+  if(request.fulfilmentMethod==="SMARTHUB_DELIVERY"||request.fulfilmentMethod==="THIRD_PARTY"){
    if(!request.deliveryAddress||!request.deliveryCity||!request.deliveryState)
     conflict("The buyer must confirm a complete delivery destination before dispatch planning.");
    if(value.destinationAddress!==request.deliveryAddress||value.destinationCity!==request.deliveryCity||value.destinationState!==request.deliveryState)
