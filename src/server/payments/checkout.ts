@@ -40,6 +40,8 @@ export async function initializeCheckout(input:unknown){
   return {ready:false,id:attempt.id,reference:attempt.reference,obligationId:obligation.id,email:attempt.payerEmail,amountMinor,orderId};
  });
  if(intent.ready)return {status:"READY",attemptId:intent.id,checkoutUrl:intent.authorizationUrl};
+ if(typeof intent.email!=="string"||typeof intent.amountMinor!=="bigint"||typeof intent.orderId!=="string"||typeof intent.obligationId!=="string")
+  throw new PublicError(503,"Payment initiation could not be resolved. Review the latest status.");
  let authorizationUrl:string;
  try{
   authorizationUrl=await initializeProvider({reference:intent.reference,email:intent.email,amountMinor:intent.amountMinor,orderId:intent.orderId,obligationId:intent.obligationId});
