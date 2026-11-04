@@ -46,7 +46,7 @@ test("checkout fails closed without explicit launch permission and creates one d
  assert.match(checkout,/payable\(order\)/);
  assert.match(checkout,/status:\{in:\["INITIATING","READY","UNKNOWN","VERIFIED"\]\}/);
  assert.match(checkout,/tx\.paymentAttempt\.create/);
- assert.ok(checkout.indexOf("tx.paymentAttempt.create")<checkout.indexOf("initializeProvider"),"write durable attempt before provider call");
+ assert.ok(checkout.indexOf("tx.paymentAttempt.create")<checkout.indexOf("=await initializeProvider("),"write durable attempt before provider call");
  assert.match(sql,/payment_obligations_orderId_key/);
  assert.match(sql,/payment_attempts_reference_key/);
 });
