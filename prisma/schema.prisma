@@ -1579,6 +1579,10 @@ model SupplierSettlementAttempt {
  reference String @unique @db.VarChar(50)
  status SupplierTransferStatus @default(INITIATING)
  recipientCode String? @db.VarChar(100)
+ recipientBankCode String @db.VarChar(12)
+ recipientEncryptedNumber String @db.VarChar(300)
+ recipientFingerprint String @db.VarChar(64)
+ recipientAccountName String @db.VarChar(160)
  providerTransferId String? @unique @db.VarChar(50)
  verifiedAt DateTime?
  lastCheckedAt DateTime?
