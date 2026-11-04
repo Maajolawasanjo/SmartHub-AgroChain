@@ -27,12 +27,14 @@ async function operations(){
  return ctx;
 }
 async function ensureAssigned(tx:Tx,requestId:string,actorId:string){
+ await tx.$queryRaw`SELECT "id" FROM "buyer_requests" WHERE "id" = ${requestId}::uuid FOR UPDATE`;
  const request=await tx.buyerRequest.findUnique({where:{id:requestId},include:{assignment:true}});
  if(!request||request.status!=="SOURCING_IN_PROGRESS"||!request.submittedAt)conflict("The request must be actively in sourcing.");
  if(request.assignment?.assignedToId!==actorId)throw new PublicError(403,"Claim the sourcing case before preparing matches or quotes.");
  return request;
 }
 async function validateCandidate(tx:Tx,requestLineId:string,supplyId:string,quantity:Prisma.Decimal){
+ await tx.$queryRaw`SELECT "id" FROM "supply_declarations" WHERE "id" = ${supplyId}::uuid FOR UPDATE`;
  const line=await tx.buyerRequestLine.findUnique({where:{id:requestLineId},include:{request:true}});
  const supply=await tx.supplyDeclaration.findUnique({where:{id:supplyId},include:{qualityAssessments:{orderBy:{createdAt:"desc"},take:1}}});
  if(!line||!supply)throw new PublicError(404,"Buyer line or supply declaration was not found.");
