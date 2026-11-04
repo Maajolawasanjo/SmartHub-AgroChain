@@ -73,7 +73,7 @@ async function event(tx:Tx,requestId:string,actorId:string,kind:"CREATED"|"DRAFT
  await tx.buyerRequestEvent.create({data:{requestId,actorId,kind,status:status as "DRAFT"|"SUBMITTED"|"UNDER_REVIEW"|"MORE_INFO_REQUIRED"|"SOURCING_IN_PROGRESS"|"CANCELLED"|"CLOSED",note:note||null}});
 }
 async function audit(tx:Tx,actorId:string,requestId:string,action:string,details?:Record<string,unknown>){
- await tx.auditEvent.create({data:{actorId,subjectId:requestId,action,details:(details??{}) as unknown as Prisma.InputJsonValue}}});
+ await tx.auditEvent.create({data:{actorId,subjectId:requestId,action,details:(details??{}) as unknown as Prisma.InputJsonValue}});
 }
 export async function createRequest(input:unknown){
  const value=requestCreate.parse(input);const {account,db}=await requireBuyerApi();
@@ -132,7 +132,7 @@ export async function respondToClarification(id:string,input:unknown){
   const question=await tx.buyerRequestClarification.findFirst({where:{requestId:id,answeredAt:null},orderBy:{askedAt:"desc"}});
   if(!question)throw new PublicError(409,"No outstanding clarification was found.");
   await replaceLines(tx,id,value.payload);
-  const changed=await tx.buyerRequest.updateMany({where:{id,organizationId:org.id,status:"MORE_INFO_REQUIRED",version:value.expectedVersion},data:{...header(value.payload),draftPayload:Prisma.DbNull,status:"SUBMITTED",submittedAt:new Date(),version:{increment:1}}});
+  const changed=await tx.buyerRequest.updateMany({where:{id,organizationId:org.id,status:"MORE_INFO_REQUIRED",version:value.expectedVersion},data:{...header(value.payload),draftPayload:Prisma.DbNull,status:"SUBMITTED",version:{increment:1}}});
   if(changed.count!==1)throw new PublicError(409,"Request changed. Reload before submitting.");
   await tx.buyerRequestClarification.update({where:{id:question.id},data:{answer:value.answer,answeredById:account.id,answeredAt:new Date()}});
   await event(tx,id,account.id,"CLARIFICATION_ANSWERED","SUBMITTED",value.answer);
