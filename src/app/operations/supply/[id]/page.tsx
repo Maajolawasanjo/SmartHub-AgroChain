@@ -2,6 +2,7 @@ import Link from "next/link";
 import {notFound} from "next/navigation";
 import {PortalFrame,StateTag,requirePortal} from "@/components/agriculture/portal-frame";
 import {OperationsReviewControls} from "@/features/operations/review-controls";
+import {LotIntakeForm} from "@/features/orders/order-actions";
 export const dynamic="force-dynamic";
 export const metadata={robots:{index:false,follow:false}};
 const validId=(id:string)=>/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
@@ -12,7 +13,7 @@ export default async function SupplyReviewDetail({params}:{params:Promise<{id:st
     where:{id},
     include:{
       farmer:{select:{id:true,fullName:true,email:true,phone:true}},
-      farm:true,commodity:true,
+      farm:true,commodity:true,supplyLot:true,
       events:{orderBy:{createdAt:"desc"},take:40},
       qualityAssessments:{orderBy:{createdAt:"desc"},take:10,
         include:{reviewer:{select:{fullName:true}},evidenceVisit:{select:{id:true}},specification:{select:{name:true}}}
@@ -42,6 +43,7 @@ export default async function SupplyReviewDetail({params}:{params:Promise<{id:st
     {s.status==="PENDING_REVIEW"?<OperationsReviewControls kind="supply" id={id} actorId={account.id} actorRole={account.role} assignedToId={assignment?.assignedToId||null} assignedToName={assignment?.assignedTo.fullName||null} evidenceReady={evidenceReady} supply={{quantity:s.quantity.toString(),unit:s.unit,
       visits:accepted.map(v=>({id:v.id,name:`${v.visitDate.toLocaleDateString("en-NG")} · ${v.purpose.replaceAll("_"," ")} · ${v.fieldAgent.fullName}`})),
       specifications:specifications.map(v=>({id:v.id,name:v.name}))}}/>:<section className="agro-panel"><p>This record is not awaiting a decision. An earlier review link cannot override its current status.</p>{s.feedback&&<p>Latest feedback: {s.feedback}</p>}</section>}
+    {s.status==="APPROVED"&&(s.supplyLot?<section className="agro-panel"><h2>Registered sourced lot</h2><p>Physical quantity: {s.supplyLot.quantity.toString()} {s.supplyLot.unit}</p><p>Reserved: {s.supplyLot.reservedQuantity.toString()} {s.supplyLot.unit} · Consumed: {s.supplyLot.consumedQuantity.toString()} {s.supplyLot.unit}</p><p>Custody: {s.supplyLot.locationNote}</p><Link className="action action-outline" href="/operations/inventory">Inspect inventory register</Link></section>:<LotIntakeForm supplyId={s.id}/>)}
     <section className="agro-panel"><h2>Recorded inspection assessments</h2>{s.qualityAssessments.length?s.qualityAssessments.map(a=><div className="agro-record" key={a.id}><div><strong>{a.observedQuantity.toString()} {a.observedUnit} observed</strong><p>{a.reviewer.fullName} · {a.createdAt.toLocaleString("en-NG")}</p><p>{a.conditionNote}</p><p>Catalog specification: {a.specification?.name||"Not assessed"}</p></div><Link href={`/operations/field-visits/${a.evidenceVisit.id}`}>Evidence source</Link></div>):<p>No completed inspection assessments recorded.</p>}</section>
     <section className="agro-panel"><h2>Decision history</h2>{s.events.length?s.events.map(event=><p key={event.id}><StateTag status={event.status}/> {event.createdAt.toLocaleString("en-NG")}{event.note?` — ${event.note}`:""}</p>):<p>No decision events recorded.</p>}</section>
   </PortalFrame>;
