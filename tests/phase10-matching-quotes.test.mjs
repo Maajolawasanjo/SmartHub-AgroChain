@@ -90,3 +90,8 @@ test("saved quote drafts retain prior terms, prices and expiry on edit",()=>{
  assert.match(form,/initialValidUntil/);
  assert.match(page,/revisions:\{orderBy:\{number:"desc"\}/);
 });
+
+test("sourcing and inspected supply rows are locked before matching decisions",()=>{
+ assert.match(service,/SELECT "id" FROM "buyer_requests".*FOR UPDATE/);
+ assert.match(service,/SELECT "id" FROM "supply_declarations".*FOR UPDATE/);
+});
