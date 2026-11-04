@@ -52,3 +52,6 @@ Implementation follows `docs/implementation/MASTER_IMPLEMENTATION_ROADMAP_V2.md`
 - Added contract regression checks for these access-control and retry safeguards.
 
 These checks are code-level protections, not a substitute for real Supabase/PostgreSQL staging tests of duplicate concurrent submissions, RLS and multi-role browser behavior.
+
+- Sourcing-request create/edit/clarification endpoints accept up to 24,000 JSON characters to accommodate valid five-line descriptions plus long buyer clarification answers; the shared API decoder retains its 12,000-character default for unrelated endpoints.
+- Operations review clearly labels decision notes as buyer-visible and warns against sharing internal or sensitive information.
