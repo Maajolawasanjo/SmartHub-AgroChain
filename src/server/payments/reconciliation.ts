@@ -7,8 +7,8 @@ import {atomic,lockOrder,conflict,audit,buyerOwner,financeActor,ensureFinanceSco
 import {uuid} from "./validation";
 type Trigger="WEBHOOK"|"BUYER"|"OPERATIONS";
 async function freezeVerifiedOrder(tx:Prisma.TransactionClient,order:{id:string;status:string},payerId:string,reason:string){
- if(order.status!=="PAYMENT_VERIFIED")return;
- const changed=await tx.order.updateMany({where:{id:order.id,status:"PAYMENT_VERIFIED"},data:{status:"PAYMENT_REVIEW",version:{increment:1}}});
+ if(!["PAYMENT_VERIFIED","FULFILLING"].includes(order.status))return;
+ const changed=await tx.order.updateMany({where:{id:order.id,status:order.status},data:{status:"PAYMENT_REVIEW",version:{increment:1}}});
  if(changed.count!==1)conflict("The order changed during financial exception review.");
  await tx.orderStatusEvent.create({data:{orderId:order.id,actorId:payerId,status:"PAYMENT_REVIEW",
   note:"Server-originated provider reconciliation exception: "+reason.slice(0,1600)}});
