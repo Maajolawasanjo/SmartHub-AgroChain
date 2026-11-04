@@ -67,7 +67,7 @@ async function request<T>(path:string,method:"GET"|"POST",body:unknown,schema:z.
  const response=await fetch("https://api.paystack.co"+path,{method,
   headers:{Authorization:"Bearer "+secretKey(),...(method==="POST"?{"Content-Type":"application/json"}:{})},
   ...(method==="POST"?{body:JSON.stringify(body)}:{}),
-  cache:"no-store",signal:AbortSignal.timeout(12000)});
+  cache:"no-store",signal:AbortSignal.timeout(method==="GET"?3500:12000)});
  if(!response.ok)throw new PublicError(502,"Payment provider could not confirm the operation.");
  let data:unknown;
  try{data=await response.json();}catch{throw new PublicError(502,"Invalid response from payment provider.");}
