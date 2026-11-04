@@ -68,3 +68,10 @@ test("site navigation links only implemented Phase 10 workspaces",()=>{
  for(const p of ["/farmer/opportunities","/operations/matching","/dashboard/quotes","/admin/quotes"])
   assert.ok(nav.includes('active("')&&nav.includes(p),p);
 });
+
+test("Phase 09 closure cannot strand pending, issued or accepted quotations",()=>{
+ const requestService=read("src/server/requests/service.ts");
+ assert.match(requestService,/if\(value\.action==="close"\)/);
+ assert.match(requestService,/PENDING_APPROVAL","APPROVED","ISSUED","ACCEPTED/);
+ assert.match(requestService,/active or accepted quotation/);
+});
