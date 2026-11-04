@@ -73,7 +73,7 @@ async function event(tx:Tx,requestId:string,actorId:string,kind:"CREATED"|"DRAFT
  await tx.buyerRequestEvent.create({data:{requestId,actorId,kind,status:status as "DRAFT"|"SUBMITTED"|"UNDER_REVIEW"|"MORE_INFO_REQUIRED"|"SOURCING_IN_PROGRESS"|"CANCELLED"|"CLOSED",note:note||null}});
 }
 async function audit(tx:Tx,actorId:string,requestId:string,action:string,details?:Record<string,unknown>){
- await tx.auditEvent.create({data:{actorId,subjectId:requestId,action,details:details??{}}});
+ await tx.auditEvent.create({data:{actorId,subjectId:requestId,action,details:(details??{}) as unknown as Prisma.InputJsonValue}}});
 }
 export async function createRequest(input:unknown){
  const value=requestCreate.parse(input);const {account,db}=await requireBuyerApi();
