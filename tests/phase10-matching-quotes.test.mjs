@@ -27,7 +27,7 @@ test("phase 10 domain tables and API endpoints are present",()=>{
 test("matching requires approved physical supply, verified farmer and accepted inspection",()=>{
  for(const phrase of ['supply.status!=="APPROVED"','verified?.status!=="VERIFIED"','assessment.observedUnit!==supply.unit','assessment.specificationId!==line.specificationId','quantity.gt(assessment.observedQuantity)'])
   assert.ok(service.includes(phrase),phrase);
- assert.match(service,/status:"SOURCING_IN_PROGRESS"/);
+ assert.match(service,/request\.status!=="SOURCING_IN_PROGRESS"/);
  assert.match(service,/assignment\?\.assignedToId!==actorId/);
 });
 test("opportunities are farmer-owned and require recorded invitation before response",()=>{
