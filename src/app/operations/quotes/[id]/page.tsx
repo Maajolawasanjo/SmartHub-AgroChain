@@ -12,6 +12,10 @@ export default async function OperationsQuotation({params}:{params:Promise<{id:s
   revisions:{orderBy:{number:"desc"},include:{lines:{orderBy:{requestLineId:"asc"},include:{match:{include:{supply:{include:{farmer:{select:{fullName:true}}}}}}}},events:{orderBy:{createdAt:"desc"},include:{actor:{select:{fullName:true}}}}}}
  }});
  if(!quote)notFound();
+ if(account.role==="OPERATIONS"){
+  const assignment=await db.buyerRequestAssignment.findUnique({where:{requestId:quote.requestId},select:{assignedToId:true}});
+  if(assignment?.assignedToId!==account.id)notFound();
+ }
  const current=quote.revisions.find(r=>r.number===quote.currentRevision);
  return <PortalFrame role="OPERATIONS" name={account.fullName} route="/operations/quotes" title="Commercial Quotation" subtitle={quote.request.reference+" · "+(quote.request.organization.businessName??"Buyer")}>
  <div className="agro-toolbar"><Link href={"/operations/matching/"+quote.requestId}>← Return to matching</Link><StateTag status={quote.status}/><span>Revision {quote.currentRevision}</span></div>
