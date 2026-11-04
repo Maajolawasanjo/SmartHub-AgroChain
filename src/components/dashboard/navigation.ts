@@ -17,7 +17,7 @@ export const workspaceMeta:Record<WorkspaceRole,{title:string;home:string;descri
 /** A planned item is visible but never navigates to a nonexistent or incomplete feature. */
 export const workspaceNavigation:Record<WorkspaceRole,NavigationSection[]>={
  BUYER:[
-  {title:"Procurement",items:[active("Dashboard","/dashboard","grid"),active("Products & Supply","/dashboard/products","leaf"),active("My Requests & Quotes","/dashboard/requests","clipboard"),active("Official Quotations","/dashboard/quotes","receipt"),active("Orders & Fulfilment","/dashboard/orders","box"),active("Payments & Transactions","/dashboard/payments","receipt")]},
+  {title:"Procurement",items:[active("Dashboard","/dashboard","grid"),active("Products & Supply","/dashboard/products","leaf"),active("My Requests & Quotes","/dashboard/requests","clipboard"),active("Official Quotations","/dashboard/quotes","receipt"),active("Orders & Fulfilment","/dashboard/orders","box"),active("Shipments & Receipts","/dashboard/shipments","truck"),active("Payments & Transactions","/dashboard/payments","receipt")]},
   {title:"My business",items:[active("Business Profile & Settings","/dashboard/settings","settings")]},
  ],
  FARMER:[
@@ -29,11 +29,11 @@ export const workspaceNavigation:Record<WorkspaceRole,NavigationSection[]>={
  ],
  OPERATIONS:[
   {title:"Reviews",items:[active("Overview","/operations","grid"),active("Farmer Verification","/operations/verification","check"),active("Supply Reviews","/operations/supply","leaf"),active("Commodity Catalog","/operations/catalog","tag"),active("Public Enquiries","/operations/enquiries","file"),active("Field Visit Reports","/operations/field-visits","clipboard")]},
-  {title:"Procurement pipeline",items:[active("Buyer Requests","/operations/requests","clipboard"),active("Matches & Quotes","/operations/matching","file"),active("Orders & Reservations","/operations/orders","truck"),active("Payment Reconciliation","/operations/payments","receipt"),active("Verified Physical Lots","/operations/inventory","box"),planned("Disputes","/operations/disputes","shield")]},
+  {title:"Procurement pipeline",items:[active("Buyer Requests","/operations/requests","clipboard"),active("Matches & Quotes","/operations/matching","file"),active("Orders & Reservations","/operations/orders","truck"),active("Payment Reconciliation","/operations/payments","receipt"),active("Fulfilment & Delivery","/operations/fulfilment","truck"),active("Verified Physical Lots","/operations/inventory","box"),active("Disputes","/operations/disputes","shield")]},
  ],
  SUPER_ADMIN:[
   {title:"Governance",items:[active("Overview","/admin","grid"),active("Invite Staff","/admin/staff/invite","users"),active("Staff Directory","/admin/staff","users"),active("Invitations","/admin/staff/invites","mail"),active("Roles & Permissions","/admin/permissions","shield"),active("Platform Audit","/admin/audit","file")]},
-  {title:"Oversight",items:[active("Field Visit Reports","/operations/field-visits","clipboard"),active("Buyer Requests","/operations/requests","clipboard"),active("Quote Approvals","/admin/quotes","receipt"),active("Payment Reconciliation","/operations/payments","receipt"),active("Refund Case Reviews","/admin/payments/refunds","shield"),active("Orders & Reservations","/operations/orders","truck"),active("Verified Lots","/operations/inventory","box"),planned("User Directory","/admin/users","user"),planned("Reports & Insights","/admin/reports","chart"),planned("Configuration","/admin/settings","settings")]},
+  {title:"Oversight",items:[active("Field Visit Reports","/operations/field-visits","clipboard"),active("Buyer Requests","/operations/requests","clipboard"),active("Quote Approvals","/admin/quotes","receipt"),active("Payment Reconciliation","/operations/payments","receipt"),active("Refund Case Reviews","/admin/payments/refunds","shield"),active("Fulfilment & Delivery","/operations/fulfilment","truck"),active("Delivery Disputes","/operations/disputes","shield"),active("Orders & Reservations","/operations/orders","truck"),active("Verified Lots","/operations/inventory","box"),planned("User Directory","/admin/users","user"),planned("Reports & Insights","/admin/reports","chart"),planned("Configuration","/admin/settings","settings")]},
  ],
 };
 
