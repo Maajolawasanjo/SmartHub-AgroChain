@@ -121,6 +121,9 @@ export async function releasePendingOrder(id:string,input:unknown){
   const updated=await tx.order.updateMany({where:{id,status:"PENDING_PAYMENT",version:value.expectedVersion},
    data:{status,version:{increment:1},cancelledAt:new Date(),cancellationReason:value.reason}});
   if(updated.count!==1)conflict("Order changed during release.");
+  // Phase 12: a cancelled or expired order must not retain an open unpaid financial obligation.
+  // Any later genuine Paystack success is reconciled as a late-payment exception, never silently credited.
+  await tx.paymentObligation.updateMany({where:{orderId:id,status:"UNPAID"},data:{status:"CANCELLED"}});
   await tx.orderStatusEvent.create({data:{orderId:id,actorId:account.id,status,note:value.reason}});
   await audit(tx,account.id,id,"ORDER_"+status,{lots:lotIds,releasedReservations:reservations.length});
   return {id,status,version:order.version+1};
