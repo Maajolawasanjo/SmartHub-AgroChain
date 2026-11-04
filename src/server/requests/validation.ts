@@ -43,7 +43,7 @@ export function validateSubmittedDraft(value:RequestDraft){
  return value;
 }
 export const requestMutation=z.strictObject({expectedVersion:z.number().int().positive(),payload:requestDraft});
-export const requestCreate=z.strictObject({action:z.enum(["draft","submit"]),payload:requestDraft});
+export const requestCreate=z.strictObject({action:z.enum(["draft","submit"]),idempotencyKey:z.uuid(),payload:requestDraft});
 export const requestSave=z.strictObject({action:z.enum(["draft","submit"]),expectedVersion:z.number().int().positive(),payload:requestDraft});
 export const requestResponse=z.strictObject({expectedVersion:z.number().int().positive(),answer:z.string().trim().min(5).max(2000),payload:requestDraft});
 export const requestCancel=z.strictObject({expectedVersion:z.number().int().positive(),reason:z.string().trim().min(5).max(1000)});
