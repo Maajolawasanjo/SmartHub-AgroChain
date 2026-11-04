@@ -20,14 +20,18 @@ export async function reconcileReference(reference:string,trigger:Trigger,actorI
   const attempt=await tx.paymentAttempt.findUnique({where:{reference},include:{obligation:true}});
   if(!attempt||attempt.obligation.orderId!==order.id)conflict("Payment reference has changed.");
   const obligation=attempt.obligation;
-  if(obligation.status==="PAID"&&attempt.status==="VERIFIED"&&order.status==="PAYMENT_VERIFIED")
-   return {status:"VERIFIED" as const,orderId:order.id,attemptId:attempt.id,unchanged:true};
+  const repeatVerified=obligation.status==="PAID"&&attempt.status==="VERIFIED"&&order.status==="PAYMENT_VERIFIED";
   const base={attemptId:attempt.id,actorId,trigger,providerStatus:verified.status.slice(0,40),
    providerTransactionId:transactionId,amountMinor:amount,currency:verified.currency.slice(0,3)};
   const store=async(outcome:"VERIFIED"|"PENDING"|"FAILED"|"MISMATCH"|"LATE_PAYMENT",note:string)=>{
    await tx.paymentReconciliation.create({data:{...base,outcome,note}});
    await tx.paymentAttempt.update({where:{id:attempt.id},data:{lastCheckedAt:new Date()}});
   };
+  if(verified.status!=="success"&&repeatVerified){
+   await store("MISMATCH","Previously verified charge no longer has a successful provider status. Financial investigation required.");
+   await tx.paymentObligation.update({where:{id:obligation.id},data:{status:"REVIEW_REQUIRED"}});
+   return {status:"REVIEW_REQUIRED" as const,orderId:order.id,attemptId:attempt.id};
+  }
   if(verified.status!=="success"){
    const failed=["failed","abandoned","reversed"].includes(verified.status);
    await store(failed?"FAILED":"PENDING",failed?"Provider reports a terminal unsuccessful attempt.":"Provider has not confirmed successful payment.");
@@ -40,6 +44,8 @@ export async function reconcileReference(reference:string,trigger:Trigger,actorI
    amount!==obligation.amountMinor||verified.currency!=="NGN"||obligation.currency!=="NGN"||
    verified.customer.email.toLowerCase()!==attempt.payerEmail.toLowerCase()||!providerDomainValid(verified)||
    (obligation.status==="PAID"&&attempt.status!=="VERIFIED");
+  if(repeatVerified&&!invalid)
+   return {status:"VERIFIED" as const,orderId:order.id,attemptId:attempt.id,unchanged:true};
   if(invalid){
    await store("MISMATCH","Provider success could not be matched to a unique reference, amount, payer email, currency, environment, or transaction ID.");
    await tx.paymentObligation.update({where:{id:obligation.id},data:{status:"REVIEW_REQUIRED"}});
