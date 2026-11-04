@@ -72,7 +72,9 @@ test("site navigation links only implemented Phase 10 workspaces",()=>{
 test("Phase 09 closure cannot strand pending, issued or accepted quotations",()=>{
  const requestService=read("src/server/requests/service.ts");
  assert.match(requestService,/if\(value\.action==="close"\)/);
- assert.match(requestService,/PENDING_APPROVAL","APPROVED","ISSUED","ACCEPTED/);
+ assert.match(requestService,/PENDING_APPROVAL","APPROVED","ISSUED/);
+ assert.match(requestService,/quote\?\.status==="ACCEPTED"/);
+ assert.match(requestService,/CANCELLED","EXPIRED","COMPLETED/);
  assert.match(requestService,/active or accepted quotation/);
 });
 
