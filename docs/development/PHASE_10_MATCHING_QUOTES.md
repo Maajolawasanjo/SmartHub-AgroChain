@@ -36,3 +36,9 @@
 6. Obtain confirmed commercial policy and legal review before enabling production issuance/acceptance.
 
 **Future**: Phase 11 implements confirmed order lifecycle, supply lots, reservations and stock movements. It must not infer a valid reservation from an approved match or accepted quotation.
+
+## Integration hardening
+- Phase 09 Operations cannot close a sourcing request while a quote is pending approval, approved, issued or accepted. This prevents a stranded buyer decision.
+- Internal quotation details are available only to the assigned Operations reviewer or Super Admin; buyer access remains organization-scoped and issued-only.
+- Saved draft terms, selected candidates, unit prices and expiry are prefilled for continued editing; expiry is displayed in the editor's local timezone.
+- Regression checks cover those role boundaries and cross-phase guards. All code still requires real staging and browser integration validation.
