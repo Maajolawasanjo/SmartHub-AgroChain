@@ -9,7 +9,7 @@ export default async function MatchingCase({params}:{params:Promise<{id:string}>
  const {account,db}=await requirePortal("OPERATIONS");const {id}=await params;
  if(!z.uuid().safeParse(id).success)notFound();
  const request=await db.buyerRequest.findFirst({where:{id,status:"SOURCING_IN_PROGRESS",submittedAt:{not:null}},include:{
-  organization:{select:{businessName:true}},assignment:true,lines:{orderBy:{position:"asc"},include:{matchProposals:{orderBy:{createdAt:"desc"},include:{supply:{include:{farmer:{select:{fullName:true}}}},interests:true}}}},quotation:{select:{id:true,status:true,version:true}}}});
+  organization:{select:{businessName:true}},assignment:true,lines:{orderBy:{position:"asc"},include:{matchProposals:{orderBy:{createdAt:"desc"},include:{supply:{include:{farmer:{select:{fullName:true}}}},interests:true}}}},quotation:{select:{id:true,status:true,version:true,revisions:{orderBy:{number:"desc"},take:1,select:{terms:true,validUntil:true,lines:{select:{requestLineId:true,matchId:true,unitPriceNgn:true}}}}}}}});
  if(!request)notFound();
  const assigned=account.role==="OPERATIONS"&&request.assignment?.assignedToId===account.id;
  const ids=request.lines.map(l=>l.commodityId).filter((v):v is string=>Boolean(v));
@@ -33,7 +33,7 @@ export default async function MatchingCase({params}:{params:Promise<{id:string}>
   {assigned&&<><h3>Find evidence-backed approved supply</h3><MatchBuilder requestLineId={l.id} supplies={eligible.get(l.id)??[]}/></>}
  </section>)}
  {request.quotation?<section className="agro-panel"><h2>Commercial quotation</h2><p>Current status: {request.quotation.status}</p><Link className="action action-primary" href={"/operations/quotes/"+request.quotation.id}>Review quotation and approval</Link></section>:null}
- {assigned&&(!request.quotation||["DRAFT","REJECTED","DECLINED","EXPIRED"].includes(request.quotation.status))&&<QuoteBuilder requestId={request.id} rows={rows} expectedVersion={request.quotation?.version}/>}
+ {assigned&&(!request.quotation||["DRAFT","REJECTED","DECLINED","EXPIRED"].includes(request.quotation.status))&&<QuoteBuilder requestId={request.id} rows={rows} expectedVersion={request.quotation?.version} initialTerms={request.quotation?.revisions[0]?.terms??""} initialValidUntil={request.quotation?.revisions[0]?.validUntil?new Date(request.quotation.revisions[0].validUntil.getTime()-request.quotation.revisions[0].validUntil.getTimezoneOffset()*60000).toISOString().slice(0,16):""} initialLines={request.quotation?.revisions[0]?.lines.map(l=>({requestLineId:l.requestLineId,matchId:l.matchId,unitPriceNgn:l.unitPriceNgn.toString()}))??[]}/>}
  <div className="agro-alert">Matching and farmer interest are not stock reservation or contractual fulfilment. Quote prices are explicit Operations inputs, never implied by catalogue or supply records.</div>
  </PortalFrame>;
 }
