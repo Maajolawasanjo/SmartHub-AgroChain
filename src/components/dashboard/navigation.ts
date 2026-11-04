@@ -17,11 +17,11 @@ export const workspaceMeta:Record<WorkspaceRole,{title:string;home:string;descri
 /** A planned item is visible but never navigates to a nonexistent or incomplete feature. */
 export const workspaceNavigation:Record<WorkspaceRole,NavigationSection[]>={
  BUYER:[
-  {title:"Procurement",items:[active("Dashboard","/dashboard","grid"),active("Products & Supply","/dashboard/products","leaf"),active("My Requests & Quotes","/dashboard/requests","clipboard"),active("Orders & Fulfilment","/dashboard/orders","box"),active("Payments & Transactions","/dashboard/payments","receipt")]},
+  {title:"Procurement",items:[active("Dashboard","/dashboard","grid"),active("Products & Supply","/dashboard/products","leaf"),active("My Requests & Quotes","/dashboard/requests","clipboard"),active("Official Quotations","/dashboard/quotes","receipt"),active("Orders & Fulfilment","/dashboard/orders","box"),active("Payments & Transactions","/dashboard/payments","receipt")]},
   {title:"My business",items:[active("Business Profile & Settings","/dashboard/settings","settings")]},
  ],
  FARMER:[
-  {title:"Farm management",items:[active("Overview","/farmer","grid"),active("My Supply","/farmer/my-supply","leaf"),planned("Opportunities","/farmer/opportunities","search"),planned("Orders & Transactions","/farmer/orders","box"),planned("Payments & Settlements","/farmer/wallet","wallet")]},
+  {title:"Farm management",items:[active("Overview","/farmer","grid"),active("My Supply","/farmer/my-supply","leaf"),active("Opportunities","/farmer/opportunities","search"),planned("Orders & Transactions","/farmer/orders","box"),planned("Payments & Settlements","/farmer/wallet","wallet")]},
   {title:"My account",items:[planned("Notifications","/farmer/notifications","bell"),active("Farm Profile & Verification","/farmer/kyc","check"),planned("Farmer Settings","/farmer/settings","settings")]},
  ],
  FIELD_AGENT:[
@@ -29,11 +29,11 @@ export const workspaceNavigation:Record<WorkspaceRole,NavigationSection[]>={
  ],
  OPERATIONS:[
   {title:"Reviews",items:[active("Overview","/operations","grid"),active("Farmer Verification","/operations/verification","check"),active("Supply Reviews","/operations/supply","leaf"),active("Commodity Catalog","/operations/catalog","tag"),active("Public Enquiries","/operations/enquiries","file"),active("Field Visit Reports","/operations/field-visits","clipboard")]},
-  {title:"Procurement pipeline",items:[active("Buyer Requests","/operations/requests","clipboard"),planned("Matches & Quotes","/operations/matching","file"),planned("Orders & Logistics","/operations/orders","truck"),planned("Disputes","/operations/disputes","shield")]},
+  {title:"Procurement pipeline",items:[active("Buyer Requests","/operations/requests","clipboard"),active("Matches & Quotes","/operations/matching","file"),planned("Orders & Logistics","/operations/orders","truck"),planned("Disputes","/operations/disputes","shield")]},
  ],
  SUPER_ADMIN:[
   {title:"Governance",items:[active("Overview","/admin","grid"),active("Invite Staff","/admin/staff/invite","users"),active("Staff Directory","/admin/staff","users"),active("Invitations","/admin/staff/invites","mail"),active("Roles & Permissions","/admin/permissions","shield"),active("Platform Audit","/admin/audit","file")]},
-  {title:"Oversight",items:[active("Field Visit Reports","/operations/field-visits","clipboard"),active("Buyer Requests","/operations/requests","clipboard"),planned("User Directory","/admin/users","user"),planned("Reports & Insights","/admin/reports","chart"),planned("Configuration","/admin/settings","settings")]},
+  {title:"Oversight",items:[active("Field Visit Reports","/operations/field-visits","clipboard"),active("Buyer Requests","/operations/requests","clipboard"),active("Quote Approvals","/admin/quotes","receipt"),planned("User Directory","/admin/users","user"),planned("Reports & Insights","/admin/reports","chart"),planned("Configuration","/admin/settings","settings")]},
  ],
 };
 
