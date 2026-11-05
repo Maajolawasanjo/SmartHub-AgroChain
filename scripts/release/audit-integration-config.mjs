@@ -29,6 +29,13 @@ export function auditIntegrationConfig(env,environment="staging"){
  }catch{fail("NEXT_PUBLIC_SUPABASE_URL","must be a clean HTTPS Supabase project origin.");ref="";}
  if(!publishable.startsWith("sb_publishable_"))
   fail("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY","expected a Supabase publishable key.");
+ const stageRef=environment==="staging"?required("SMART_HUB_STAGE_SUPABASE_REF"):"";
+ if(environment==="staging"){
+  if(stageRef&&!refPattern.test(stageRef))
+   fail("SMART_HUB_STAGE_SUPABASE_REF","must be a 20-character approved staging project reference.");
+  if(stageRef&&ref&&stageRef!==ref)
+   fail("Supabase project isolation","staging URL must exactly match the approved staging reference.");
+ }
  const productionRef=required("SMART_HUB_PRODUCTION_SUPABASE_REF");
  if(productionRef&&!refPattern.test(productionRef))
   fail("SMART_HUB_PRODUCTION_SUPABASE_REF","must be a 20-character project reference.");
