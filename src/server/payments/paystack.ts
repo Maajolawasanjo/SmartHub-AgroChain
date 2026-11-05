@@ -61,8 +61,12 @@ export function verifyWebhookSignature(raw:Buffer,headers:Headers,nowSeconds=Mat
  }
  // Legacy header only while Paystack still delivers this scheme.
  const legacy=headers.get("x-paystack-signature");
- const key=process.env.PAYSTACK_SECRET_KEY;
- if(!legacy||!key)return null;
+ if(!legacy)return null;
+ // The legacy signature still uses the API secret, but must pass the same
+ // test/live deployment gate as every Paystack provider API operation.
+ // A valid HMAC alone must not activate a live webhook in a preview build.
+ let key:string;
+ try{key=secretKey();}catch{return null;}
  const expected=createHmac("sha512",key).update(raw).digest();
  return validHex(expected,legacy)?"legacy":null;
 }
