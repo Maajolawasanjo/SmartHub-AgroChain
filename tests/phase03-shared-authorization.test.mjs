@@ -14,7 +14,7 @@ const runnable=match[0].replace(
 );
 assert.ok(runnable.startsWith("function mayAccess(ctx,route){"),
  "The extracted permission helper has an unexpected signature");
-const mayAccess=vm.runInNewContext("("+runnable+")",{}, {timeout:2000});
+const mayAccess=vm.runInNewContext("("+runnable.replace("(base:string)", "(base)")+")",{}, {timeout:2000});
 const ctx=(role,status="ACTIVE",verified=true,phoneVerified=true)=>({
  account:{role,status,phone:"+2348012345678"},
  user:{email_confirmed_at:verified?"2026-11-05T12:00:00Z":null,
