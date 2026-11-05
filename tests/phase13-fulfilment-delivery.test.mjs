@@ -103,7 +103,7 @@ test("issue review records investigation without automatic refunds, payout or st
 });
 test("revoked provider payment after dispatch freezes fulfilment before further receipt",()=>{
  const payments=read("src/server/payments/reconciliation.ts");
- assert.match(payments,/\["PAYMENT_VERIFIED","FULFILLING","COMPLETED"\]\.includes\(order\.status\)/);
+ assert.match(payments,/\["PAYMENT_VERIFIED","FULFILLING","COMPLETED","DELIVERY_REVIEW"\]\.includes\(order\.status\)/);
  assert.match(payments,/status:"PAYMENT_REVIEW"/);
  assert.match(common,/requirePaid/);
 });
