@@ -10,7 +10,7 @@ export async function createRefundCase(input:unknown){
   const obligation=await tx.paymentObligation.findFirst({where:{id:value.obligationId,organizationId:member.organizationId},
    include:{order:{select:{status:true}}}});
   if(!obligation)throw new PublicError(404,"Payment record not found.");
-  if(obligation.status!=="PAID"||!["PAYMENT_VERIFIED","FULFILLING","COMPLETED"].includes(obligation.order.status))
+  if(obligation.status!=="PAID"||!["PAYMENT_VERIFIED","FULFILLING","COMPLETED","DELIVERY_REVIEW","PAYMENT_REVIEW"].includes(obligation.order.status))
    conflict("Only independently verified payments can be submitted for an ordinary refund review. Contact support for unresolved or late payments.");
   const existing=await tx.refundRequest.findUnique({where:{obligationId_requestedById:{obligationId:obligation.id,requestedById:account.id}}});
   if(existing)return {id:existing.id,status:existing.status,existing:true};

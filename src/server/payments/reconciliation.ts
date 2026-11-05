@@ -8,7 +8,7 @@ import {atomic,lockOrder,conflict,audit,buyerOwner,financeActor,ensureFinanceSco
 import {uuid} from "./validation";
 type Trigger="WEBHOOK"|"BUYER"|"OPERATIONS";
 async function freezeVerifiedOrder(tx:Prisma.TransactionClient,order:{id:string;status:OrderStatus},payerId:string,reason:string){
- if(!["PAYMENT_VERIFIED","FULFILLING"].includes(order.status))return;
+ if(!["PAYMENT_VERIFIED","FULFILLING","COMPLETED"].includes(order.status))return;
  const changed=await tx.order.updateMany({where:{id:order.id,status:order.status},data:{status:"PAYMENT_REVIEW",version:{increment:1}}});
  if(changed.count!==1)conflict("The order changed during financial exception review.");
  await tx.orderStatusEvent.create({data:{orderId:order.id,actorId:payerId,status:"PAYMENT_REVIEW",
@@ -30,7 +30,7 @@ export async function reconcileReference(reference:string,trigger:Trigger,actorI
   const attempt=await tx.paymentAttempt.findUnique({where:{reference},include:{obligation:true}});
   if(!attempt||attempt.obligation.orderId!==order.id)conflict("Payment reference has changed.");
   const obligation=attempt.obligation;
-  const repeatVerified=obligation.status==="PAID"&&attempt.status==="VERIFIED"&&order.status==="PAYMENT_VERIFIED";
+  const repeatVerified=obligation.status==="PAID"&&attempt.status==="VERIFIED"&&["PAYMENT_VERIFIED","FULFILLING","COMPLETED","DELIVERY_REVIEW"].includes(order.status);
   const base={attemptId:attempt.id,actorId,trigger,providerStatus:verified.status.slice(0,40),
    providerTransactionId:transactionId,amountMinor:amount,currency:verified.currency.slice(0,3)};
   const store=async(outcome:"VERIFIED"|"PENDING"|"FAILED"|"MISMATCH"|"LATE_PAYMENT",note:string)=>{
