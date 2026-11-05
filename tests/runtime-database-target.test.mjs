@@ -2,13 +2,13 @@ import {test} from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import vm from "node:vm";
-import ts from "typescript";
-
 const source=readFileSync("src/server/db/runtime-target.ts","utf8");
-const output=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}});
-const context={exports:{},URL,process};
-vm.runInNewContext(output.outputText,context,{timeout:1500});
-const guard=context.exports.assertRuntimeDatabaseTarget;
+const runnable=source.slice(source.indexOf("export function assertRuntimeDatabaseTarget"))
+ .replace("export function assertRuntimeDatabaseTarget(connectionString:string,env:RuntimeDatabaseEnvironment=process.env)","function assertRuntimeDatabaseTarget(connectionString,env=process.env)")
+ .replace("let url:URL;","let url;");
+const context={URL,process};
+vm.runInNewContext(runnable+"\nthis.guard=assertRuntimeDatabaseTarget;",context,{timeout:1500});
+const guard=context.guard;
 const prod="ematieqwxoiwoovmqdba",stage="abcdefghijklmnopqrst";
 const direct=ref=>"postgresql://postgres:password@db."+ref+".supabase.co:5432/postgres?sslmode=require";
 const pooler=ref=>"postgresql://postgres."+ref+":password@aws-0-eu-west-1.pooler.supabase.com:6543/postgres?sslmode=require";
