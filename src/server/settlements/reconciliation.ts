@@ -51,6 +51,15 @@ export async function reconcileSupplierTransfer(reference:string,trigger:Trigger
    await audit(tx,attempt.initiatedById,attempt.id,"SUPPLIER_TRANSFER_EXCEPTION",{trigger,kind:"MISMATCH"});
    return {status:"REVIEW_REQUIRED" as const,id:attempt.id};
   }
+  if(proof.status!=="success"&&obligation.status==="SETTLED"&&attempt.status==="VERIFIED"){
+   // A previously reconciled payout may later be reversed or disputed at the provider.
+   // Never continue showing SETTLED if a fresh direct provider check says otherwise.
+   await log("LATE_REVIEW","A previously settled farmer transfer no longer has successful provider status. Reconciliation and recovery required.");
+   await tx.supplierSettlementAttempt.update({where:{id:attempt.id},data:{status:"REVIEW_REQUIRED"}});
+   await tx.supplierObligation.update({where:{id:obligation.id},data:{status:"REVIEW_REQUIRED"}});
+   await audit(tx,attempt.initiatedById,attempt.id,"SUPPLIER_SETTLED_TRANSFER_RECHECK_FAILED",{trigger,providerStatus:proof.status});
+   return {status:"REVIEW_REQUIRED" as const,id:attempt.id};
+  }
   if(proof.status==="success"){
    if(obligation.status==="SETTLED"&&attempt.status==="VERIFIED")
     return {status:"SETTLED" as const,id:attempt.id,unchanged:true};
