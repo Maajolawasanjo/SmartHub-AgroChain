@@ -69,6 +69,9 @@ model Account {
   crops              FarmerCrop[] @relation("FarmerCrops")
   supplies           SupplyDeclaration[] @relation("FarmerSupplies")
   supplyReviews      SupplyDeclaration[] @relation("SupplyReviewer")
+  operationsCasesAssigned OperationsReviewAssignment[] @relation("OperationsCaseAssignee")
+  operationsCasesClaimed OperationsReviewAssignment[] @relation("OperationsCaseAssigner")
+  supplyInspections SupplyInspectionAssessment[] @relation("SupplyInspectionReviewer")
 
   @@map("app_accounts")
 }
@@ -203,6 +206,7 @@ model FieldVisit {
   reviewer                 Account?                  @relation("FieldVisitReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
   evidence                 FieldVisitEvidence[]
   events                   FieldVisitEvent[]
+  supplyAssessments        SupplyInspectionAssessment[]
 
   @@index([fieldAgentId, status, createdAt])
   @@index([farmerId, createdAt])
@@ -354,6 +358,7 @@ model CommoditySpecification {
   publicPublished Boolean @default(false)
   createdAt       DateTime @default(now())
   commodity       Commodity @relation(fields: [commodityId], references: [id], onDelete: Restrict)
+  supplyAssessments SupplyInspectionAssessment[]
 
   @@unique([commodityId, name])
   @@map("commodity_specifications")
@@ -510,6 +515,7 @@ model SupplyDeclaration {
   commodity         Commodity          @relation(fields: [commodityId], references: [id], onDelete: Restrict)
   reviewer          Account?           @relation("SupplyReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
   events            SupplyReviewEvent[]
+  qualityAssessments SupplyInspectionAssessment[]
 
   @@index([farmerId, status, createdAt])
   @@index([status, submittedAt])
@@ -527,4 +533,47 @@ model SupplyReviewEvent {
 
   @@index([supplyId, createdAt])
   @@map("supply_review_events")
+}
+
+// Phase 07: one accountable reviewer per pending case, no self-approval.
+enum OperationsReviewKind {
+  FARMER_VERIFICATION
+  SUPPLY_DECLARATION
+}
+
+model OperationsReviewAssignment {
+  id           String @id @default(uuid()) @db.Uuid
+  kind         OperationsReviewKind
+  subjectId    String @db.Uuid
+  assignedToId String @db.Uuid
+  assignedById String @db.Uuid
+  assignedAt   DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  assignedTo   Account @relation("OperationsCaseAssignee",fields:[assignedToId],references:[id],onDelete:Restrict)
+  assignedBy   Account @relation("OperationsCaseAssigner",fields:[assignedById],references:[id],onDelete:Restrict)
+
+  @@unique([kind,subjectId])
+  @@index([assignedToId,kind])
+  @@map("operations_review_assignments")
+}
+
+// A recorded physical assessment is distinct from farmer-reported quantity and a stock reservation.
+model SupplyInspectionAssessment {
+  id               String @id @default(uuid()) @db.Uuid
+  supplyId         String @db.Uuid
+  reviewerId       String @db.Uuid
+  evidenceVisitId  String @db.Uuid
+  observedQuantity Decimal @db.Decimal(18,3)
+  observedUnit     String @db.VarChar(30)
+  conditionNote    String @db.VarChar(2000)
+  specificationId  String? @db.Uuid
+  createdAt        DateTime @default(now())
+  supply           SupplyDeclaration @relation(fields:[supplyId],references:[id],onDelete:Restrict)
+  reviewer         Account @relation("SupplyInspectionReviewer",fields:[reviewerId],references:[id],onDelete:Restrict)
+  evidenceVisit    FieldVisit @relation(fields:[evidenceVisitId],references:[id],onDelete:Restrict)
+  specification    CommoditySpecification? @relation(fields:[specificationId],references:[id],onDelete:SetNull)
+
+  @@index([supplyId,createdAt])
+  @@index([evidenceVisitId])
+  @@map("supply_inspection_assessments")
 }

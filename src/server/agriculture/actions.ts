@@ -1,7 +1,7 @@
 import "server-only";
 import { PublicError } from "@/server/auth/http";
 import { requireActor } from "./policies";
-import { cropInput, cropUpdateInput, farmInput, supplyInput, supplyWithdrawalInput, reviewInput, commodityInput } from "./validators";
+import { cropInput, cropUpdateInput, farmInput, supplyInput, supplyWithdrawalInput, commodityInput } from "./validators";
 import { z } from "zod";
 
 const dateOrNull=(value:string|undefined)=>value?new Date(`${value}T00:00:00.000Z`):null;
@@ -156,38 +156,10 @@ export async function withdrawSupply(id:string,input:unknown){
   });
 }
 
-export async function reviewFarmer(id:string,input:unknown){
-  const {account,db}=await requireActor("OPERATIONS");
-  const value=reviewInput.parse(input);
-  const status=value.decision==="approve"?"VERIFIED":value.decision==="reject"?"REJECTED":"MORE_INFO_REQUIRED";
-  return db.$transaction(async tx=>{
-    const candidate=await tx.farmerVerification.findUnique({where:{id}});
-    if(!candidate)throw new PublicError(404,"Verification case not found.");
-    if(candidate.status!=="PENDING_REVIEW")throw new PublicError(409,"Only pending verification can be reviewed.");
-    if(candidate.farmerId===account.id)throw new PublicError(403,"You cannot review your own verification.");
-    const updated=await tx.farmerVerification.updateMany({where:{id,status:"PENDING_REVIEW"},data:{status,feedback:value.note||null,reviewedById:account.id,reviewedAt:new Date()}});
-    if(updated.count!==1)throw new PublicError(409,"Already reviewed. Refresh the queue.");
-    await tx.farmerVerificationEvent.create({data:{verificationId:id,actorId:account.id,status,note:value.note||null}});
-    return {id,status};
-  });
-}
-export async function reviewSupply(id:string,input:unknown){
-  const {account,db}=await requireActor("OPERATIONS");
-  const value=reviewInput.parse(input);
-  const status=value.decision==="approve"?"APPROVED":value.decision==="reject"?"REJECTED":"MORE_INFO_REQUIRED";
-  return db.$transaction(async tx=>{
-    const s=await tx.supplyDeclaration.findUnique({where:{id}});
-    if(!s)throw new PublicError(404,"Supply not found.");
-    if(s.status!=="PENDING_REVIEW")throw new PublicError(409,"Only pending supply can be reviewed.");
-    if(s.farmerId===account.id)throw new PublicError(403,"You cannot review your own supply.");
-    const verified=await tx.farmerVerification.findUnique({where:{farmerId:s.farmerId}});
-    if(status==="APPROVED"&&verified?.status!=="VERIFIED")throw new PublicError(409,"Farmer verification must remain approved before supply approval.");
-    const changed=await tx.supplyDeclaration.updateMany({where:{id,status:"PENDING_REVIEW"},data:{status,reviewedById:account.id,reviewedAt:new Date(),feedback:value.note||null}});
-    if(changed.count!==1)throw new PublicError(409,"Already reviewed. Refresh the queue.");
-    await tx.supplyReviewEvent.create({data:{supplyId:id,actorId:account.id,status,note:value.note||null}});
-    return {id,status};
-  });
-}
+// All Operations decisions are delegated to the assignment and evidence-gated review service.
+// Farmer verification must remain approved before supply approval (enforced in operations/review.ts).
+export { reviewFarmer, reviewSupply } from "@/server/operations/review";
+
 export async function createCommodity(input:unknown){
   const {account,db}=await requireActor("OPERATIONS");
   const value=commodityInput.parse(input);
