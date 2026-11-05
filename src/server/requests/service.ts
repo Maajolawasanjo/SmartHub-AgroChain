@@ -186,6 +186,11 @@ export async function reviewBuyerRequest(id:string,input:unknown){
   const transitions={start_review:{from:["SUBMITTED"],to:"UNDER_REVIEW",kind:"REVIEW_STARTED"},request_information:{from:["UNDER_REVIEW"],to:"MORE_INFO_REQUIRED",kind:"CLARIFICATION_REQUESTED"},start_sourcing:{from:["UNDER_REVIEW"],to:"SOURCING_IN_PROGRESS",kind:"SOURCING_STARTED"},close:{from:["UNDER_REVIEW","SOURCING_IN_PROGRESS"],to:"CLOSED",kind:"CLOSED"}} as const;
   const transition=transitions[value.action];
   if(!(transition.from as readonly string[]).includes(record.status))throw new PublicError(409,"This decision is not allowed from the current request status.");
+  if(value.action==="close"){
+   const quote=await tx.quotation.findUnique({where:{requestId:id},select:{status:true}});
+   if(quote&&["PENDING_APPROVAL","APPROVED","ISSUED","ACCEPTED"].includes(quote.status))
+    throw new PublicError(409,"This request has an active or accepted quotation. Resolve its commercial state before closing sourcing.");
+  }
   if(value.action==="request_information"){
    const open=await tx.buyerRequestClarification.count({where:{requestId:id,answeredAt:null}});
    if(open)throw new PublicError(409,"An unanswered clarification already exists.");

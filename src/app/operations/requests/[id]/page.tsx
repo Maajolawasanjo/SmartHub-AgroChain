@@ -19,6 +19,7 @@ export default async function BuyerDemandDetail({params}:{params:Promise<{id:str
  {request.status==="MORE_INFO_REQUIRED"&&<section className="agro-panel"><h2>Awaiting buyer clarification</h2><p>The buyer must respond before Operations can resume review. The current assignment is retained.</p></section>}
  <section className="agro-panel"><h2>Clarifications</h2>{request.clarifications.length?request.clarifications.map(c=><article className="agro-record" key={c.id}><div><strong>{c.question}</strong><p>Asked {c.askedAt.toLocaleString("en-NG")}</p><p>{c.answer?`Buyer answered: ${c.answer}`:"Awaiting buyer response"}</p></div></article>):<p>No clarification requests.</p>}</section>
  <section className="agro-panel"><h2>Audit-backed request timeline</h2>{request.events.length?request.events.map(e=><div className="agro-record" key={e.id}><div><strong>{e.kind.replaceAll("_"," ")}</strong><p>{e.actor.fullName} · {e.createdAt.toLocaleString("en-NG")} · {e.status.replaceAll("_"," ")}</p>{e.note&&<p>{e.note}</p>}</div></div>):<p>No recorded events.</p>}</section>
+ {request.status==="SOURCING_IN_PROGRESS"&&<p className="agro-alert"><Link href={"/operations/matching/"+id}>Open supply matching and quotation preparation</Link></p>}
  <div className="agro-alert">This is a demand assessment, not an approved supply match, quote, payment or stock reservation. Only Phase 10 can issue official quotations.</div>
  </PortalFrame>;
 }

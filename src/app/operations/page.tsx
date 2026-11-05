@@ -18,6 +18,7 @@ export default async function OperationsDashboard(){
   <section className="agro-panel"><h2>Supported commodities</h2><div className="agro-number">{commodities}</div><p>Active official catalog items</p><Link className="action action-outline" href="/operations/catalog">Manage catalog</Link></section>
   <section className="agro-panel"><h2>Field reports awaiting review</h2><div className="agro-number">{fieldReports}</div><p>Submitted by Field Agents; not farmer or supply approvals</p><Link className="action action-outline" href="/operations/field-visits">Review field reports</Link></section>
  </div>
+ <div className="agro-toolbar"><Link className="action action-primary" href="/operations/matching">Supply matching & quotations</Link></div>
  <div className="agro-alert">Approval only permits consideration for later matching. It does not reserve quantity, guarantee quality, generate a quote, create an order or settle funds.</div>
  </PortalFrame>;
 }
