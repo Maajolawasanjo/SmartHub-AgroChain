@@ -10,9 +10,9 @@ export default async function Contact({searchParams}:{searchParams:Promise<{inte
  const siteKey=process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY??"";
  const enabled=process.env.PUBLIC_CONTACT_ENABLED==="true"&&!!process.env.DATABASE_URL&&!!process.env.TURNSTILE_SECRET_KEY&&!!process.env.CONTACT_HASH_SECRET&&!!siteKey;
  const routes=[
-  {title:"Agricultural sourcing",text:"Tell us the commodity, quantity, grade, destination and timing needed by your business.",href:"/contact?interest=buyer"},
-  {title:"Farm participation",text:"Introduce your farm, crops, location and current or expected supply.",href:"/contact?interest=farmer"},
-  {title:"Partnerships",text:"Describe your business, service coverage and potential role in agricultural sourcing.",href:"/contact?interest=partner"}
+  {title:"Agricultural sourcing",text:"Tell us the commodity, quantity, grade, destination and timing needed by your business.",href:"/contact?interest=buyer#contact-form"},
+  {title:"Farm participation",text:"Introduce your farm, crops, location and current or expected supply.",href:"/contact?interest=farmer#contact-form"},
+  {title:"Partnerships",text:"Describe your business, service coverage and potential role in agricultural sourcing.",href:"/contact?interest=partner#contact-form"}
  ];
  return <PublicShell>
   <EditorialHero eyebrow="Get in touch with SmartHub" title={<>Let's start with <em>a real conversation.</em></>}
@@ -29,14 +29,10 @@ export default async function Contact({searchParams}:{searchParams:Promise<{inte
     <h3>{r.title}</h3><p>{r.text}</p><Link className="editorial-inline-link" href={r.href}>Select this enquiry <span aria-hidden="true">↗</span></Link>
    </article>)}</div>
   </section>
-  <section className="editorial-tinted"><div className="container editorial-section editorial-content-grid">
-   <div><SectionLead eyebrow="Send your details" title="A clear request helps us understand the next step."/>
-    <p style={{fontSize:15,lineHeight:1.85,color:"#566b5d"}}>When the protected contact form is configured and enabled, you can submit your enquiry here. Otherwise, use the official email address below. We do not pretend an unconfigured form has successfully delivered a message.</p>
-    <p><a href="mailto:info@smarthubagrochain.online" className="editorial-inline-link">info@smarthubagrochain.online <span aria-hidden="true">↗</span></a></p>
-    <p><Link href="/support" className="editorial-inline-link">Already have an account? Open private support <span aria-hidden="true">↗</span></Link></p>
-    <div className="editorial-metric-free">Please do not include authentication codes, payment card details or sensitive third-party information in public enquiries.</div>
-   </div>
-   <div className="editorial-contact-form-wrap"><ContactForm enabled={enabled} siteKey={siteKey} interest={p.interest??"other"} product={product}/></div>
+  <section id="contact-form" className="editorial-tinted"><div className="container editorial-section">
+    <SectionLead eyebrow="Send your details" title="A clear enquiry helps us understand the next step."
+      description="Choose your enquiry type, share the relevant details and use the protected form when online submissions are enabled. The official email address is always available as an alternative."/>
+    <ContactForm enabled={enabled} siteKey={siteKey} interest={p.interest??"other"} product={product}/>
   </div></section>
   <section className="container editorial-section editorial-content-grid is-reversed">
    <EditorialPhoto visual="land" caption/>
