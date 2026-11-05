@@ -12,7 +12,7 @@
     "check": "npm run db:generate && npm run typecheck && npm test && npm run verify:syntax && npm run verify:foundation",
     "postinstall": "prisma generate",
     "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate deploy",
+    "db:migrate": "node scripts/release/require-migration-url.mjs && prisma migrate deploy",
     "verify:foundation": "node scripts/check-foundation.mjs",
     "verify:syntax": "node scripts/check-syntax.mjs",
     "verify:public-runtime": "node scripts/check-public-runtime.mjs",
