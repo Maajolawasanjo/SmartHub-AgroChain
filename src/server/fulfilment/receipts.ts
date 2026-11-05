@@ -1,6 +1,7 @@
 import "server-only";
 import {Prisma} from "@/generated/prisma/client";
 import {PublicError} from "@/server/auth/http";
+import {publishInboxEvent} from "@/server/communications/inbox";
 import {receipt,reportIssue,reviewIssue,id} from "./validation";
 import {atomic,buyerActor,operationActor,lockAccount,shipmentRecord,requirePaid,conflict,audit} from "./common";
 
@@ -122,9 +123,27 @@ export async function raiseDeliveryIssue(shipmentId:string,input:unknown){
   const issue=await tx.deliveryIssue.create({data:{shipmentId:shipment.id,reportedById:account.id,
    category:value.category,description:value.description}});
   await tx.fulfillmentPlan.update({where:{id:shipment.planId},data:{status:"REVIEW_REQUIRED"}});
+  // A buyer may report damage AFTER a seemingly complete receipt. Keep the
+  // source quantities immutable but make both in-flight and completed orders visibly disputed.
+  if(["FULFILLING","COMPLETED"].includes(order.status)){
+   const updated=await tx.order.updateMany({where:{id:order.id,status:order.status,version:order.version},
+    data:{status:"DELIVERY_REVIEW",version:{increment:1}}});
+   if(updated.count!==1)conflict("The order changed during delivery dispute reporting.");
+   await tx.orderStatusEvent.create({data:{orderId:order.id,actorId:account.id,status:"DELIVERY_REVIEW",
+    note:"Buyer reported a post-arrival delivery issue. Investigation required before further fulfilment or payout."}});
+  }
   if(shipment.status==="DELIVERED")await tx.shipment.update({where:{id:shipment.id},data:{status:"ISSUE_REPORTED"}});
   await tx.deliveryEvent.create({data:{shipmentId:shipment.id,actorId:account.id,kind:"SHORTAGE_REPORTED",note:value.category+": "+value.description}});
-  await audit(tx,account.id,shipment.id,"BUYER_DELIVERY_ISSUE_RAISED",{issueId:issue.id,category:value.category});
+  const admins=await tx.account.findMany({where:{role:"SUPER_ADMIN",status:"ACTIVE"},select:{id:true}});
+  const assignee=order.quotation.request.assignment?.assignedToId;
+  const recipients=[...new Set([...admins.map(a=>a.id),...(assignee?[assignee]:[])])].filter(id=>id!==account.id);
+  await publishInboxEvent(tx,{eventKey:"shipment:dispute:"+issue.id,eventType:"BUYER_DELIVERY_DISPUTE",
+   actorId:account.id,subjectId:shipment.id,recipients:recipients.map(accountId=>({
+    accountId,category:"LOGISTICS",title:"Buyer delivery dispute requires review",
+    body:"Shipment "+shipment.reference+" has a buyer-reported delivery issue. Check any prior supplier payout separately.",
+    actionPath:"/operations/disputes"
+   }))});
+  await audit(tx,account.id,shipment.id,"BUYER_DELIVERY_ISSUE_RAISED",{issueId:issue.id,category:value.category,previousOrderStatus:order.status});
   return {id:issue.id,status:issue.status,existing:false};
  });
 }
