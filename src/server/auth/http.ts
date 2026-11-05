@@ -22,6 +22,20 @@ export async function readJson(request:NextRequest,maxCharacters=12000) {
 export function assertSameOrigin(request:NextRequest){
   const origin=request.headers.get("origin");
   const host=request.headers.get("host");
-  if (!origin || !host || new URL(origin).host!==host || !['https:','http:'].includes(new URL(origin).protocol))
+  const configured=process.env.APP_BASE_URL;
+  // A request-supplied Host header alone must never define the trusted origin.
+  // In particular, hostile Host+Origin pairs must not authorize mutations.
+  if(!origin || !host || !configured)throw new PublicError(403,"Invalid request origin.");
+  try{
+    const supplied=new URL(origin);
+    const canonical=new URL(configured);
+    const allowedProtocol=process.env.NODE_ENV==="production"?"https:":canonical.protocol;
+    if(supplied.origin!==canonical.origin || supplied.host!==host ||
+       supplied.protocol!==allowedProtocol || canonical.protocol!==allowedProtocol ||
+       supplied.username || supplied.password || supplied.search || supplied.hash ||
+       supplied.pathname!=="/")
+      throw new PublicError(403,"Invalid request origin.");
+  }catch{
     throw new PublicError(403,"Invalid request origin.");
+  }
 }
