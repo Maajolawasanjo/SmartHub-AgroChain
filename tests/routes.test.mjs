@@ -17,5 +17,5 @@ test("Prisma auth schema is defined but no migration is auto-applied",()=>{
  assert.match(schema,/model Account/);
  const pkg=JSON.parse(readFileSync(join(root,"package.json"),"utf8"));
  assert.ok(!pkg.scripts.postinstall.includes("migrate"));
- assert.equal(pkg.scripts["db:migrate"],"prisma migrate deploy");
+ assert.match(pkg.scripts["db:migrate"],/^node scripts\/release\/require-migration-url\.mjs && prisma migrate deploy$/);
 });
