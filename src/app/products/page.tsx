@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type {Metadata} from "next";
 import {PublicShell} from "@/components/public-shell";
+import {EditorialHero,EditorialCTA} from "@/components/public/editorial";
 import {publicProducts,safeCatalogSearch} from "@/lib/public/catalog";
 export const metadata:Metadata={title:"Agricultural Products in Nigeria",description:"Explore agricultural product categories and approved SmartHub AgroChain commodity information. Supply availability is verified separately."};
 export const dynamic="force-dynamic";
@@ -9,7 +10,7 @@ export default async function Products({searchParams}:{searchParams:Promise<{q?:
  const params=await searchParams;const q=safeCatalogSearch(params.q??"");const category=params.category??"";
  const catalog=await publicProducts(q,category);
  return <PublicShell>
- <section className="public-hero"><div className="container public-hero-content"><span className="public-kicker">Agricultural catalogue</span><h1>Agricultural Supply Starts With Knowing What Is Available</h1><p>Explore published commodity information and tell SmartHub what your business requires. Availability, quantity, quality and delivery terms are confirmed during sourcing—not assumed from a product name.</p></div></section>
+ <EditorialHero eyebrow="Agricultural product discovery" title={<>Start with the commodity. <em>Confirm the details.</em></>} description="Explore approved agricultural commodity information, then discuss exact variety, quality, quantity, location and timing. The catalogue is a starting point for managed sourcing—not a promise of currently available stock." primary={{label:"Discuss a sourcing requirement",href:"/contact?interest=buyer"}} secondary={{label:"How sourcing works",href:"/how-it-works"}} visual="produce" note="Only products published by authorized SmartHub staff are displayed. No invented inventory, prices or supplier identities."><span className="editorial-overlay-kicker">A stronger sourcing brief</span><strong>Product · Grade · Quantity · Destination</strong><p className="editorial-overlay-meta">Availability is reviewed for every request.</p></EditorialHero>
  <section className="container public-section"><div className="public-section-intro"><span className="eyebrow">Product discovery</span><h2>Explore approved commodity information</h2><p>Only categories and commodities expressly published by authorized SmartHub staff appear below. No supplier identities, unverified inventory or invented prices are displayed.</p></div>
  <form method="get" action="/products" className="public-catalog-filters" role="search">
  <label htmlFor="catalog-search">Find a commodity<input id="catalog-search" name="q" maxLength={80} defaultValue={q} placeholder="Search published commodities"/></label>
