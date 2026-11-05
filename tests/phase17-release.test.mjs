@@ -4,12 +4,14 @@ import {existsSync,readFileSync} from "node:fs";
 import {assertStageTarget} from "../scripts/release/stage-target.mjs";
 const read=p=>readFileSync(p,"utf8");
 const ref="abcdefghijklmnopqrst";
+const prodRef="zyxwvutsrqponmlkjihg";
 const valid={
  RELEASE_STAGE_CONFIRM:"I_ACKNOWLEDGE_STAGING_ONLY",
  SMART_HUB_STAGE_SUPABASE_REF:ref,
+ SMART_HUB_PRODUCTION_SUPABASE_REF:prodRef,
  NEXT_PUBLIC_SUPABASE_URL:"https://"+ref+".supabase.co",
- DIRECT_URL:"postgresql://postgres:example@db."+ref+".supabase.co:5432/postgres",
- DATABASE_URL:"postgresql://postgres:example@db."+ref+".supabase.co:5432/postgres",
+ DIRECT_URL:"postgresql://postgres:example@db."+ref+".supabase.co:5432/postgres?sslmode=require",
+ DATABASE_URL:"postgresql://postgres:example@db."+ref+".supabase.co:5432/postgres?sslmode=require",
  STAGING_BASE_URL:"https://staging.smarthub.example",
  STAGING_REVIEWED_ORIGIN:"https://staging.smarthub.example",
  PRODUCTION_BASE_URL:"https://smarthub.example",
@@ -34,6 +36,8 @@ test("Phase17 target verifier accepts only an explicit, correctly matched dedica
  for(const patch of [
   {RELEASE_STAGE_CONFIRM:""},
   {SMART_HUB_STAGE_SUPABASE_REF:""},
+  {SMART_HUB_PRODUCTION_SUPABASE_REF:null},
+  {SMART_HUB_PRODUCTION_SUPABASE_REF:ref},
   {NEXT_PUBLIC_SUPABASE_URL:"https://other-project.supabase.co"},
   {DIRECT_URL:"postgresql://postgres:secret@db.other-project.supabase.co/postgres"},
   {DATABASE_URL:"postgresql://postgres:secret@db.other-project.supabase.co/postgres"},
@@ -41,10 +45,18 @@ test("Phase17 target verifier accepts only an explicit, correctly matched dedica
   {STAGING_REVIEWED_ORIGIN:"https://preview-other.example"},
   {PRODUCTION_BASE_URL:"https://staging.smarthub.example"},
   {PAYSTACK_SECRET_KEY:"sk_live_invalid"},
+  {DIRECT_URL:"postgresql://postgres."+ref+":example@aws-0-eu-west-1.pooler.supabase.com:6543/postgres?sslmode=require"},
+  {DIRECT_URL:"postgresql://postgres.otherprojectref1234:example@aws-0-eu-west-1.pooler.supabase.com:5432/postgres?sslmode=require"},
+  {DIRECT_URL:"postgresql://postgres."+ref+":example@aws-0-eu-west-1.pooler.supabase.com:5432/postgres"},
+  {DATABASE_URL:"postgresql://postgres."+prodRef+":example@aws-0-eu-west-1.pooler.supabase.com:6543/postgres?sslmode=require"},
   {SUPPLIER_PAYOUTS_ENABLED:"true"},
   {PUBLIC_SIGNUP_ENABLED:"true"}
  ])withEnv(patch,()=>assert.throws(()=>assertStageTarget()));
- withEnv({DATABASE_URL:"postgresql://postgres."+ref+":secret@aws-0-eu-west-1.pooler.supabase.com:6543/postgres"},()=>assertStageTarget());
+ withEnv({DATABASE_URL:"postgresql://postgres."+ref+":secret@aws-0-eu-west-1.pooler.supabase.com:6543/postgres?sslmode=require"},()=>assertStageTarget());
+ withEnv({DIRECT_URL:"postgresql://postgres."+ref+":secret@aws-0-eu-west-1.pooler.supabase.com:5432/postgres?sslmode=require",DATABASE_URL:"postgresql://postgres."+ref+":secret@aws-0-eu-west-1.pooler.supabase.com:6543/postgres?sslmode=require"},()=>{
+  const result=assertStageTarget();
+  assert.equal(result.migrationConnection,"session");
+ });
 });
 test("Stage safety probes never start implicitly during repository tests and require explicit envs",()=>{
  const stage=read("scripts/release/check-stage-database.mjs");
@@ -119,4 +131,12 @@ test("Phase17 release checklist and commands are attached to the repository",()=
   ".github/workflows/staging-acceptance.yml",
   "docs/development/PHASE_17_RELEASE_ACCEPTANCE.md"
  ])assert.ok(existsSync(path),"missing "+path);
+});
+
+test("Staging guard never logs database connection credentials",()=>{
+ const stage=read("scripts/release/stage-target.mjs");
+ assert.ok(!stage.includes("console.log(process.env.DATABASE_URL"));
+ assert.match(stage,/session-mode/);
+ assert.match(stage,/SMART_HUB_PRODUCTION_SUPABASE_REF/);
+ assert.match(stage,/sslmode=require/);
 });
