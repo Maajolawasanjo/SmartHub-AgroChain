@@ -33,6 +33,11 @@ jobs:
       SMART_HUB_PRODUCTION_SUPABASE_REF: ${{ vars.SMART_HUB_PRODUCTION_SUPABASE_REF }}
       NEXT_PUBLIC_SUPABASE_URL: ${{ vars.SMART_HUB_STAGING_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SMART_HUB_STAGING_SUPABASE_PUBLISHABLE_KEY }}
+      APP_BASE_URL: ${{ vars.SMART_HUB_STAGING_BASE_URL }}
+      AUTH_RECOVERY_SECRET: ${{ secrets.SMART_HUB_STAGING_AUTH_RECOVERY_SECRET }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SMART_HUB_STAGING_SUPABASE_SECRET_KEY }}
+      FARMER_BANK_ENCRYPTION_KEY: ${{ secrets.SMART_HUB_STAGING_FARMER_BANK_ENCRYPTION_KEY }}
+      SMART_HUB_DB_POOL_MAX: "3"
       DIRECT_URL: ${{ secrets.SMART_HUB_STAGING_DIRECT_URL }}
       DATABASE_URL: ${{ secrets.SMART_HUB_STAGING_DATABASE_URL }}
       STAGING_BASE_URL: ${{ vars.SMART_HUB_STAGING_BASE_URL }}
@@ -70,6 +75,8 @@ jobs:
       - name: Reject wrong database and any non-staging deployment BEFORE migration
         run: |
           node --input-type=module -e 'import {assertStageTarget} from "./scripts/release/stage-target.mjs"; assertStageTarget();'
+      - name: Verify runtime configuration, Supabase identity, TLS and safe launch flags (offline)
+        run: node scripts/release/check-environment.mjs --staging
       - name: Install exact committed dependencies
         run: npm ci --no-audit --no-fund
       - name: Inspect staging schema and migration status in a read-only transaction
