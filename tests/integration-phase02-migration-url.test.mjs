@@ -23,10 +23,10 @@ test("migration safety check requires dedicated DIRECT_URL; never uses runtime D
  const pkg=JSON.parse(readFileSync("package.json","utf8"));
  assert.match(pkg.scripts["db:migrate"],/require-migration-url\.mjs\s*&&\s*prisma migrate deploy/);
 });
-test("migration safety check accepts reviewed TLS direct and session-mode credentials",()=>{
+test("migration safety check rejects direct and session credentials without explicit authorization",()=>{
  for(const DIRECT_URL of [direct,session]){
   const result=run({DIRECT_URL});
-  assert.equal(result.status,0,result.stderr);
+  assert.notEqual(result.status,0);
  }
 });
 test("migration safety check rejects wrong project and transaction pooler",()=>{
