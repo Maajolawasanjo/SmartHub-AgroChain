@@ -62,7 +62,7 @@ ALTER TABLE "notification_preferences" ADD CONSTRAINT "notification_preferences_
 
 CREATE TABLE "support_cases" (
   "id" UUID NOT NULL DEFAULT gen_random_uuid(),
-  "reference" VARCHAR(40) NOT NULL,
+  "reference" VARCHAR(40) NOT NULL, "clientKey" UUID NOT NULL,
   "openedById" UUID NOT NULL, "assignedToId" UUID,
   "category" "SupportCaseCategory" NOT NULL,
   "subject" VARCHAR(160) NOT NULL,
@@ -74,6 +74,7 @@ CREATE TABLE "support_cases" (
   CONSTRAINT "support_cases_reference_check" CHECK("reference" ~ '^SUP-[0-9A-F]{32}$')
 );
 CREATE UNIQUE INDEX "support_cases_reference_key" ON "support_cases"("reference");
+CREATE UNIQUE INDEX "support_cases_clientKey_key" ON "support_cases"("clientKey");
 CREATE INDEX "support_cases_openedById_status_updatedAt_idx" ON "support_cases"("openedById","status","updatedAt");
 CREATE INDEX "support_cases_assignedToId_status_updatedAt_idx" ON "support_cases"("assignedToId","status","updatedAt");
 CREATE INDEX "support_cases_status_createdAt_idx" ON "support_cases"("status","createdAt");
@@ -82,11 +83,12 @@ ALTER TABLE "support_cases" ADD CONSTRAINT "support_cases_assignedToId_fkey" FOR
 
 CREATE TABLE "support_messages" (
   "id" UUID NOT NULL DEFAULT gen_random_uuid(),
-  "caseId" UUID NOT NULL, "authorId" UUID NOT NULL, "body" VARCHAR(4000) NOT NULL,
+  "caseId" UUID NOT NULL, "clientKey" UUID NOT NULL, "authorId" UUID NOT NULL, "body" VARCHAR(4000) NOT NULL,
   "internal" BOOLEAN NOT NULL DEFAULT false, "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT "support_messages_pkey" PRIMARY KEY ("id"),
   CONSTRAINT "support_message_body_valid" CHECK(length(trim("body")) BETWEEN 1 AND 4000)
 );
+CREATE UNIQUE INDEX "support_messages_clientKey_key" ON "support_messages"("clientKey");
 CREATE INDEX "support_messages_caseId_createdAt_idx" ON "support_messages"("caseId","createdAt");
 ALTER TABLE "support_messages" ADD CONSTRAINT "support_messages_caseId_fkey" FOREIGN KEY ("caseId") REFERENCES "support_cases"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "support_messages" ADD CONSTRAINT "support_messages_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "app_accounts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
