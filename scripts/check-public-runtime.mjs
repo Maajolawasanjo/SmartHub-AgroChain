@@ -83,11 +83,59 @@ try{
     failed.push(path+" has a broken same-page anchor #"+anchor);
   }
  }
+
+ // Verify that every rendered internal link resolves to a real route or an
+ // intentional auth redirect. This catches footer and CTA 404s, not just
+ // presence of a hard-coded href string in React source.
+ const links=new Map();
+ const onlyPublic=new Set(publicPaths);
+ for(const [source,{html}] of pages){
+  const main=html.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i)?.[1]??"";
+  const plain=main.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,"")
+     .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi,"")
+     .replace(/<[^>]*>/g," ").replace(/&(?:#\d+|#x[0-9a-f]+|[a-z]+);/gi," ")
+     .replace(/\s+/g," ").trim();
+  if(plain.length<100)failed.push(source+" has no meaningful rendered main content.");
+  for(const match of html.matchAll(/<a\b[^>]*\bhref=(?:"([^"]*)"|'([^']*)')[^>]*>/gi)){
+   const raw=(match[1]??match[2]??"").replace(/&amp;/gi,"&").trim();
+   if(!raw||raw.startsWith("mailto:")||raw.startsWith("tel:"))continue;
+   if(raw.startsWith("javascript:")){failed.push(source+" contains a javascript: link");continue;}
+   let target;
+   try{target=new URL(raw,origin+source);}catch{failed.push(source+" has an invalid href "+raw);continue;}
+   if(target.origin!==origin)continue; // External websites are separate operational dependencies.
+   const destination=target.pathname;
+   if(target.hash && (destination===source || destination==="/contact")){
+    // Follow query-based CTAs to the actual in-document section.
+    const targetHtml=pages.get(destination)?.html;
+    if(targetHtml && !targetHtml.includes('id="'+decodeURIComponent(target.hash.slice(1))+'"'))
+     failed.push(source+" links to missing section "+destination+target.hash);
+   }
+   if(!links.has(destination))links.set(destination,new Set());
+   links.get(destination).add(source);
+  }
+ }
+ let checkedLinks=0;
+ for(const [destination,referrers] of links){
+  if(destination.startsWith("/_next/"))continue;
+  const result=pages.get(destination)??await request(destination).catch(error=>({
+   status:599,html:String(error)
+  }));
+  checkedLinks++;
+  // 3xx is acceptable for protected app areas (login/session guard).
+  // Reject 404/500/temporary failures and broken public-route redirects.
+  if(result.status>=400||result.status<200){
+   failed.push("Broken internal destination "+destination+" HTTP "+result.status+
+      " linked from "+[...referrers].join(", "));
+  }
+  if(onlyPublic.has(destination)&&result.status!==200)
+   failed.push("Public destination must render directly: "+destination+" HTTP "+result.status);
+ }
+
  if(failed.length){
   console.error("FAIL: public SSR acceptance:",failed.join(" | "));
   process.exitCode=1;
  }else{
-  console.log("PASS: 16 public Next.js SSR pages, visible SEO metadata, identity, optimized image output, legal gating and no-data empty states.");
+  console.log("PASS: 16 public SSR pages and "+checkedLinks+" distinct internal link destinations, metadata, headings, legal gates, real content and empty states.");
   console.log("All probes used the local server with no database, live payments, contact delivery or real users.");
  }
 }catch(error){
