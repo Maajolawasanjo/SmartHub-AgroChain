@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type {ReactNode} from "react";
 
 export type VisualKey="land"|"harvest"|"grower"|"produce"|"fields"|"operations";
@@ -15,8 +16,9 @@ export function EditorialPhoto({visual,className="",priority=false,caption=false
 }){
  const item=photos[visual];
  return <figure className={"editorial-photo "+className}>
-  <img src={item.src} alt={item.alt} loading={priority?"eager":"lazy"}
-    fetchPriority={priority?"high":"auto"} decoding="async" referrerPolicy="no-referrer"/>
+  <Image src={item.src} alt={item.alt} fill
+    sizes="(max-width: 640px) 100vw, (max-width: 900px) 90vw, 50vw"
+    quality={75} priority={priority} referrerPolicy="no-referrer"/>
   {caption&&<figcaption>{item.credit} · Not a photograph of SmartHub operations</figcaption>}
  </figure>;
 }
