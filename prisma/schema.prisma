@@ -72,6 +72,9 @@ model Account {
   operationsCasesAssigned OperationsReviewAssignment[] @relation("OperationsCaseAssignee")
   operationsCasesClaimed OperationsReviewAssignment[] @relation("OperationsCaseAssigner")
   supplyInspections SupplyInspectionAssessment[] @relation("SupplyInspectionReviewer")
+  buyerMembership BuyerMembership?
+  buyerSpecificationsCreated BuyerSavedSpecification[] @relation("BuyerSpecificationCreator")
+  buyerVerificationEvents BuyerVerificationEvent[] @relation("BuyerVerificationEventActor")
 
   @@map("app_accounts")
 }
@@ -314,6 +317,7 @@ model Commodity {
   specifications  CommoditySpecification[]
   crops           FarmerCrop[]
   supplies        SupplyDeclaration[]
+  buyerSavedSpecifications BuyerSavedSpecification[]
 
   @@index([categoryId, publicPublished, active])
   @@map("commodities")
@@ -344,6 +348,7 @@ model CommodityType {
   publicPublished Boolean @default(false)
   createdAt       DateTime @default(now())
   commodity       Commodity @relation(fields: [commodityId], references: [id], onDelete: Restrict)
+  buyerSavedSpecifications BuyerSavedSpecification[]
 
   @@unique([commodityId, slug])
   @@map("commodity_types")
@@ -359,6 +364,7 @@ model CommoditySpecification {
   createdAt       DateTime @default(now())
   commodity       Commodity @relation(fields: [commodityId], references: [id], onDelete: Restrict)
   supplyAssessments SupplyInspectionAssessment[]
+  buyerSavedSpecifications BuyerSavedSpecification[]
 
   @@unique([commodityId, name])
   @@map("commodity_specifications")
@@ -576,4 +582,121 @@ model SupplyInspectionAssessment {
   @@index([supplyId,createdAt])
   @@index([evidenceVisitId])
   @@map("supply_inspection_assessments")
+}
+
+// Phase 08: business profile completion is distinct from independent verification.
+enum BuyerBusinessType {
+  REGISTERED_COMPANY
+  SOLE_PROPRIETORSHIP
+  COOPERATIVE
+  PARTNERSHIP
+  OTHER
+}
+enum BuyerContactMethod {
+  EMAIL
+  PHONE
+  WHATSAPP
+}
+enum BuyerMembershipRole {
+  OWNER
+  EDITOR
+  VIEWER
+}
+enum BuyerVerificationStatus {
+  NOT_REQUESTED
+  PENDING_REVIEW
+  MORE_INFO_REQUIRED
+  VERIFIED
+  REJECTED
+}
+
+model BuyerOrganization {
+  id                     String @id @default(uuid()) @db.Uuid
+  businessName           String? @db.VarChar(160)
+  businessType           BuyerBusinessType?
+  registrationNumber     String? @db.VarChar(80)
+  contactName            String? @db.VarChar(160)
+  contactEmail           String? @db.VarChar(254)
+  contactPhone           String? @db.VarChar(24)
+  state                  String? @db.VarChar(60)
+  city                   String? @db.VarChar(120)
+  addressLine            String? @db.VarChar(240)
+  preferredContactMethod BuyerContactMethod @default(EMAIL)
+  verificationStatus     BuyerVerificationStatus @default(NOT_REQUESTED)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  memberships            BuyerMembership[]
+  destinations           BuyerDeliveryDestination[]
+  savedSpecifications    BuyerSavedSpecification[]
+  verificationEvents     BuyerVerificationEvent[]
+
+  @@map("buyer_organizations")
+}
+
+model BuyerMembership {
+  id             String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  accountId      String @unique @db.Uuid
+  role           BuyerMembershipRole @default(OWNER)
+  joinedAt       DateTime @default(now())
+  organization   BuyerOrganization @relation(fields:[organizationId],references:[id],onDelete:Restrict)
+  account        Account @relation(fields:[accountId],references:[id],onDelete:Restrict)
+
+  @@index([organizationId,role])
+  @@map("buyer_memberships")
+}
+
+model BuyerDeliveryDestination {
+  id             String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  label          String @db.VarChar(80)
+  state          String @db.VarChar(60)
+  city           String @db.VarChar(120)
+  addressLine    String @db.VarChar(240)
+  contactName    String? @db.VarChar(160)
+  contactPhone   String? @db.VarChar(24)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  organization   BuyerOrganization @relation(fields:[organizationId],references:[id],onDelete:Restrict)
+
+  @@index([organizationId,createdAt])
+  @@map("buyer_delivery_destinations")
+}
+
+model BuyerSavedSpecification {
+  id              String @id @default(uuid()) @db.Uuid
+  organizationId  String @db.Uuid
+  createdById     String @db.Uuid
+  commodityId     String @db.Uuid
+  typeId          String? @db.Uuid
+  specificationId String? @db.Uuid
+  label           String @db.VarChar(120)
+  quantity        Decimal @db.Decimal(18,3)
+  unit            String @db.VarChar(30)
+  deliveryState   String? @db.VarChar(60)
+  notes           String? @db.VarChar(1000)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  organization    BuyerOrganization @relation(fields:[organizationId],references:[id],onDelete:Restrict)
+  createdBy       Account @relation("BuyerSpecificationCreator",fields:[createdById],references:[id],onDelete:Restrict)
+  commodity       Commodity @relation(fields:[commodityId],references:[id],onDelete:Restrict)
+  type            CommodityType? @relation(fields:[typeId],references:[id],onDelete:SetNull)
+  specification   CommoditySpecification? @relation(fields:[specificationId],references:[id],onDelete:SetNull)
+
+  @@index([organizationId,createdAt])
+  @@map("buyer_saved_specifications")
+}
+
+model BuyerVerificationEvent {
+  id             String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  actorId        String? @db.Uuid
+  status         BuyerVerificationStatus
+  note           String? @db.VarChar(2000)
+  createdAt      DateTime @default(now())
+  organization   BuyerOrganization @relation(fields:[organizationId],references:[id],onDelete:Restrict)
+  actor          Account? @relation("BuyerVerificationEventActor",fields:[actorId],references:[id],onDelete:SetNull)
+
+  @@index([organizationId,createdAt])
+  @@map("buyer_verification_events")
 }
