@@ -119,8 +119,8 @@ test("Production public HTML smoke is exercised after successful build, with all
  assert.match(smoke,/DATABASE_URL:""/);
  assert.match(smoke,/PUBLIC_CONTACT_ENABLED:"false"/);
  assert.match(smoke,/SUPPLIER_PAYOUTS_ENABLED:"false"/);
- assert.match(smoke,//_next\/image\?url=/);
- assert.match(smoke,//privacy","/terms","/cookies"/);
+ assert.ok(smoke.includes('/_next/image?url='));
+ assert.ok(smoke.includes('"/privacy","/terms","/cookies"'));
  assert.match(smoke,/Published catalogue is not connected yet/);
 });
 test("Private pages and unapproved legal content are excluded from public search indexing",()=>{
