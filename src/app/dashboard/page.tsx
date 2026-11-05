@@ -8,15 +8,17 @@ export const metadata={robots:{index:false,follow:false}};
 export default async function BuyerDashboard(){
  const {account,db}=await requireBuyerPage();const member=await buyerMembership(db,account.id);
  const profile=member?.organization??null;const completion=buyerProfileCompletion(profile);
- const [saved,destinations,activeRequests,recentRequests]=member?await Promise.all([
+ const [saved,destinations,activeRequests,recentRequests,issuedQuotes,pendingOrders]=member?await Promise.all([
   db.buyerSavedSpecification.count({where:{organizationId:member.organizationId}}),
   db.buyerDeliveryDestination.count({where:{organizationId:member.organizationId}}),
   db.buyerRequest.count({where:{organizationId:member.organizationId,status:{in:["SUBMITTED","UNDER_REVIEW","MORE_INFO_REQUIRED","SOURCING_IN_PROGRESS"]}}}),
-  db.buyerRequest.findMany({where:{organizationId:member.organizationId},orderBy:{updatedAt:"desc"},take:4,include:{lines:{orderBy:{position:"asc"},take:2}}})
- ]):[0,0,0,[]];
+  db.buyerRequest.findMany({where:{organizationId:member.organizationId},orderBy:{updatedAt:"desc"},take:4,include:{lines:{orderBy:{position:"asc"},take:2}}}),
+  db.quotation.count({where:{status:"ISSUED",request:{organizationId:member.organizationId}}}),
+  db.order.count({where:{organizationId:member.organizationId,status:"PENDING_PAYMENT"}})
+ ]):[0,0,0,[],0,0];
  const metrics=[{title:"Active Requests",value:String(activeRequests),detail:"Submitted or under assessment"},
-  {title:"Quotes Awaiting Decision",value:null,detail:"Available when official quotations launch"},
-  {title:"Orders in Fulfilment",value:null,detail:"Available when order management launches"},
+  {title:"Quotes Awaiting Decision",value:String(issuedQuotes),detail:"Issued official quotes awaiting buyer action"},
+  {title:"Orders Pending Payment",value:String(pendingOrders),detail:"Recorded orders with provisional source reservations; payment is not yet available"},
   {title:"Payments Due",value:null,detail:"Available when verified payment records launch"}];
  return <DashboardFrame role="BUYER" name={account.fullName} title={`Welcome back, ${account.fullName}`} description="Your agricultural procurement overview.">
  <section className="buyer-hero"><div><span className="buyer-kicker">BUYER PORTAL</span><h2>Procurement starts with the right requirements.</h2><p>Tell SmartHub what your business needs, then track Operations assessment and clarification. A request is not an order or supply guarantee.</p></div><Link href={completion.complete?"/dashboard/requests/new":"/dashboard/settings"} className="action action-primary">{completion.complete?"Start a Buyer Request":"Complete Business Profile"}</Link></section>

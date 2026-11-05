@@ -187,9 +187,14 @@ export async function reviewBuyerRequest(id:string,input:unknown){
   const transition=transitions[value.action];
   if(!(transition.from as readonly string[]).includes(record.status))throw new PublicError(409,"This decision is not allowed from the current request status.");
   if(value.action==="close"){
-   const quote=await tx.quotation.findUnique({where:{requestId:id},select:{status:true}});
-   if(quote&&["PENDING_APPROVAL","APPROVED","ISSUED","ACCEPTED"].includes(quote.status))
-    throw new PublicError(409,"This request has an active or accepted quotation. Resolve its commercial state before closing sourcing.");
+   const quote=await tx.quotation.findUnique({where:{requestId:id},select:{id:true,status:true}});
+   if(quote&&["PENDING_APPROVAL","APPROVED","ISSUED"].includes(quote.status))
+    throw new PublicError(409,"This request has an active quotation. Resolve its commercial state before closing sourcing.");
+   if(quote?.status==="ACCEPTED"){
+    const order=await tx.order.findUnique({where:{quotationId:quote.id},select:{status:true}});
+    if(!order||!["CANCELLED","EXPIRED","COMPLETED"].includes(order.status))
+     throw new PublicError(409,"An accepted quotation has an active or unprocessed order. Resolve the order before closing sourcing.");
+   }
   }
   if(value.action==="request_information"){
    const open=await tx.buyerRequestClarification.count({where:{requestId:id,answeredAt:null}});

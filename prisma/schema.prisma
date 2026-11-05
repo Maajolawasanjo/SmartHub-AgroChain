@@ -86,6 +86,10 @@ model Account {
   quotationsCreated Quotation[] @relation("QuoteCreator")
   quoteRevisionsCreated QuoteRevision[] @relation("QuoteRevisionCreator")
   quoteEventsActor QuoteApprovalEvent[] @relation("QuoteEventActor")
+  ordersCreated Order[] @relation("OrderCreator")
+  lotsCreated SupplyLot[] @relation("LotCreator")
+  orderEvents OrderStatusEvent[] @relation("OrderEventActor")
+  stockMovements StockMovement[] @relation("MovementActor")
 
   @@map("app_accounts")
 }
@@ -537,6 +541,7 @@ model SupplyDeclaration {
   events            SupplyReviewEvent[]
   qualityAssessments SupplyInspectionAssessment[]
   matchProposals MatchProposal[]
+  supplyLot SupplyLot?
 
   @@index([farmerId, status, createdAt])
   @@index([status, submittedAt])
@@ -592,6 +597,7 @@ model SupplyInspectionAssessment {
   supply           SupplyDeclaration @relation(fields:[supplyId],references:[id],onDelete:Restrict)
   reviewer         Account @relation("SupplyInspectionReviewer",fields:[reviewerId],references:[id],onDelete:Restrict)
   evidenceVisit    FieldVisit @relation(fields:[evidenceVisitId],references:[id],onDelete:Restrict)
+  supplyLots       SupplyLot[]
   specification    CommoditySpecification? @relation(fields:[specificationId],references:[id],onDelete:SetNull)
 
   @@index([supplyId,createdAt])
@@ -645,6 +651,7 @@ model BuyerOrganization {
   savedSpecifications    BuyerSavedSpecification[]
   verificationEvents     BuyerVerificationEvent[]
   buyerRequests BuyerRequest[]
+  orders Order[]
 
   @@map("buyer_organizations")
 }
@@ -934,6 +941,7 @@ model Quotation {
   request         BuyerRequest @relation(fields:[requestId],references:[id],onDelete:Restrict)
   createdBy       Account @relation("QuoteCreator",fields:[createdById],references:[id],onDelete:Restrict)
   revisions       QuoteRevision[]
+  order           Order?
   @@index([status,updatedAt])
   @@map("quotations")
 }
@@ -953,6 +961,7 @@ model QuoteRevision {
   createdBy   Account @relation("QuoteRevisionCreator",fields:[createdById],references:[id],onDelete:Restrict)
   lines       QuoteLine[]
   events      QuoteApprovalEvent[]
+  orders      Order[]
   @@unique([quoteId,number])
   @@map("quote_revisions")
 }
@@ -970,6 +979,7 @@ model QuoteLine {
   revision      QuoteRevision @relation(fields:[revisionId],references:[id],onDelete:Restrict)
   requestLine   BuyerRequestLine @relation(fields:[requestLineId],references:[id],onDelete:Restrict)
   match         MatchProposal @relation(fields:[matchId],references:[id],onDelete:Restrict)
+  orderLine     OrderLine?
   @@unique([revisionId,requestLineId])
   @@index([matchId])
   @@map("quote_lines")
@@ -986,4 +996,146 @@ model QuoteApprovalEvent {
   actor       Account @relation("QuoteEventActor",fields:[actorId],references:[id],onDelete:Restrict)
   @@index([revisionId,createdAt])
   @@map("quote_approval_events")
+}
+
+
+// Phase 11. Recorded physical lots are distinct from harvest estimates and approved declarations.
+// "AVAILABLE" means eligible verified physical supply, not warehouse ownership or fulfilled inventory.
+enum SupplyLotStatus {
+  AVAILABLE
+  ON_HOLD
+}
+enum OrderStatus {
+  PENDING_PAYMENT
+  CANCELLED
+  EXPIRED
+  PAYMENT_VERIFIED
+  FULFILLING
+  COMPLETED
+}
+enum ReservationStatus {
+  ACTIVE
+  RELEASED
+  CONSUMED
+}
+enum StockMovementKind {
+  RECEIVED
+  RESERVED
+  RELEASED
+  CONSUMED
+}
+
+model SupplyLot {
+  id               String @id @default(uuid()) @db.Uuid
+  supplyId         String @unique @db.Uuid
+  inspectionId     String @db.Uuid
+  createdById      String @db.Uuid
+  quantity         Decimal @db.Decimal(18,3)
+  reservedQuantity Decimal @default(0) @db.Decimal(18,3)
+  consumedQuantity Decimal @default(0) @db.Decimal(18,3)
+  unit             String @db.VarChar(30)
+  locationNote     String @db.VarChar(240)
+  status           SupplyLotStatus @default(AVAILABLE)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  supply           SupplyDeclaration @relation(fields:[supplyId],references:[id],onDelete:Restrict)
+  inspection       SupplyInspectionAssessment @relation(fields:[inspectionId],references:[id],onDelete:Restrict)
+  createdBy        Account @relation("LotCreator",fields:[createdById],references:[id],onDelete:Restrict)
+  orderLines       OrderLine[]
+  reservations     Reservation[]
+  movements        StockMovement[]
+  @@index([status,updatedAt])
+  @@map("supply_lots")
+}
+
+model Order {
+  id           String @id @default(uuid()) @db.Uuid
+  reference    String @unique @db.VarChar(40)
+  quotationId  String @unique @db.Uuid
+  revisionId   String @db.Uuid
+  organizationId String @db.Uuid
+  createdById  String @db.Uuid
+  status       OrderStatus @default(PENDING_PAYMENT)
+  version      Int @default(1)
+  holdExpiresAt DateTime
+  cancelledAt  DateTime?
+  cancellationReason String? @db.VarChar(2000)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  quotation    Quotation @relation(fields:[quotationId],references:[id],onDelete:Restrict)
+  revision     QuoteRevision @relation(fields:[revisionId],references:[id],onDelete:Restrict)
+  organization BuyerOrganization @relation(fields:[organizationId],references:[id],onDelete:Restrict)
+  createdBy    Account @relation("OrderCreator",fields:[createdById],references:[id],onDelete:Restrict)
+  lines        OrderLine[]
+  events       OrderStatusEvent[]
+  @@index([organizationId,status,createdAt])
+  @@index([status,holdExpiresAt])
+  @@map("orders")
+}
+
+model OrderLine {
+  id          String @id @default(uuid()) @db.Uuid
+  orderId     String @db.Uuid
+  quoteLineId String @unique @db.Uuid
+  lotId       String @db.Uuid
+  description String @db.VarChar(180)
+  quantity    Decimal @db.Decimal(18,3)
+  unit        String @db.VarChar(30)
+  unitPriceNgn Decimal @db.Decimal(16,2)
+  totalNgn    Decimal @db.Decimal(18,2)
+  order       Order @relation(fields:[orderId],references:[id],onDelete:Restrict)
+  quoteLine   QuoteLine @relation(fields:[quoteLineId],references:[id],onDelete:Restrict)
+  lot         SupplyLot @relation(fields:[lotId],references:[id],onDelete:Restrict)
+  reservation Reservation?
+  @@index([orderId])
+  @@index([lotId])
+  @@map("order_lines")
+}
+
+model Reservation {
+  id          String @id @default(uuid()) @db.Uuid
+  orderLineId String @unique @db.Uuid
+  lotId       String @db.Uuid
+  quantity    Decimal @db.Decimal(18,3)
+  status      ReservationStatus @default(ACTIVE)
+  expiresAt   DateTime
+  releasedAt  DateTime?
+  consumedAt  DateTime?
+  createdAt   DateTime @default(now())
+  orderLine   OrderLine @relation(fields:[orderLineId],references:[id],onDelete:Restrict)
+  lot         SupplyLot @relation(fields:[lotId],references:[id],onDelete:Restrict)
+  movements   StockMovement[]
+  @@index([lotId,status])
+  @@index([status,expiresAt])
+  @@map("reservations")
+}
+
+model StockMovement {
+  id          String @id @default(uuid()) @db.Uuid
+  lotId       String @db.Uuid
+  reservationId String? @db.Uuid
+  actorId     String @db.Uuid
+  kind        StockMovementKind
+  quantity    Decimal @db.Decimal(18,3)
+  note        String? @db.VarChar(1000)
+  createdAt   DateTime @default(now())
+  lot         SupplyLot @relation(fields:[lotId],references:[id],onDelete:Restrict)
+  reservation Reservation? @relation(fields:[reservationId],references:[id],onDelete:Restrict)
+  actor       Account @relation("MovementActor",fields:[actorId],references:[id],onDelete:Restrict)
+  @@index([lotId,createdAt])
+  @@index([reservationId,createdAt])
+  @@map("stock_movements")
+}
+
+model OrderStatusEvent {
+  id        String @id @default(uuid()) @db.Uuid
+  orderId   String @db.Uuid
+  actorId   String @db.Uuid
+  status    OrderStatus
+  note      String? @db.VarChar(2000)
+  createdAt DateTime @default(now())
+  order     Order @relation(fields:[orderId],references:[id],onDelete:Restrict)
+  actor     Account @relation("OrderEventActor",fields:[actorId],references:[id],onDelete:Restrict)
+  @@index([orderId,createdAt])
+  @@map("order_status_events")
 }

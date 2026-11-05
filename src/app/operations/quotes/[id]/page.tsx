@@ -3,12 +3,13 @@ import {notFound} from "next/navigation";
 import {z} from "zod";
 import {PortalFrame,requirePortal,StateTag} from "@/components/agriculture/portal-frame";
 import {QuoteTransitions} from "@/features/commerce/commerce-actions";
+import {OrderConversionForm} from "@/features/orders/order-actions";
 export const dynamic="force-dynamic";
 export const metadata={robots:{index:false,follow:false}};
 export default async function OperationsQuotation({params}:{params:Promise<{id:string}>}){
  const {account,db}=await requirePortal("OPERATIONS");const {id}=await params;if(!z.uuid().safeParse(id).success)notFound();
  const quote=await db.quotation.findUnique({where:{id},include:{
-  request:{select:{id:true,reference:true,status:true,organization:{select:{businessName:true}}}},
+  request:{select:{id:true,reference:true,status:true,assignment:{select:{assignedToId:true}},organization:{select:{businessName:true}}}},order:{select:{id:true,reference:true,status:true}},
   revisions:{orderBy:{number:"desc"},include:{lines:{orderBy:{requestLineId:"asc"},include:{match:{include:{supply:{include:{farmer:{select:{fullName:true}}}}}}}},events:{orderBy:{createdAt:"desc"},include:{actor:{select:{fullName:true}}}}}}
  }});
  if(!quote)notFound();
@@ -23,7 +24,8 @@ export default async function OperationsQuotation({params}:{params:Promise<{id:s
  {current&&<><section className="agro-panel"><h2>Current terms and items</h2><p>Valid until: {current.validUntil.toLocaleString("en-NG")} · Currency: {current.currency} · Total: ₦{current.totalNgn.toString()}</p><p>{current.terms}</p>
   {current.lines.map(l=><article className="agro-record" key={l.id}><div><strong>{l.description}</strong><p>{l.quantity.toString()} {l.unit} × ₦{l.unitPriceNgn.toString()} = ₦{l.totalNgn.toString()}</p><p>Internal supplier: {l.match.supply.farmer.fullName} · Candidate {l.matchId.slice(0,8)}</p></div></article>)}
  </section><QuoteTransitions id={id} version={quote.version} status={quote.status} role={account.role}/></>}
+ {quote.order?<section className="agro-panel"><h2>Recorded order</h2><p>{quote.order.reference} · {quote.order.status}</p><Link href={"/operations/orders/"+quote.order.id}>Open pending order and stock holds</Link></section>:quote.status==="ACCEPTED"&&current&&current.validUntil.getTime()>Date.now()&&account.role==="OPERATIONS"&&quote.request.assignment?.assignedToId===account.id?<OrderConversionForm quotationId={quote.id} expectedQuoteVersion={quote.version}/>:null}
  <section className="agro-panel"><h2>Revision and approval history</h2>{quote.revisions.map(r=><article key={r.id} className="agro-record"><div><h3>Revision {r.number} · ₦{r.totalNgn.toString()}</h3><p>Valid until {r.validUntil.toLocaleString("en-NG")}; issued {r.issuedAt?.toLocaleString("en-NG")??"Not issued"}</p><p>{r.terms}</p>{r.events.map(e=><p key={e.id}>{e.createdAt.toLocaleString("en-NG")} · {e.kind.replaceAll("_"," ")} · {e.actor.fullName}{e.note?" · "+e.note:""}</p>)}</div></article>)}</section>
- <div className="agro-alert">Quote acceptance is not payment or an order. Supplier contacts and internal matching evidence remain restricted to Operations and Super Admin.</div>
+ <div className="agro-alert">Quote acceptance alone is not payment or an order. Orders require an explicit Operations conversion and verified-lot reservation. Supplier contacts and internal matching evidence remain restricted to Operations and Super Admin.</div>
  </PortalFrame>;
 }
