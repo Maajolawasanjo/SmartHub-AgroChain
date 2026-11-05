@@ -18,7 +18,8 @@ SmartHub now records actual in-app notifications for authorized accounts and pro
 1. Buyer request milestones, including submission, clarification, review and close, generate a deduplicated buyer-organization update. New submitted sourcing requirements also notify active Operations/Super Admin. Private never-submitted drafts produce no notifications.
 2. Independently Paystack-verified buyer payments notify the buyer organization OWNER with a link to their own payment record; no checkout initiation, callback or signed webhook body alone produces a paid notification.
 3. Operations-reported arrival with recorded shipment evidence notifies buyer owners to confirm actual physical quantities. It is explicitly not proof of receipt.
-4. Provider-verified farmer supplier settlement notifies the source farmer after settlement is committed; pending/OTP/unknown transfers never produce a paid notification.
+4. The source farmer receives a notification when an independent supplier price offer is proposed, so they can accept or decline it. An approved payable is explicitly described as approved but NOT paid to the farmer and assigned Operations actor.
+5. Provider-verified farmer supplier settlement notifies the source farmer after settlement is committed; pending/OTP/unknown transfers never produce a paid notification.
 5. Opening, replying to and transitioning a support case creates inbox events for intended staff or requester; internal notes remain private.
 
 ## API and authorization
