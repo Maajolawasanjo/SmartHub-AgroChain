@@ -8,6 +8,7 @@ const migrations="postgresql://postgres."+ref+":test_only@aws-0-eu-west-1.pooler
 const env={
  NEXT_PUBLIC_SUPABASE_URL:"https://"+ref+".supabase.co",
  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:"sb_publishable_test_placeholder",
+ SMART_HUB_STAGE_SUPABASE_REF:ref,
  SMART_HUB_PRODUCTION_SUPABASE_REF:prod,
  DATABASE_URL:runtime,
  DIRECT_URL:migrations,
@@ -45,6 +46,12 @@ test("Production must explicitly name and use its separate project",()=>{
  expectRejected({SMART_HUB_PRODUCTION_SUPABASE_REF:ref},"Supabase project isolation");
  expectRejected({NEXT_PUBLIC_SUPABASE_URL:"https://"+prod+".supabase.co"},"Supabase project isolation");
  expectRejected({SMART_HUB_PRODUCTION_SUPABASE_REF:prod},"Supabase project isolation","production");
+});
+test("Staging requires an explicitly reviewed matching staging project ref",()=>{
+ expectRejected({SMART_HUB_STAGE_SUPABASE_REF:""},"SMART_HUB_STAGE_SUPABASE_REF");
+ expectRejected({SMART_HUB_STAGE_SUPABASE_REF:prod},"Supabase project isolation");
+ expectRejected({SMART_HUB_STAGE_SUPABASE_REF:"invalid"},"SMART_HUB_STAGE_SUPABASE_REF");
+ expectRejected({SMART_HUB_STAGE_SUPABASE_REF:"12345678901234567890"},"Supabase project isolation");
 });
 test("Unrelated Prisma Postgres integration or wrong project cannot replace SmartHub DB",()=>{
  expectRejected({DATABASE_URL:"postgresql://user:secret@db.prisma.io:5432/postgres?sslmode=require"},"DATABASE_URL");
