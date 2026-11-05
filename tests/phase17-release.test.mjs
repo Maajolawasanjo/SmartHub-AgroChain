@@ -107,6 +107,7 @@ test("Provider disputes after a completed order freeze the financial state and a
  const refunds=read("src/server/payments/refunds.ts");
  assert.match(pay,/\["PAYMENT_VERIFIED","FULFILLING","COMPLETED"\]\.includes\(order\.status\)/);
  assert.match(pay,/status:"PAYMENT_REVIEW"/);
+ assert.match(pay,/const repeatVerified=obligation\.status==="PAID"&&attempt\.status==="VERIFIED"&&\["PAYMENT_VERIFIED","FULFILLING","COMPLETED","DELIVERY_REVIEW"\]\.includes\(order\.status\)/);
  assert.match(refunds,/DELIVERY_REVIEW/);
  assert.match(refunds,/PAYMENT_REVIEW/);
 });
