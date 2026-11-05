@@ -58,7 +58,7 @@ async function handle(request:NextRequest, action:string){
   }
   case "resend-email": {
    const {email}=z.object({email:emailSchema}).parse(input);
-   const {error}=await supabase.auth.resend({type:"signup",email,options:{emailRedirectTo:`${siteUrl()}/auth/callback`}});
+   const {error}=await supabase.auth.resend({type:"signup",email,options:{emailRedirectTo:`${siteUrl()}/auth/callback?type=email`}});
    if(error)console.error("Resend service issue",error.name);
    return reply({ok:true,message:"If eligible, a confirmation email will be sent."});
   }
