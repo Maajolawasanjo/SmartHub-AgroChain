@@ -1,6 +1,7 @@
 // Safe, offline configuration inspection for Vercel + Supabase + Prisma.
 // Never print any environment VALUE, URL, password, token or connection string.
 // The audit makes no requests and never modifies any database or infrastructure.
+import "dotenv/config";
 import {pathToFileURL} from "node:url";
 
 const sslModes=new Set(["require","verify-ca","verify-full"]);
