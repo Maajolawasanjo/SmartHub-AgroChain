@@ -49,5 +49,7 @@ jobs:
       - run: npm run verify:syntax
       - run: npm test
       - run: npm run build
+      - name: Verify actual Next.js public-page rendering and launch disclosures
+        run: npm run verify:public-runtime
       - name: Confirm reviewed lockfile and foundation configuration
         run: npm run verify:foundation -- --require-lock
