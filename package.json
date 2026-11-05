@@ -14,7 +14,8 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",
     "verify:foundation": "node scripts/check-foundation.mjs",
-    "verify:syntax": "node scripts/check-syntax.mjs"
+    "verify:syntax": "node scripts/check-syntax.mjs",
+    "verify:public-runtime": "node scripts/check-public-runtime.mjs"
   },
   "dependencies": {
     "next": "16.4.3",

@@ -1,4 +1,9 @@
-import type { MetadataRoute } from "next";
-const root="https://www.smarthubagrochain.online";
-const staticPages=["", "/product", "/products", "/how-it-works", "/for-buyers", "/for-farmers", "/about", "/insights", "/faq", "/contact", "/accessibility"];
-export default function sitemap():MetadataRoute.Sitemap{return staticPages.map(path=>({url:`${root}${path}`,changeFrequency:"monthly" as const}));}
+import type {MetadataRoute} from "next";
+const base="https://www.smarthubagrochain.online";
+const published=[
+ "/","/product","/how-it-works","/for-buyers","/for-farmers","/products",
+ "/about","/partnerships","/insights","/faq","/help","/contact","/accessibility"
+];
+export default function sitemap():MetadataRoute.Sitemap{
+ return published.map(path=>({url:base+(path==="/"?"/":path),changeFrequency:"monthly" as const,priority:path==="/"?1:.6}));
+}

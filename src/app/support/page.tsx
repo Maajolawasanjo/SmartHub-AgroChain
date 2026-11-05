@@ -1,12 +1,16 @@
 import Link from "next/link";
 import {DashboardFrame} from "@/components/dashboard/dashboard-frame";
-import {requireWorkspaceAccount} from "@/server/communications/inbox";
+import {getAccountContext} from "@/server/auth/context";
+import {redirect} from "next/navigation";
 import {supportCaseList} from "@/server/communications/support";
 import {SupportOpenForm} from "@/features/communications/communication-actions";
 export const dynamic="force-dynamic";
 export const metadata={robots:{index:false,follow:false}};
 export default async function SupportHome(){
- const {account}=await requireWorkspaceAccount();
+ const ctx=await getAccountContext();
+ if(!ctx||ctx.account.status!=="ACTIVE"||!ctx.user.email_confirmed_at)
+  redirect("/login?next=%2Fsupport");
+ const {account}=ctx;
  const cases=await supportCaseList(account);
  const staff=["OPERATIONS","SUPER_ADMIN"].includes(account.role);
  return <DashboardFrame role={account.role} name={account.fullName} title="Help & Support" description={staff?

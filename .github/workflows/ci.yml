@@ -49,5 +49,21 @@ jobs:
       - run: npm run verify:syntax
       - run: npm test
       - run: npm run build
+      - name: Verify actual Next.js public-page rendering and launch disclosures
+        run: npm run verify:public-runtime
+      - name: Install pinned browser test runner (ephemeral CI only)
+        run: npm install --no-save --package-lock=false --ignore-scripts @playwright/test@1.64.1
+      - name: Install Chromium with supported OS dependencies
+        run: npx playwright install --with-deps chromium
+      - name: Run real desktop and mobile public-site browser acceptance
+        run: npx playwright test -c playwright.public.config.mjs
+      - name: Upload non-sensitive public-page review screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smarthub-phase18-public-screenshots
+          path: playwright-artifacts/*.png
+          retention-days: 7
+          if-no-files-found: ignore
       - name: Confirm reviewed lockfile and foundation configuration
         run: npm run verify:foundation -- --require-lock

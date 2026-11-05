@@ -1,15 +1,27 @@
 import Link from "next/link";
-const navigation=[
-  ["Home","/"],["Product","/product"],["How It Works","/how-it-works"],
-  ["For Buyers","/for-buyers"],["For Farmers","/for-farmers"],["Products","/products"],
-  ["About Us","/about"],["Insights","/insights"],["Contact","/contact"]
+const explore=[
+ ["Platform","/product"],["How it works","/how-it-works"],["Published products","/products"],
+ ["About us","/about"],["Insights","/insights"]
+] as const;
+const participate=[
+ ["For buyers","/for-buyers"],["For farmers","/for-farmers"],["Partnerships","/partnerships"],
+ ["Discuss sourcing","/contact?interest=buyer"],["Contact us","/contact"]
+] as const;
+const information=[
+ ["Help center","/help"],["Frequently asked questions","/faq"],["Privacy status","/privacy"],
+ ["Terms of use","/terms"],["Cookie policy","/cookies"],["Accessibility","/accessibility"]
 ] as const;
 export function SiteFooter(){return <footer className="public-footer">
-  <div className="container public-footer-grid">
-    <div><Link href="/" className="public-footer-logo">SmartHub AgroChain</Link><p>Building technology that connects agricultural supply with real market demand.</p><p className="public-footer-caption">SMARTHUB AGROCHAIN LTD · Nigeria</p></div>
-    <div><strong>Explore</strong><nav aria-label="Footer navigation">{navigation.map(([label,href])=><Link key={href} href={href}>{label}</Link>)}</nav></div>
-    <div><strong>Get Started</strong><nav aria-label="Participation links"><Link href="/signup?role=buyer">Start a Buyer Request</Link><Link href="/signup?role=farmer">Join as a Farmer</Link><Link href="/contact?interest=partner">Partner With Us</Link></nav></div>
-    <div><strong>Contact & Policies</strong><a href="mailto:info@smarthubagrochain.online">info@smarthubagrochain.online</a><nav aria-label="Legal and accessibility"><Link href="/faq">FAQ</Link><Link href="/privacy">Privacy Policy</Link><Link href="/terms">Terms of Use</Link><Link href="/cookies">Cookie Policy</Link><Link href="/accessibility">Accessibility</Link></nav></div>
+ <div className="container public-footer-grid">
+  <div><Link href="/" className="public-footer-logo">SmartHub AgroChain</Link>
+   <p>Building a clearer route between real agricultural demand and reviewed supply.</p>
+   <p className="public-footer-caption">Managed sourcing · Nigeria</p>
+   <p className="public-footer-caption">Service and geographic availability are confirmed for each sourcing case.</p>
   </div>
-  <div className="container public-footer-base"><span>© {new Date().getFullYear()} SmartHub AgroChain Ltd. All rights reserved.</span><span>Where agriculture meets innovation.</span></div>
- </footer>}
+  <div><strong>Explore</strong><nav aria-label="Explore SmartHub">{explore.map(([label,href])=><Link href={href} key={href}>{label}</Link>)}</nav></div>
+  <div><strong>Participate</strong><nav aria-label="Participation links">{participate.map(([label,href])=><Link href={href} key={href}>{label}</Link>)}</nav></div>
+  <div><strong>Information</strong><nav aria-label="Information and policies">{information.map(([label,href])=><Link href={href} key={href}>{label}</Link>)}</nav>
+   <a href="mailto:info@smarthubagrochain.online">info@smarthubagrochain.online</a></div>
+ </div>
+ <div className="container public-footer-base"><span>© {new Date().getFullYear()} SmartHub AgroChain. All rights reserved.</span><span>From the field to real demand.</span></div>
+ </footer>;}

@@ -1,19 +1,46 @@
-import type {Metadata} from "next";
 import Link from "next/link";
+import type {Metadata} from "next";
 import {PublicShell} from "@/components/public-shell";
 import {ContactForm} from "@/components/public/contact-form";
 import {safeCatalogSlug} from "@/lib/public/catalog";
-export const metadata:Metadata={title:"Contact SmartHub AgroChain | Agricultural Technology Nigeria",description:"Contact SmartHub AgroChain about agricultural sourcing, farmer registration, partnerships and business enquiries in Nigeria."};
-export default async function Contact({searchParams}:{searchParams:Promise<{interest?:string;product?:string}>}){const p=await searchParams;const product=safeCatalogSlug(p.product??"")??"";
+import {EditorialHero,EditorialPhoto,SectionLead,EditorialCTA} from "@/components/public/editorial";
+export const metadata:Metadata={title:"Contact SmartHub AgroChain | Sourcing, Farmers & Partnerships",description:"Talk to SmartHub about agricultural sourcing needs, farmer participation, logistics collaboration and the right next step for your business."};
+export default async function Contact({searchParams}:{searchParams:Promise<{interest?:string;product?:string}>}){
+ const p=await searchParams,product=safeCatalogSlug(p.product??"")??"";
  const siteKey=process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY??"";
  const enabled=process.env.PUBLIC_CONTACT_ENABLED==="true"&&!!process.env.DATABASE_URL&&!!process.env.TURNSTILE_SECRET_KEY&&!!process.env.CONTACT_HASH_SECRET&&!!siteKey;
- return <PublicShell><section className="public-hero"><div className="container public-hero-content"><span className="public-kicker">Contact SmartHub</span><h1>Let's Build a Better Agricultural System Together</h1><p>Whether you are a farmer, buyer, agribusiness, logistics provider, technology company or potential partner, we would like to hear from you.</p></div></section>
- <section className="container public-section"><div className="public-card-grid">{[
- {title:"Agricultural Buyers",text:"Looking for products or discussing sourcing requirements?",href:"/contact?interest=buyer",label:"Talk to our team"},
- {title:"Farmers",text:"Interested in joining the SmartHub farmer network?",href:"/signup?role=farmer",label:"Join as a Farmer"},
- {title:"Partnerships",text:"Interested in a strategic partnership?",href:"/contact?interest=partner",label:"Partner with Us"},
- {title:"General Enquiries",text:"Have a question about SmartHub?",href:"mailto:info@smarthubagrochain.online",label:"Email our team"}
- ].map(c=><article className="public-feature-card" key={c.title}><h2>{c.title}</h2><p>{c.text}</p><Link className="public-text-link" href={c.href}>{c.label}</Link></article>)}</div></section>
- <section className="container public-section"><ContactForm enabled={enabled} siteKey={siteKey} interest={p.interest??"other"} product={product}/></section>
+ const routes=[
+  {title:"Agricultural sourcing",text:"Tell us the commodity, quantity, grade, destination and timing needed by your business.",href:"/contact?interest=buyer#contact-form"},
+  {title:"Farm participation",text:"Introduce your farm, crops, location and current or expected supply.",href:"/contact?interest=farmer#contact-form"},
+  {title:"Partnerships",text:"Describe your business, service coverage and potential role in agricultural sourcing.",href:"/contact?interest=partner#contact-form"}
+ ];
+ return <PublicShell>
+  <EditorialHero eyebrow="Get in touch with SmartHub" title={<>Let's start with <em>a real conversation.</em></>}
+   description="Whether you need agricultural produce, grow it or help move it, the right next step begins with a clear introduction. Tell us what you need and what is relevant to your location."
+   primary={{label:"See contact options",href:"#contact-options"}} secondary={{label:"How it works",href:"/how-it-works"}}
+   visual="produce" note="Responses, service coverage and participation depend on operational availability; no instant supply or response time is guaranteed.">
+   <span className="editorial-overlay-kicker">A useful first message</span>
+   <strong>Who you are · What you need · Where · When</strong><p className="editorial-overlay-meta">Avoid sharing passwords, OTPs or bank PINs.</p>
+  </EditorialHero>
+  <section id="contact-options" className="container editorial-section">
+   <SectionLead eyebrow="Choose your enquiry" title="Which conversation should we start?"
+    description="Selecting a topic helps direct your enquiry. Active account holders can also use the authenticated support portal for private cases."/>
+   <div className="editorial-contact-options">{routes.map(r=><article key={r.title}>
+    <h3>{r.title}</h3><p>{r.text}</p><Link className="editorial-inline-link" href={r.href}>Select this enquiry <span aria-hidden="true">↗</span></Link>
+   </article>)}</div>
+  </section>
+  <section id="contact-form" className="editorial-tinted"><div className="container editorial-section">
+    <ContactForm enabled={enabled} siteKey={siteKey} interest={p.interest??"other"} product={product}/>
+  </div></section>
+  <section className="container editorial-section editorial-content-grid is-reversed">
+   <EditorialPhoto visual="land" caption/>
+   <div><SectionLead eyebrow="Before you write" title="What happens after an enquiry?"/>
+    <p style={{lineHeight:1.85,color:"#596e5d"}}>SmartHub considers the type of requirement, relevant supply, operating area and practical capacity before proposing any next step. A public enquiry is not itself a confirmed procurement order or accepted supplier agreement.</p>
+    <Link href="/faq" className="editorial-inline-link">Read frequently asked questions <span aria-hidden="true">↗</span></Link>
+   </div>
+  </section>
+  <EditorialCTA eyebrow="Explore more" title="Understand the model before you commit."
+   description="Learn how we approach sourcing, farmer participation and responsible agricultural supply coordination."
+   primary={{label:"How SmartHub works",href:"/how-it-works"}} secondary={{label:"Explore the platform",href:"/product"}}/>
  </PublicShell>;
 }

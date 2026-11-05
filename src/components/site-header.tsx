@@ -1,21 +1,24 @@
 import Link from "next/link";
-
-const nav = [
-  ["Home", "/"], ["Product", "/product"], ["How It Works", "/how-it-works"],
-  ["For Buyers", "/for-buyers"], ["For Farmers", "/for-farmers"],
-  ["Products", "/products"], ["About Us", "/about"],
-  ["Insights", "/insights"], ["Contact", "/contact"],
+const nav=[
+ ["Platform","/product"],["How it works","/how-it-works"],
+ ["For buyers","/for-buyers"],["For farmers","/for-farmers"],
+ ["Products","/products"],["About us","/about"],["Help","/help"]
 ] as const;
-
-export function SiteHeader() {
-  return <header className="public-header">
-    <div className="container public-header-inner">
-      <Link className="public-logo" href="/" aria-label="SmartHub AgroChain — home">SmartHub <span>AgroChain</span></Link>
-      <nav className="public-desktop-nav" aria-label="Primary navigation">{nav.map(([label,href])=><Link key={href} href={href}>{label}</Link>)}</nav>
-      <div className="public-actions"><Link href="/login" className="public-login">Log in</Link><Link className="action action-primary" href="/signup">Get Started</Link></div>
-      <details className="public-mobile-menu"><summary aria-label="Toggle site navigation">Menu <span aria-hidden="true">☰</span></summary>
-        <nav aria-label="Mobile navigation">{nav.map(([label,href])=><Link key={href} href={href}>{label}</Link>)}<Link href="/login">Log in</Link><Link href="/signup">Get Started</Link></nav>
-      </details>
-    </div>
-  </header>;
+export function SiteHeader(){
+ return <header className="public-header">
+  <div className="container public-header-inner">
+   <Link href="/" className="public-logo" aria-label="SmartHub AgroChain — homepage">SmartHub <span>AgroChain</span></Link>
+   <nav className="public-desktop-nav" aria-label="Primary navigation">
+    {nav.map(([name,path])=><Link key={path} href={path}>{name}</Link>)}
+   </nav>
+   <div className="public-actions"><Link href="/login" className="public-login">Sign in</Link>
+    <Link className="action action-primary" href="/contact?interest=buyer">Discuss sourcing <span aria-hidden="true">↗</span></Link>
+   </div>
+   <details className="public-mobile-menu"><summary aria-label="Open website navigation">Menu <span aria-hidden="true">☰</span></summary>
+    <nav aria-label="Mobile navigation">{nav.map(([name,path])=><Link key={path} href={path}>{name}</Link>)}
+     <Link href="/partnerships">Partnerships</Link><Link href="/insights">Insights</Link>
+     <Link href="/contact">Contact us</Link><Link href="/login">Sign in</Link>
+    </nav></details>
+  </div>
+ </header>;
 }
