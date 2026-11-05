@@ -89,6 +89,7 @@ test("late charges, wrong amounts, reused transaction identifiers, and reversals
  assert.match(reconcile,/REVIEW_REQUIRED/);
  assert.match(reconcile,/repeatVerified/);
  assert.match(reconcile,/freezeVerifiedOrder/);
+ assert.match(reconcile,/PAYMENT_REVIEW/);
  assert.match(reconcile,/status:"PAYMENT_REVIEW"/);
  assert.ok(sql.includes("ALTER TYPE "+String.fromCharCode(34)+"OrderStatus"+String.fromCharCode(34)+" ADD VALUE IF NOT EXISTS 'PAYMENT_REVIEW'"));
 });
