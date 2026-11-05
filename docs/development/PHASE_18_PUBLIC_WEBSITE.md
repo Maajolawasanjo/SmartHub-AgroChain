@@ -47,3 +47,11 @@ This phase does not invent legal pages, product inventory or blog content, provi
 
 ## Milestone
 Code implementation on Phase 18 PR is distinct from client acceptance. Source CI success means the code compiles and static tests pass, not that every image, screen or external service has been visually confirmed on real staging.
+
+## Phase 18 follow-up — actual rendering and browser acceptance
+
+- Continuous integration now runs `npm run verify:public-runtime` after a production Next.js build, which starts a local server with database/contact/payment services disabled and verifies 16 public routes, semantic headings, rendered metadata, footer, Next image optimization, correct empty states and pending legal noindex.
+- A separate pinned Chromium check runs in the same reviewed GitHub CI job using `playwright.public.config.mjs` and `e2e/public.acceptance.spec.mjs`. It renders real pages at **1440px desktop and 390px mobile**, verifies hero image decode, menu access, internal CTA navigation, mobile global horizontal overflow, contact disabled state, true empty states, skip-link keyboard access and legal indexing.
+- GitHub uploads only public-page screenshots for reviewer inspection, retained seven days: desktop homepage and mobile homepage, buyer, farmer and Contact pages. No real customer content, credentials, session recordings or private data is present.
+- The first successful Chromium screenshot run exposed an unnecessary repeated introduction on the Contact page; the duplicate heading was removed after visual inspection.
+- **Limitations:** This tests a locally hosted release build with external image fetches, not an approved Vercel domain or a Supabase-connected staging environment. It does not prove 768px tablet behaviour, every physical device, legal consent, a functioning public contact inbox or a completed transaction. Client visual signoff and actual staging acceptance remain mandatory.
