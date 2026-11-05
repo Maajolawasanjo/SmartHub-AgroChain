@@ -15,6 +15,11 @@ export function assertStageTarget(){
  assert.equal(direct.hostname,"db."+ref+".supabase.co",
   "Direct database hostname must match the EXACT reviewed staging Supabase project.");
  assert.notEqual(direct.port,"6543","Do not migrate via the transaction pooler.");
+ const runtimeDb=new URL(process.env.DATABASE_URL??"http://invalid");
+ assert.equal(runtimeDb.protocol,"postgresql:","Runtime PostgreSQL URL must use postgresql://");
+ const runtimeMatches=runtimeDb.hostname==="db."+ref+".supabase.co"||
+   (/pooler\.supabase\.com$/.test(runtimeDb.hostname)&&runtimeDb.username.endsWith("."+ref));
+ assert.ok(runtimeMatches,"Runtime database must resolve to the same reviewed staging project.");
  const base=new URL(process.env.STAGING_BASE_URL??"http://invalid");
  assert.equal(base.protocol,"https:","The staging application must use HTTPS.");
  assert.equal(base.username,"","Staging origin must not contain embedded credentials.");
