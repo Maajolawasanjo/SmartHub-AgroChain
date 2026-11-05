@@ -1,6 +1,7 @@
 import "server-only";
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import {assertRuntimeDatabaseTarget} from "./runtime-target";
 
 // A warm Vercel function must reuse one Prisma client/pool; a new client per
 // request can exhaust Supabase's available backend connections.
@@ -18,6 +19,7 @@ export function getPrisma() {
   if(singleton.smarthubPrisma)return singleton.smarthubPrisma;
   const connectionString=process.env.DATABASE_URL;
   if(!connectionString)throw new Error("DATABASE_URL missing");
+  assertRuntimeDatabaseTarget(connectionString);
   const adapter=new PrismaPg({
     connectionString,
     // Prisma 7 uses the underlying pg driver's pool settings, not v6 URL
