@@ -134,3 +134,19 @@ test("Private pages and unapproved legal content are excluded from public search
   assert.match(content,/PublicShell/);
  }
 });
+
+test("Real public Chromium QA is isolated from live operational data and retains review screenshots",()=>{
+ const ci=read(".github/workflows/ci.yml");
+ const conf=read("playwright.public.config.mjs");
+ const browser=read("e2e/public.acceptance.spec.mjs");
+ assert.match(ci,/npx playwright install --with-deps chromium/);
+ assert.match(ci,/npx playwright test -c playwright.public.config.mjs/);
+ assert.match(ci,/smarthub-phase18-public-screenshots/);
+ assert.match(conf,/DATABASE_URL:""/);
+ assert.match(conf,/PUBLIC_CONTACT_ENABLED:"false"/);
+ assert.match(conf,/SUPPLIER_PAYOUTS_ENABLED:"false"/);
+ assert.match(browser,/naturalWidth>0/);
+ assert.match(browser,/document.documentElement.scrollWidth-window.innerWidth/);
+ assert.match(browser,/public-skip-link/);
+ assert.match(browser,/mobile-contact.png/);
+});
