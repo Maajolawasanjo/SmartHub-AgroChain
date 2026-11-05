@@ -90,6 +90,10 @@ model Account {
   lotsCreated SupplyLot[] @relation("LotCreator")
   orderEvents OrderStatusEvent[] @relation("OrderEventActor")
   stockMovements StockMovement[] @relation("MovementActor")
+  paymentAttemptsStarted PaymentAttempt[] @relation("PaymentAttemptPayer")
+  paymentReconciliationActors PaymentReconciliation[] @relation("PaymentReconciliationActor")
+  refundsRequested RefundRequest[] @relation("RefundRequester")
+  refundsReviewed RefundRequest[] @relation("RefundReviewer")
 
   @@map("app_accounts")
 }
@@ -652,6 +656,7 @@ model BuyerOrganization {
   verificationEvents     BuyerVerificationEvent[]
   buyerRequests BuyerRequest[]
   orders Order[]
+  paymentObligations PaymentObligation[]
 
   @@map("buyer_organizations")
 }
@@ -1010,6 +1015,7 @@ enum OrderStatus {
   CANCELLED
   EXPIRED
   PAYMENT_VERIFIED
+  PAYMENT_REVIEW
   FULFILLING
   COMPLETED
 }
@@ -1068,6 +1074,7 @@ model Order {
   createdBy    Account @relation("OrderCreator",fields:[createdById],references:[id],onDelete:Restrict)
   lines        OrderLine[]
   events       OrderStatusEvent[]
+  paymentObligation PaymentObligation?
   @@index([organizationId,status,createdAt])
   @@index([status,holdExpiresAt])
   @@map("orders")
@@ -1138,4 +1145,137 @@ model OrderStatusEvent {
   actor     Account @relation("OrderEventActor",fields:[actorId],references:[id],onDelete:Restrict)
   @@index([orderId,createdAt])
   @@map("order_status_events")
+}
+
+
+// Phase 12 — payment obligations, externally verified attempts, provider events and exceptions.
+// Never treat a browser redirect, webhook body, or manual admin action as payment proof.
+enum PaymentObligationStatus {
+  UNPAID
+  PAID
+  REVIEW_REQUIRED
+  CANCELLED
+}
+enum PaymentAttemptStatus {
+  INITIATING
+  READY
+  UNKNOWN
+  FAILED
+  VERIFIED
+}
+enum PaymentEventStatus {
+  RECEIVED
+  IGNORED
+  VERIFIED
+  REVIEW_REQUIRED
+}
+enum ReconciliationOutcome {
+  VERIFIED
+  PENDING
+  FAILED
+  MISMATCH
+  LATE_PAYMENT
+}
+enum ReconciliationTrigger {
+  BUYER
+  WEBHOOK
+  OPERATIONS
+}
+enum RefundCaseStatus {
+  REQUESTED
+  UNDER_REVIEW
+  REJECTED
+  RESOLUTION_REQUIRED
+  CLOSED
+}
+
+model PaymentObligation {
+  id              String @id @default(uuid()) @db.Uuid
+  orderId         String @unique @db.Uuid
+  organizationId  String @db.Uuid
+  amountMinor     BigInt
+  currency        String @default("NGN") @db.VarChar(3)
+  status          PaymentObligationStatus @default(UNPAID)
+  verifiedAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  order           Order @relation(fields:[orderId],references:[id],onDelete:Restrict)
+  organization    BuyerOrganization @relation(fields:[organizationId],references:[id],onDelete:Restrict)
+  attempts        PaymentAttempt[]
+  refunds         RefundRequest[]
+  @@index([organizationId,status,createdAt])
+  @@map("payment_obligations")
+}
+
+model PaymentAttempt {
+  id                   String @id @default(uuid()) @db.Uuid
+  obligationId         String @db.Uuid
+  reference            String @unique @db.VarChar(60)
+  payerId              String @db.Uuid
+  payerEmail           String @db.VarChar(254)
+  status               PaymentAttemptStatus @default(INITIATING)
+  authorizationUrl     String? @db.VarChar(2048)
+  providerTransactionId String? @unique @db.VarChar(48)
+  verifiedAt           DateTime?
+  lastCheckedAt        DateTime?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  obligation           PaymentObligation @relation(fields:[obligationId],references:[id],onDelete:Restrict)
+  payer                Account @relation("PaymentAttemptPayer",fields:[payerId],references:[id],onDelete:Restrict)
+  events               PaymentProviderEvent[]
+  reconciliations      PaymentReconciliation[]
+  @@index([obligationId,status,createdAt])
+  @@map("payment_attempts")
+}
+
+model PaymentProviderEvent {
+  id          String @id @default(uuid()) @db.Uuid
+  payloadHash String @unique @db.VarChar(64)
+  eventName   String @db.VarChar(100)
+  reference   String? @db.VarChar(60)
+  attemptId   String? @db.Uuid
+  signatureMode String @db.VarChar(20)
+  status      PaymentEventStatus @default(RECEIVED)
+  receivedAt  DateTime @default(now())
+  processedAt DateTime?
+  attempt     PaymentAttempt? @relation(fields:[attemptId],references:[id],onDelete:Restrict)
+  @@index([attemptId,receivedAt])
+  @@map("payment_provider_events")
+}
+
+model PaymentReconciliation {
+  id          String @id @default(uuid()) @db.Uuid
+  attemptId   String @db.Uuid
+  actorId     String? @db.Uuid
+  trigger     ReconciliationTrigger
+  outcome     ReconciliationOutcome
+  providerStatus String @db.VarChar(40)
+  providerTransactionId String? @db.VarChar(48)
+  amountMinor BigInt?
+  currency    String? @db.VarChar(3)
+  note        String? @db.VarChar(1500)
+  checkedAt   DateTime @default(now())
+  attempt     PaymentAttempt @relation(fields:[attemptId],references:[id],onDelete:Restrict)
+  actor       Account? @relation("PaymentReconciliationActor",fields:[actorId],references:[id],onDelete:SetNull)
+  @@index([attemptId,checkedAt])
+  @@index([outcome,checkedAt])
+  @@map("payment_reconciliations")
+}
+
+model RefundRequest {
+  id           String @id @default(uuid()) @db.Uuid
+  obligationId String @db.Uuid
+  requestedById String @db.Uuid
+  reviewedById String? @db.Uuid
+  reason       String @db.VarChar(2000)
+  status       RefundCaseStatus @default(REQUESTED)
+  reviewNote   String? @db.VarChar(2000)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  obligation   PaymentObligation @relation(fields:[obligationId],references:[id],onDelete:Restrict)
+  requestedBy  Account @relation("RefundRequester",fields:[requestedById],references:[id],onDelete:Restrict)
+  reviewedBy   Account? @relation("RefundReviewer",fields:[reviewedById],references:[id],onDelete:SetNull)
+  @@unique([obligationId,requestedById])
+  @@index([status,createdAt])
+  @@map("refund_requests")
 }
