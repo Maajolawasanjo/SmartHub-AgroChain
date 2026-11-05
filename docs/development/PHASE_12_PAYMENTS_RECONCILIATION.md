@@ -23,6 +23,10 @@ PaymentProviderEvent: unique SHA256 digest of signed raw bytes, provider event, 
 PaymentReconciliation: append-only direct provider check, trigger, exact amount, currency, provider transaction ID, outcome and date.
 RefundRequest: owner-authored refund-review case and Super Admin decision log. It does NOT issue a Paystack refund or mark any amount returned.
 
+## Test-mode versus live-money protection
+
+Paystack test keys (`sk_test_`) support test-mode integration exercises when `PAYMENTS_ENABLED=true` in an isolated, approved staging environment. A live key (`sk_live_`) is rejected unless `PAYSTACK_LIVE_ENABLED=true`, `NODE_ENV=production`, and the configured `APP_BASE_URL` equals the explicitly reviewed HTTPS `PRODUCTION_BASE_URL`. Preview deployments can also use `NODE_ENV=production`; that alone is not sufficient to authorize live charges or payouts. Keep the explicit live flag disabled until financial and business acceptance is approved. Do not enable it for staging or local machines.
+
 ## Commercial verification gates
 Only an active buyer owner with a real organization-scoped PENDING_PAYMENT order and active physical reservations can initialize checkout.
 Provider init happens after recording a unique durable attempt. Ambiguous network failure becomes UNKNOWN rather than launching another possible charge.
