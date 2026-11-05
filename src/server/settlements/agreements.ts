@@ -1,6 +1,7 @@
 import "server-only";
 import {Prisma} from "@/generated/prisma/client";
 import {PublicError} from "@/server/auth/http";
+import {publishInboxEvent} from "@/server/communications/inbox";
 import {id,supplierTerms,farmerDecision} from "./validation";
 import {operationsActor,farmerActor,atomic,lockAccount,lockOrder,reviewerScope,orderSafeForSupplierSettlement,exactMinor,conflict,audit} from "./common";
 
@@ -32,6 +33,9 @@ export async function proposeFarmerAgreement(input:unknown){
   await audit(tx,account.id,offer.id,"SUPPLIER_TERMS_PROPOSED",{
    orderLineId:item.id,unitPriceNgn:price.toString(),quantity:item.quantity.toString(),version:offer.version
   });
+  await publishInboxEvent(tx,{eventKey:"farmer-offer:"+offer.id+":v"+offer.version,eventType:"SUPPLIER_TERMS_PROPOSED",
+   actorId:account.id,subjectId:offer.id,recipients:[{accountId:offer.farmerId,category:"FINANCE",
+    title:"New supplier price offer",body:"SmartHub has proposed independent commercial terms for your sourced supply. Review and accept or decline.",actionPath:"/farmer/settlements"}]});
   return {id:offer.id,status:offer.status,version:offer.version};
  });
 }
