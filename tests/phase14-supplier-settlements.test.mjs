@@ -105,6 +105,8 @@ test("missing or reversed provider settlements cannot be silently retried or sho
  assert.match(reconcile,/proof\.status==="success"/);
  assert.match(reconcile,/reversed/);
  assert.match(reconcile,/supplierSettlementReconciliation\.create/);
+ assert.match(reconcile,/proof\.status!=="success"&&obligation\.status==="SETTLED"&&attempt\.status==="VERIFIED"/);
+ assert.match(reconcile,/SUPPLIER_SETTLED_TRANSFER_RECHECK_FAILED/);
  assert.doesNotMatch(transfer,/status:"SETTLED"/);
 });
 test("signed Paystack transfer events trigger independent verify, not direct settlement update",()=>{
