@@ -100,6 +100,13 @@ model Account {
   shipmentReceipts ReceiptConfirmation[] @relation("ReceiptBuyer")
   shipmentIssuesReported DeliveryIssue[] @relation("DeliveryIssueReporter")
   shipmentIssuesReviewed DeliveryIssue[] @relation("DeliveryIssueReviewer")
+  payoutAccount FarmerPayoutAccount? @relation("FarmerPayoutAccountOwner")
+  supplierAgreements SupplierAgreement[] @relation("SupplierAgreementFarmer")
+  supplierTermsProposed SupplierAgreement[] @relation("SupplierAgreementProposer")
+  supplierObligations SupplierObligation[] @relation("SupplierObligationFarmer")
+  supplierPayoutApprovals SupplierObligation[] @relation("SupplierObligationApprover")
+  supplierTransfersStarted SupplierSettlementAttempt[] @relation("SettlementInitiator")
+  settlementChecks SupplierSettlementReconciliation[] @relation("SettlementCheckActor")
 
   @@map("app_accounts")
 }
@@ -1102,6 +1109,8 @@ model OrderLine {
   lot         SupplyLot @relation(fields:[lotId],references:[id],onDelete:Restrict)
   reservation Reservation?
   shipmentLines ShipmentLine[]
+  supplierAgreement SupplierAgreement?
+  supplierObligation SupplierObligation?
   @@index([orderId])
   @@index([lotId])
   @@map("order_lines")
@@ -1463,4 +1472,143 @@ model DeliveryIssue {
   reviewedBy  Account? @relation("DeliveryIssueReviewer",fields:[reviewedById],references:[id],onDelete:SetNull)
   @@index([status,createdAt])
   @@map("delivery_issues")
+}
+
+
+// Phase 14 — farmer-specific contract terms and independently reconciled outward transfers.
+// Buyer quote prices are not supplier prices; delivery completion is not payout settlement.
+enum SupplierAgreementStatus {
+  PROPOSED
+  ACCEPTED
+  DECLINED
+}
+enum SupplierObligationStatus {
+  PENDING_APPROVAL
+  APPROVED
+  TRANSFER_PENDING
+  REVIEW_REQUIRED
+  SETTLED
+}
+enum SupplierTransferStatus {
+  INITIATING
+  UNKNOWN
+  PENDING
+  FAILED
+  VERIFIED
+  REVIEW_REQUIRED
+}
+enum SupplierReconciliationOutcome {
+  PENDING
+  FAILED
+  VERIFIED
+  MISMATCH
+  LATE_REVIEW
+}
+enum PayoutAccountStatus {
+  VERIFIED
+  BLOCKED
+}
+
+model FarmerPayoutAccount {
+ id String @id @default(uuid()) @db.Uuid
+ farmerId String @unique @db.Uuid
+ bankCode String @db.VarChar(12)
+ accountName String @db.VarChar(160)
+ accountLast4 String @db.VarChar(4)
+ encryptedNumber String @db.VarChar(300)
+ fingerprint String @db.VarChar(64)
+ version Int @default(1)
+ status PayoutAccountStatus @default(VERIFIED)
+ verifiedAt DateTime
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ farmer Account @relation("FarmerPayoutAccountOwner",fields:[farmerId],references:[id],onDelete:Restrict)
+ @@map("farmer_payout_accounts")
+}
+
+model SupplierAgreement {
+ id String @id @default(uuid()) @db.Uuid
+ orderLineId String @unique @db.Uuid
+ farmerId String @db.Uuid
+ proposedById String @db.Uuid
+ unitPriceNgn Decimal @db.Decimal(16,2)
+ currency String @default("NGN") @db.VarChar(3)
+ status SupplierAgreementStatus @default(PROPOSED)
+ version Int @default(1)
+ note String @db.VarChar(2000)
+ acceptedAt DateTime?
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ orderLine OrderLine @relation(fields:[orderLineId],references:[id],onDelete:Restrict)
+ farmer Account @relation("SupplierAgreementFarmer",fields:[farmerId],references:[id],onDelete:Restrict)
+ proposedBy Account @relation("SupplierAgreementProposer",fields:[proposedById],references:[id],onDelete:Restrict)
+ obligation SupplierObligation?
+ @@index([farmerId,status,createdAt])
+ @@map("supplier_agreements")
+}
+
+model SupplierObligation {
+ id String @id @default(uuid()) @db.Uuid
+ orderLineId String @unique @db.Uuid
+ agreementId String @unique @db.Uuid
+ farmerId String @db.Uuid
+ quantity Decimal @db.Decimal(18,3)
+ amountMinor BigInt
+ currency String @default("NGN") @db.VarChar(3)
+ status SupplierObligationStatus @default(PENDING_APPROVAL)
+ approvedById String? @db.Uuid
+ approvedAt DateTime?
+ bankFingerprint String? @db.VarChar(64)
+ bankVersion Int?
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ orderLine OrderLine @relation(fields:[orderLineId],references:[id],onDelete:Restrict)
+ agreement SupplierAgreement @relation(fields:[agreementId],references:[id],onDelete:Restrict)
+ farmer Account @relation("SupplierObligationFarmer",fields:[farmerId],references:[id],onDelete:Restrict)
+ approvedBy Account? @relation("SupplierObligationApprover",fields:[approvedById],references:[id],onDelete:SetNull)
+ attempts SupplierSettlementAttempt[]
+ @@index([farmerId,status,createdAt])
+ @@index([status,createdAt])
+ @@map("supplier_obligations")
+}
+
+model SupplierSettlementAttempt {
+ id String @id @default(uuid()) @db.Uuid
+ obligationId String @db.Uuid
+ initiatedById String @db.Uuid
+ reference String @unique @db.VarChar(50)
+ status SupplierTransferStatus @default(INITIATING)
+ recipientCode String? @db.VarChar(100)
+ recipientBankCode String @db.VarChar(12)
+ recipientEncryptedNumber String @db.VarChar(300)
+ recipientFingerprint String @db.VarChar(64)
+ recipientAccountName String @db.VarChar(160)
+ providerTransferId String? @unique @db.VarChar(50)
+ verifiedAt DateTime?
+ lastCheckedAt DateTime?
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ obligation SupplierObligation @relation(fields:[obligationId],references:[id],onDelete:Restrict)
+ initiatedBy Account @relation("SettlementInitiator",fields:[initiatedById],references:[id],onDelete:Restrict)
+ reconciliations SupplierSettlementReconciliation[]
+ @@index([obligationId,status,createdAt])
+ @@map("supplier_settlement_attempts")
+}
+
+model SupplierSettlementReconciliation {
+ id String @id @default(uuid()) @db.Uuid
+ attemptId String @db.Uuid
+ actorId String? @db.Uuid
+ trigger String @db.VarChar(20)
+ outcome SupplierReconciliationOutcome
+ providerStatus String @db.VarChar(40)
+ providerTransferId String? @db.VarChar(50)
+ amountMinor BigInt?
+ currency String? @db.VarChar(3)
+ note String @db.VarChar(1500)
+ checkedAt DateTime @default(now())
+ attempt SupplierSettlementAttempt @relation(fields:[attemptId],references:[id],onDelete:Restrict)
+ actor Account? @relation("SettlementCheckActor",fields:[actorId],references:[id],onDelete:SetNull)
+ @@index([attemptId,checkedAt])
+ @@map("supplier_settlement_reconciliations")
 }

@@ -44,7 +44,7 @@ test("all direct Data API table access is revoked and RLS enabled",()=>{
 });
 test("farmer and operations navigation reflects actual implemented and planned destinations",()=>{
  const navigation=read("src/components/dashboard/navigation.ts");
- for(const link of ["/farmer/kyc","/farmer/my-supply","/farmer/orders","/farmer/opportunities","/farmer/wallet","/farmer/notifications","/farmer/settings","/operations/verification","/operations/supply","/operations/catalog"]){
+ for(const link of ["/farmer/kyc","/farmer/my-supply","/farmer/orders","/farmer/opportunities","/farmer/settlements","/farmer/notifications","/farmer/settings","/operations/verification","/operations/supply","/operations/catalog"]){
   assert.ok(navigation.includes(link),link);
  }
  assert.match(navigation,/active\("Supply Allocations","\/farmer\/orders"/);
