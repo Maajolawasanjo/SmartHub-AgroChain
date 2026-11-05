@@ -30,7 +30,7 @@ export async function reconcileReference(reference:string,trigger:Trigger,actorI
   const attempt=await tx.paymentAttempt.findUnique({where:{reference},include:{obligation:true}});
   if(!attempt||attempt.obligation.orderId!==order.id)conflict("Payment reference has changed.");
   const obligation=attempt.obligation;
-  const repeatVerified=obligation.status==="PAID"&&attempt.status==="VERIFIED"&&order.status==="PAYMENT_VERIFIED";
+  const repeatVerified=obligation.status==="PAID"&&attempt.status==="VERIFIED"&&["PAYMENT_VERIFIED","FULFILLING","COMPLETED","DELIVERY_REVIEW"].includes(order.status);
   const base={attemptId:attempt.id,actorId,trigger,providerStatus:verified.status.slice(0,40),
    providerTransactionId:transactionId,amountMinor:amount,currency:verified.currency.slice(0,3)};
   const store=async(outcome:"VERIFIED"|"PENDING"|"FAILED"|"MISMATCH"|"LATE_PAYMENT",note:string)=>{
