@@ -5,6 +5,7 @@ import {id} from "./validation";
 import {atomic,operationsActor,superAdminActor,reviewerScope,lockOrder,orderSafeForSupplierSettlement,conflict,audit} from "./common";
 import {verifyTransfer,transferAmount,transferId,decryptNumber} from "./paystack-transfers";
 import {secretKey} from "@/server/payments/paystack";
+import {publishInboxEvent} from "@/server/communications/inbox";
 
 type Trigger="WEBHOOK"|"OPERATIONS"|"ADMIN";
 export async function reconcileSupplierTransfer(reference:string,trigger:Trigger,actorId:string|null=null){
@@ -78,6 +79,10 @@ export async function reconcileSupplierTransfer(reference:string,trigger:Trigger
    await audit(tx,attempt.initiatedById,attempt.id,"SUPPLIER_TRANSFER_VERIFIED",{
     reference,providerTransferId:providerId,amountMinor:obligation.amountMinor.toString(),trigger
    });
+   await publishInboxEvent(tx,{eventKey:"supplier-settlement:verified:"+attempt.id,eventType:"SUPPLIER_TRANSFER_VERIFIED",
+    actorId:attempt.initiatedById,subjectId:obligation.id,recipients:[{accountId:obligation.farmerId,
+     category:"FINANCE",title:"Supplier settlement verified",body:"A supplier transfer has been independently verified by Paystack.",
+     actionPath:"/farmer/settlements"}]});
    return {status:"SETTLED" as const,id:attempt.id};
   }
   if(["failed","reversed","abandoned"].includes(proof.status)){
