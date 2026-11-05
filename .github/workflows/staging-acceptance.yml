@@ -102,6 +102,9 @@ jobs:
           node --input-type=module -e 'import {assertStageTarget} from "./scripts/release/stage-target.mjs"; assertStageTarget();'
       - name: Migrate ONLY the separately reviewed staging project
         if: ${{ inputs.apply_migrations && !inputs.preflight_only }}
+        env:
+          STAGING_MIGRATIONS_APPROVED: ${{ vars.STAGING_MIGRATIONS_APPROVED }}
+          STAGING_BACKUP_RESTORE_EVIDENCE: ${{ secrets.STAGING_BACKUP_RESTORE_EVIDENCE }}
         run: npm run db:migrate
       - name: Check exact migration history, RLS, Storage and authoritative quantities
         if: ${{ !inputs.preflight_only }}
