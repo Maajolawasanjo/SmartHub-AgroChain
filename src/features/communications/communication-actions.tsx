@@ -89,7 +89,7 @@ export function SupportStateActions({caseId,staff,owner,status,assigned,actorId}
  const router=useRouter();const[note,setNote]=useState(""),[busy,setBusy]=useState(false),[error,setError]=useState("");
  const actions=staff?[
   ...(!assigned||assigned===actorId?["claim"]:[]),
-  ...((assigned===actorId||!assigned&&status==="OPEN")&&status!=="CLOSED"?["resume","await_customer","resolve"]:[]),
+  ...(assigned===actorId&&status!=="CLOSED"?["resume","await_customer","resolve"]:[]),
   ...(status==="RESOLVED"?["close"]:[])
  ]:owner&&status==="RESOLVED"?["reopen"]:[];
  async function submit(action:string){if(busy||!window.confirm("Record support action: "+action+"?"))return;
