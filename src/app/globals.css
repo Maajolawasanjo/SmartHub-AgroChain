@@ -475,3 +475,21 @@ a:focus-visible, button:focus-visible { outline: 3px solid #d79416; outline-offs
 .editorial-contact-form-wrap{min-width:0}
 .editorial-contact-form-wrap .public-contact-form{max-width:100%;margin:0}
 @media(max-width:640px){.editorial-faq-group+.editorial-faq-group{padding-top:35px}.editorial-contact-form-wrap .public-contact-form{padding:20px}}
+
+
+/* Phase 18 QA: ensure optimized fill images have defined frame heights */
+.editorial-dark-grid>.editorial-photo{height:clamp(330px,41vw,515px);align-self:stretch}
+.editorial-photo img{object-fit:cover}
+.editorial-photo::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,#819b72,#355f44);z-index:-1}
+.editorial-photo figcaption{overflow-wrap:anywhere}
+.editorial-audience-card:focus-within{outline:2px solid #215e42;outline-offset:3px}
+.editorial-button:focus-visible,.editorial-inline-link:focus-visible,.editorial-commodity:focus-visible,
+.public-header a:focus-visible,.public-mobile-menu summary:focus-visible,.public-footer a:focus-visible,
+.editorial-faq-preview summary:focus-visible,.public-contact-form :is(input,select,textarea,button):focus-visible{
+ outline:3px solid #b18a24!important;outline-offset:4px!important
+}
+.editorial-faq-preview summary{min-height:30px}
+.editorial-contact-options p{min-height:0}
+#contact-options,#contact-form,#published-insights{scroll-margin-top:24px}
+@media(max-width:900px){.editorial-dark-grid>.editorial-photo{height:clamp(300px,60vw,480px)}}
+@media(max-width:640px){.editorial-dark-grid>.editorial-photo{height:310px}}
