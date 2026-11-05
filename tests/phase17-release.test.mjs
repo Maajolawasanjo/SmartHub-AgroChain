@@ -58,8 +58,8 @@ test("Stage safety probes never start implicitly during repository tests and req
  assert.match(stage,/storage\.buckets/);
  assert.match(stage,/lot conservation/);
  assert.match(stage,/settled supplier obligations without verified transfer/);
- assert.match(roles,/STAGING_SESSION_BUYER_A/);
- assert.match(roles,/STAGING_SESSION_BUYER_B/);
+ assert.match(roles,/const names=\["BUYER_A","BUYER_B"/);
+ assert.match(roles,/process\.env\["STAGING_SESSION_"\+k\]/);
  assert.match(roles,/STAGING_BUYER_A_SHIPMENT_ID/);
  assert.match(roles,/STAGING_BUYER_A_SUPPORT_CASE_ID/);
  assert.match(roles,/fetch\(url,\{method:"GET",redirect:"manual"/);
@@ -76,6 +76,8 @@ test("Controlled staging workflow is manual, environment-approved and protects m
  assert.match(workflow,/inputs\.apply_migrations/);
  assert.match(workflow,/check-stage-database\.mjs/);
  assert.match(workflow,/check-stage-http\.mjs/);
+ assert.match(workflow,/@playwright\/test@1\.64\.1/);
+ assert.match(workflow,/staging\.acceptance\.spec\.mjs/);
  assert.match(workflow,/npm run db:migrate/);
 });
 test("Staging readiness probe is staging-only, authenticated, secret-independent and not indexed",()=>{
