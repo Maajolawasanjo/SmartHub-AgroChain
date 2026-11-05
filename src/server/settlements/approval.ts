@@ -1,5 +1,6 @@
 import "server-only";
 import {PublicError} from "@/server/auth/http";
+import {publishInboxEvent} from "@/server/communications/inbox";
 import {approval,id} from "./validation";
 import {atomic,superAdminActor,lockAccount,lockOrder,orderSafeForSupplierSettlement,conflict,audit} from "./common";
 
@@ -39,6 +40,14 @@ export async function approveSupplierObligation(obligationId:string,input:unknow
    orderReference:order.reference,bankLast4:bank.accountLast4,bankCode:bank.bankCode,
    bankVersion:bank.version,amountMinor:payable.amountMinor.toString(),reason:value.reason
   });
+  const reviewer=order.quotation.request.assignment?.assignedToId;
+  await publishInboxEvent(tx,{eventKey:"farmer-payable:approved:"+result.id,eventType:"SUPPLIER_PAYABLE_APPROVED",
+   actorId:account.id,subjectId:result.id,recipients:[
+    {accountId:result.farmerId,category:"FINANCE",title:"Supplier payable approved — not yet paid",
+     body:"An independent approver authorized this payable. A provider-verified transfer is still required before it is settled.",actionPath:"/farmer/settlements"},
+    ...(reviewer?[{accountId:reviewer,category:"FINANCE" as const,title:"Approved supplier payable",
+     body:"The supplier payable for order "+order.reference+" is approved for a separately controlled transfer.",actionPath:"/operations/settlements/"+result.id}]:[])
+   ]});
   return {id:result.id,status:result.status,amountMinor:result.amountMinor.toString()};
  });
 }
