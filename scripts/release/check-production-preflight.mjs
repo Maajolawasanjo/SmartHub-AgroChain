@@ -3,6 +3,7 @@
 import pg from "pg";
 import {readFileSync} from "node:fs";
 import {assertProductionReadOnlyTarget} from "./production-readonly-target.mjs";
+import {inspectCommerceInvariants} from "./commerce-invariants.mjs";
 import {migrationManifest,expectedModelTables,assessStageInventory} from "./stage-inventory.mjs";
 let target;
 try{target=assertProductionReadOnlyTarget(process.env);}
@@ -28,10 +29,13 @@ try{
  const result=assessStageInventory({manifest:migrationManifest(),
   modelTables:expectedModelTables(readFileSync("prisma/schema.prisma","utf8")),
   historyPresent,applied,tables:tables.rows,roles:roles.rows.map(r=>r.rolname)});
+ const commerce=result.ok&&result.state==="complete"
+  ?await inspectCommerceInvariants(sql=>client.query(sql))
+  :{ok:false,checks:0,failures:[],skipped:"migration inventory is incomplete or inconsistent"};
  await client.query("ROLLBACK");
- console.log(JSON.stringify({...result,scope:"approved-production",connection:"read-only",
+ console.log(JSON.stringify({...result,commerce,scope:"approved-production",connection:"read-only",
   migrationPerformed:false,businessDataRead:false},null,2));
- if(!result.ok)process.exitCode=1;
+ if(!result.ok||!commerce.ok)process.exitCode=1;
 }catch{
  if(connected)await client.query("ROLLBACK").catch(()=>undefined);
  console.error("PRODUCTION INVENTORY ERROR: connection, database identity or schema inspection failed.");

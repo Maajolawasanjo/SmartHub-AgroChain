@@ -2,6 +2,7 @@ import {createHash} from "node:crypto";
 import {readFileSync,readdirSync} from "node:fs";
 import pg from "pg";
 import {ensureStageScriptEnvironment} from "./stage-target.mjs";
+import {inspectCommerceInvariants} from "./commerce-invariants.mjs";
 
 const cfg=ensureStageScriptEnvironment();
 if(!cfg)process.exit(1);
@@ -92,9 +93,11 @@ try{
   const result=await sql(c.q,c.params??[]);
   check(result.rows[0]?.n===0,c.name+" invariant violated ("+(result.rows[0]?.n??"unknown")+" records)");
  }
+ const commerce=await inspectCommerceInvariants(sql);
+ for(const failed of commerce.failures)check(false,"Commerce relationship "+failed.id+" inconsistent ("+failed.count+" records)");
  await sql("ROLLBACK");
  failAll();
- console.log("PASS: staging database migration history, schema, RLS, private grants, evidence bucket and safety invariants.");
+ console.log("PASS: staging database migration history, schema, RLS, private grants, evidence bucket, safety invariants and commerce relationships.");
  console.log("Checked",localMigrations.length,"migration directories and",modelMaps.size,"Prisma model tables. No data was modified.");
 }catch(error){
  try{await client.query("ROLLBACK");}catch{}
