@@ -1,7 +1,6 @@
 // Safe, offline configuration inspection for Vercel + Supabase + Prisma.
 // Never print any environment VALUE, URL, password, token or connection string.
 // The audit makes no requests and never modifies any database or infrastructure.
-import "dotenv/config";
 import {pathToFileURL} from "node:url";
 
 const sslModes=new Set(["require","verify-ca","verify-full"]);
@@ -91,11 +90,13 @@ export function auditIntegrationConfig(env,environment="staging"){
   warn("Production deployment","this local audit does not verify migrations, real auth, Storage, backups or provider connectivity.");
  return {environment,ok:errors.length===0,errors,warnings};
 }
-function main(){
+async function main(){
+ await import("dotenv/config");
  const arg=process.argv.find(x=>x.startsWith("--environment="))??"";
  const environment=arg.split("=")[1]??"";
  const result=auditIntegrationConfig(process.env,environment);
  console.log(JSON.stringify(result,null,2));
  if(!result.ok)process.exitCode=1;
 }
-if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href)main();
+if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href)
+ main().catch(()=>{console.error("Configuration audit could not load its local env reader.");process.exitCode=1;});
