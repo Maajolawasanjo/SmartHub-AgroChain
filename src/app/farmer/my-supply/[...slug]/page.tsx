@@ -1,10 +1,11 @@
 import Link from "next/link";
 import {notFound} from "next/navigation";
 import {PortalFrame,StateTag,EmptyState,requirePortal} from "@/components/agriculture/portal-frame";
-import {CropForm,SupplyForm} from "@/features/agriculture/forms";
+import {CropForm,SupplyForm,WithdrawSupplyForm} from "@/features/agriculture/forms";
 export const dynamic="force-dynamic";
-export default async function SupplyPath({params}:{params:Promise<{slug:string[]}>}){
+export default async function SupplyPath({params,searchParams}:{params:Promise<{slug:string[]}>;searchParams:Promise<{cropId?:string;edit?:string}>}){
  const slug=(await params).slug;
+ const query=await searchParams;
  const [section,part,extra]=slug;
  if(!["crops","available","drafts","review-status"].includes(section)||extra)notFound();
  const {account,db}=await requirePortal("FARMER");
@@ -18,17 +19,23 @@ export default async function SupplyPath({params}:{params:Promise<{slug:string[]
  const isCrop=section==="crops";const isAvailable=section==="available";
  if((isCrop||isAvailable)&&part==="new"){
   const crops=await db.farmerCrop.findMany({where:{farmerId:account.id},include:{commodity:true}});
+  const selectedCrop=isAvailable&&query.cropId?crops.find(c=>c.id===query.cropId):undefined;
+  if(isAvailable&&query.cropId&&!selectedCrop)notFound();
+  const prefill=selectedCrop?{farmId:selectedCrop.farmId,commodityId:selectedCrop.commodityId,cropId:selectedCrop.id,
+   variety:selectedCrop.variety||"",quantity:"",unit:"",packaging:"",harvestDate:"",reportedCondition:"",storageNote:"",notes:""}:undefined;
   return <PortalFrame role="FARMER" name={account.fullName} route={base} title={isCrop?"Add Crop":"Add Available Supply"} subtitle={isCrop?"Record the crops you grow. Estimates are not physical stock.":"Declare only actual physical produce available for SmartHub review."}>
     {!farms.length?<EmptyState title="Register a farm first" body="A crop or supply record must be associated with one of your real registered farms." action="Go to farm registration" href="/farmer/kyc"/>:
     !commodities.length?<EmptyState title="No supported commodities configured" body="Operations must create and activate commodities before you can register crops or supply. No fabricated catalog entries are shown." action="Contact SmartHub" href="/contact"/>:
-    isCrop?<CropForm farms={farmItems} commodities={commodityItems}/>:<SupplyForm farms={farmItems} commodities={commodityItems} crops={crops.map(c=>({id:c.id,name:`${c.commodity.name}${c.variety?` — ${c.variety}`:""}`,farmId:c.farmId,commodityId:c.commodityId}))}/>}
+    isCrop?<CropForm farms={farmItems} commodities={commodityItems}/>:<SupplyForm farms={farmItems} commodities={commodityItems} record={prefill} crops={crops.map(c=>({id:c.id,name:`${c.commodity.name}${c.variety?` — ${c.variety}`:""}`,farmId:c.farmId,commodityId:c.commodityId}))}/>}
    </PortalFrame>;
  }
  if(isCrop&&part){
   const crop=await db.farmerCrop.findFirst({where:{id:part,farmerId:account.id},include:{commodity:true,farm:true}});
   if(!crop)notFound();
+  const editing=query.edit==="1";
   return <PortalFrame role="FARMER" name={account.fullName} route={base} title={crop.commodity.name} subtitle="Your crop record — not an available-stock declaration.">
-   <section className="agro-panel"><StateTag status={crop.stage}/><p>Farm: {crop.farm.name}</p><p>Variety: {crop.variety||"Not recorded"}</p><p>Expected harvest: {crop.expectedHarvestAt?.toLocaleDateString("en-NG")||"Not recorded"}</p><p>Estimated yield: {crop.estimatedQuantity?`${crop.estimatedQuantity.toString()} ${crop.estimatedUnit}`:"Not recorded"}</p><Link className="action action-primary" href={`${base}/available/new`}>Declare harvested supply</Link></section>
+   <section className="agro-panel"><StateTag status={crop.stage}/><p>Farm: {crop.farm.name} · {crop.farm.lga}, {crop.farm.state}</p><p>Variety: {crop.variety||"Not recorded"}</p><p>Planted: {crop.plantingDate?.toLocaleDateString("en-NG")||"Not recorded"}</p><p>Expected harvest: {crop.expectedHarvestAt?.toLocaleDateString("en-NG")||"Not recorded"}</p><p>Estimated yield: {crop.estimatedQuantity?`${crop.estimatedQuantity.toString()} ${crop.estimatedUnit}`:"Not recorded"}</p><p>Notes: {crop.notes||"Not recorded"}</p><div className="agro-toolbar"><Link className="action action-primary" href={`${base}/available/new?cropId=${crop.id}`}>Declare physical supply from this crop</Link><Link className="action action-outline" href={editing?`${base}/crops/${crop.id}`:`${base}/crops/${crop.id}?edit=1`}>{editing?"Cancel editing":"Update crop progress"}</Link></div></section>
+   {editing&&<><h2 className="text-xl font-bold mb-3">Update crop details</h2><CropForm id={crop.id} farms={farmItems} commodities={commodityItems} record={{farmId:crop.farmId,commodityId:crop.commodityId,variety:crop.variety||"",stage:crop.stage,plantingDate:crop.plantingDate?.toISOString().slice(0,10)||"",expectedHarvestAt:crop.expectedHarvestAt?.toISOString().slice(0,10)||"",estimatedQuantity:crop.estimatedQuantity?.toString()||"",estimatedUnit:crop.estimatedUnit||"",notes:crop.notes||"",updatedAt:crop.updatedAt.toISOString()}}/></>}
   </PortalFrame>;
  }
  if(isAvailable&&part){
@@ -37,8 +44,9 @@ export default async function SupplyPath({params}:{params:Promise<{slug:string[]
   const editable=["DRAFT","MORE_INFO_REQUIRED","REJECTED"].includes(supply.status);
   const crops=editable?await db.farmerCrop.findMany({where:{farmerId:account.id},include:{commodity:true}}):[];
   return <PortalFrame role="FARMER" name={account.fullName} route={base} title={`${supply.commodity.name} · Supply`} subtitle="View your actual saved declaration and Operations review decisions.">
-   <section className="agro-panel"><StateTag status={supply.status}/><p>Farm: {supply.farm.name}</p><p>Declared quantity: {supply.quantity.toString()} {supply.unit}</p><p>Condition (farmer-reported): {supply.reportedCondition}</p>{supply.feedback&&<p className="agro-alert">Operations feedback: {supply.feedback}</p>}</section>
+   <section className="agro-panel"><StateTag status={supply.status}/><p>Farm: {supply.farm.name}</p><p>Declared quantity: {supply.quantity.toString()} {supply.unit}</p><p>Condition (farmer-reported): {supply.reportedCondition}</p><p>Variety: {supply.variety||"Not specified"}</p><p>Harvest date: {supply.harvestDate?.toLocaleDateString("en-NG")||"Not recorded"}</p><p>Packaging: {supply.packaging||"Not recorded"}</p><p>Storage notes: {supply.storageNote||"Not recorded"}</p><p>Additional notes: {supply.notes||"Not recorded"}</p>{supply.feedback&&<p className="agro-alert">Operations feedback: {supply.feedback}</p>}</section>
    {editable?<><h2 className="text-xl font-bold mb-3">Edit and resubmit</h2><SupplyForm id={supply.id} farms={farmItems} commodities={commodityItems} crops={crops.map(c=>({id:c.id,name:c.commodity.name,farmId:c.farmId,commodityId:c.commodityId}))} record={{farmId:supply.farmId,commodityId:supply.commodityId,cropId:supply.cropId||"",variety:supply.variety||"",quantity:supply.quantity.toString(),unit:supply.unit,packaging:supply.packaging||"",harvestDate:supply.harvestDate?.toISOString().slice(0,10)||"",reportedCondition:supply.reportedCondition,storageNote:supply.storageNote||"",notes:supply.notes||""}}/></>:<p className="agro-alert">This record is currently locked from farmer edits. Contact Operations if a correction is needed.</p>}
+   {["DRAFT","PENDING_REVIEW"].includes(supply.status)&&<WithdrawSupplyForm id={supply.id}/>}
    <section className="agro-panel"><h2>Review timeline</h2>{supply.events.map(e=><p key={e.id} className="mt-2"><StateTag status={e.status}/> · {e.createdAt.toLocaleDateString("en-NG")}{e.note?` — ${e.note}`:""}</p>)}</section>
   </PortalFrame>;
  }

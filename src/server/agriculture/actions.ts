@@ -1,8 +1,8 @@
 import "server-only";
 import { PublicError } from "@/server/auth/http";
 import { requireActor } from "./policies";
-import { cropInput, farmInput, supplyInput, reviewInput, commodityInput } from "./validators";
-import type { Prisma } from "@/generated/prisma/client";
+import { cropInput, cropUpdateInput, farmInput, supplyInput, supplyWithdrawalInput, reviewInput, commodityInput } from "./validators";
+import { z } from "zod";
 
 const dateOrNull=(value:string|undefined)=>value?new Date(`${value}T00:00:00.000Z`):null;
 
@@ -56,6 +56,31 @@ export async function createCrop(input:unknown){
   await db.auditEvent.create({data:{actorId:account.id,action:"CROP_CREATED",subjectId:crop.id}});
   return {id:crop.id};
 }
+// Crop records are estimates/progress only. Editing one never creates or alters physical stock.
+export async function updateCrop(id:string,input:unknown){
+  const {account,db}=await requireActor("FARMER");
+  z.string().uuid().parse(id);
+  const value=cropUpdateInput.parse(input);
+  return db.$transaction(async tx=>{
+    const existing=await tx.farmerCrop.findFirst({where:{id,farmerId:account.id}});
+    if(!existing)throw new PublicError(404,"Crop not found.");
+    if(existing.updatedAt.getTime()!==new Date(value.updatedAt).getTime())
+      throw new PublicError(409,"This crop was changed elsewhere. Reload before saving your edits.");
+    // A crop with declared physical supply cannot be reset to an unharvested stage.
+    if(existing.stage==="HARVESTED" && ["PLANNED","GROWING"].includes(value.stage) &&
+      await tx.supplyDeclaration.count({where:{cropId:id,farmerId:account.id,status:{not:"WITHDRAWN"}}}))
+      throw new PublicError(409,"This crop is linked to a supply declaration. Its harvested stage cannot be reversed.");
+    const changed=await tx.farmerCrop.updateMany({where:{id,farmerId:account.id,updatedAt:existing.updatedAt},data:{
+      variety:value.variety||null,stage:value.stage,plantingDate:dateOrNull(value.plantingDate),
+      expectedHarvestAt:dateOrNull(value.expectedHarvestAt),estimatedQuantity:value.estimatedQuantity||null,
+      estimatedUnit:value.estimatedUnit||null,notes:value.notes||null,
+    }});
+    if(changed.count!==1)throw new PublicError(409,"This crop changed while you were editing. Reload and try again.");
+    await tx.auditEvent.create({data:{actorId:account.id,action:"CROP_UPDATED",subjectId:id}});
+    return {id};
+  });
+}
+
 async function validateSupplyLinks(db:Awaited<ReturnType<typeof requireActor>>["db"],farmerId:string,value:ReturnType<typeof supplyInput.parse>){
   const farm=await db.farm.findFirst({where:{id:value.farmId,farmerId}});
   if(!farm)throw new PublicError(404,"Farm not found.");
@@ -81,6 +106,7 @@ export async function createSupply(input:unknown){
       storageNote:value.storageNote||null,notes:value.notes||null,status:value.action==="submit"?"PENDING_REVIEW":"DRAFT",
       submittedAt:value.action==="submit"?new Date():null}});
     await tx.supplyReviewEvent.create({data:{supplyId:s.id,actorId:account.id,status:s.status}});
+    await tx.auditEvent.create({data:{actorId:account.id,action:"SUPPLY_CREATED",subjectId:s.id}});
     return s;
   });
   return {id:supply.id,status:supply.status};
@@ -105,9 +131,31 @@ export async function changeSupply(id:string,input:unknown){
       status:next,submittedAt:next==="PENDING_REVIEW"?new Date():null,feedback:null,reviewedAt:null,reviewedById:null}});
     if(changed.count!==1)throw new PublicError(409,"Record changed. Refresh before editing.");
     await tx.supplyReviewEvent.create({data:{supplyId:id,actorId:account.id,status:next}});
+    await tx.auditEvent.create({data:{actorId:account.id,action:"SUPPLY_UPDATED",subjectId:id}});
     return {id,status:next};
   });
 }
+// Withdrawal is permitted only before Operations approves supply or any commercial allocation.
+// Approved supply requires a separate Operations-managed reversal policy, not farmer self-service.
+export async function withdrawSupply(id:string,input:unknown){
+  const {account,db}=await requireActor("FARMER");
+  z.string().uuid().parse(id);
+  const {reason}=supplyWithdrawalInput.parse(input);
+  return db.$transaction(async tx=>{
+    const current=await tx.supplyDeclaration.findFirst({where:{id,farmerId:account.id}});
+    if(!current)throw new PublicError(404,"Supply record not found.");
+    if(!(["DRAFT","PENDING_REVIEW"] as string[]).includes(current.status))
+      throw new PublicError(409,"Only drafts or pending submissions can be withdrawn. Contact Operations about reviewed supply.");
+    const changed=await tx.supplyDeclaration.updateMany({
+      where:{id,farmerId:account.id,status:current.status},data:{status:"WITHDRAWN"}
+    });
+    if(changed.count!==1)throw new PublicError(409,"Supply status changed. Reload before trying again.");
+    await tx.supplyReviewEvent.create({data:{supplyId:id,actorId:account.id,status:"WITHDRAWN",note:reason}});
+    await tx.auditEvent.create({data:{actorId:account.id,action:"SUPPLY_WITHDRAWN",subjectId:id}});
+    return {id,status:"WITHDRAWN"};
+  });
+}
+
 export async function reviewFarmer(id:string,input:unknown){
   const {account,db}=await requireActor("OPERATIONS");
   const value=reviewInput.parse(input);
