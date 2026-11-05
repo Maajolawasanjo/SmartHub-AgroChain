@@ -7,6 +7,24 @@ export function secretKey(){
  const key=process.env.PAYSTACK_SECRET_KEY;
  if(!key||!/^sk_(?:test|live)_[A-Za-z0-9]+$/.test(key))
   throw new PublicError(503,"Secure payment services are not configured.");
+ // A live key must never be used from staging or an unapproved deployment.
+ // NODE_ENV=production is not proof of a production deployment (Vercel
+ // Preview builds use it too). Require an explicit reviewed public origin.
+ if(key.startsWith("sk_live_")){
+  let approved=false;
+  try{
+   const origin=new URL(process.env.APP_BASE_URL??"");
+   const production=new URL(process.env.PRODUCTION_BASE_URL??"");
+   approved=process.env.NODE_ENV==="production" &&
+    process.env.PAYSTACK_LIVE_ENABLED==="true" &&
+    origin.protocol==="https:" && origin.origin===production.origin &&
+    production.protocol==="https:" &&
+    origin.pathname==="/" && production.pathname==="/" &&
+    !origin.search && !origin.hash && !origin.username && !origin.password &&
+    !production.search && !production.hash && !production.username && !production.password;
+  }catch{approved=false;}
+  if(!approved)throw new PublicError(503,"Live payment processing is not approved for this deployment.");
+ }
  return key;
 }
 export function checkoutCallback(){
