@@ -114,6 +114,9 @@ model Account {
   supportCasesOpened SupportCase[] @relation("SupportCaseOpener")
   supportCasesAssigned SupportCase[] @relation("SupportCaseAssignee")
   supportMessages SupportMessage[] @relation("SupportMessageAuthor")
+  governanceIncidentsOpened GovernanceIncident[] @relation("IncidentOpener")
+  governanceIncidentsAssigned GovernanceIncident[] @relation("IncidentAssignee")
+  governanceIncidentEvents GovernanceIncidentEvent[] @relation("IncidentEventActor")
 
   @@map("app_accounts")
 }
@@ -1743,4 +1746,75 @@ model SupportMessage {
   author     Account @relation("SupportMessageAuthor",fields:[authorId],references:[id],onDelete:Restrict)
   @@index([caseId,createdAt])
   @@map("support_messages")
+}
+
+
+// Phase 16 — auditable SUPER_ADMIN-only incident casework; never overrides source business states.
+enum GovernanceIncidentCategory {
+  ACCESS
+  FINANCIAL_EXCEPTION
+  SOURCING
+  DELIVERY
+  COMPLIANCE
+  SYSTEM
+}
+enum GovernanceIncidentSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+enum GovernanceIncidentStatus {
+  OPEN
+  INVESTIGATING
+  MITIGATED
+  CLOSED
+}
+enum GovernanceSubjectType {
+  ACCOUNT
+  ORDER
+  BUYER_PAYMENT
+  SUPPLIER_OBLIGATION
+  SHIPMENT
+  SUPPORT_CASE
+}
+
+model GovernanceIncident {
+  id           String @id @default(uuid()) @db.Uuid
+  clientKey    String @unique @db.Uuid
+  reference    String @unique @db.VarChar(40)
+  category     GovernanceIncidentCategory
+  severity     GovernanceIncidentSeverity
+  status       GovernanceIncidentStatus @default(OPEN)
+  version      Int @default(1)
+  title        String @db.VarChar(180)
+  description  String @db.VarChar(2000)
+  subjectType  GovernanceSubjectType?
+  subjectId    String? @db.Uuid
+  openedById   String @db.Uuid
+  assignedToId String? @db.Uuid
+  closedAt     DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  openedBy     Account @relation("IncidentOpener",fields:[openedById],references:[id],onDelete:Restrict)
+  assignedTo   Account? @relation("IncidentAssignee",fields:[assignedToId],references:[id],onDelete:SetNull)
+  events       GovernanceIncidentEvent[]
+  @@index([status,severity,createdAt])
+  @@index([subjectType,subjectId])
+  @@map("governance_incidents")
+}
+
+model GovernanceIncidentEvent {
+  id         String @id @default(uuid()) @db.Uuid
+  incidentId String @db.Uuid
+  actorId    String @db.Uuid
+  fromStatus GovernanceIncidentStatus?
+  toStatus   GovernanceIncidentStatus
+  reasonCode String @db.VarChar(60)
+  note       String @db.VarChar(1500)
+  createdAt  DateTime @default(now())
+  incident   GovernanceIncident @relation(fields:[incidentId],references:[id],onDelete:Restrict)
+  actor      Account @relation("IncidentEventActor",fields:[actorId],references:[id],onDelete:Restrict)
+  @@index([incidentId,createdAt])
+  @@map("governance_incident_events")
 }
