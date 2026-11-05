@@ -1,8 +1,13 @@
-name: Phase 17 controlled staging acceptance
+name: SmartHub controlled staging preflight and acceptance
 
 on:
   workflow_dispatch:
     inputs:
+      preflight_only:
+        description: "Read-only database identity, existing tables, migration history and RLS; no migrations or staging user sessions required"
+        type: boolean
+        required: true
+        default: true
       apply_migrations:
         description: "Apply pending Prisma migrations to the isolated staging project (requires backup/restore evidence)"
         type: boolean
@@ -18,7 +23,7 @@ concurrency:
 
 jobs:
   staging-acceptance:
-    name: Approved staging migration, database and five-role acceptance
+    name: Approved staging preflight, migration and five-role acceptance
     runs-on: ubuntu-latest
     timeout-minutes: 35
     environment: staging
@@ -56,12 +61,21 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
+      - name: Reject contradictory request before database access
+        run: |
+          if [ "${{ inputs.preflight_only }}" = "true" ] && [ "${{ inputs.apply_migrations }}" = "true" ]; then
+            echo "Migration rejected: preflight-only must be disabled for migrations."
+            exit 1
+          fi
       - name: Reject wrong database and any non-staging deployment BEFORE migration
         run: |
           node --input-type=module -e 'import {assertStageTarget} from "./scripts/release/stage-target.mjs"; assertStageTarget();'
       - name: Install exact committed dependencies
         run: npm ci --no-audit --no-fund
+      - name: Inspect staging schema and migration status in a read-only transaction
+        run: node scripts/release/check-stage-preflight.mjs
       - name: Regenerate Prisma and run all static release gates
+        if: ${{ !inputs.preflight_only }}
         run: |
           npm run db:generate
           npm run typecheck
@@ -69,7 +83,7 @@ jobs:
           npm test
           npm run build
       - name: Require reviewed backup/restore evidence before any staging migration
-        if: ${{ inputs.apply_migrations }}
+        if: ${{ inputs.apply_migrations && !inputs.preflight_only }}
         env:
           STAGING_MIGRATIONS_APPROVED: ${{ vars.STAGING_MIGRATIONS_APPROVED }}
           STAGING_BACKUP_RESTORE_EVIDENCE: ${{ secrets.STAGING_BACKUP_RESTORE_EVIDENCE }}
@@ -80,15 +94,20 @@ jobs:
           fi
           node --input-type=module -e 'import {assertStageTarget} from "./scripts/release/stage-target.mjs"; assertStageTarget();'
       - name: Migrate ONLY the separately reviewed staging project
-        if: ${{ inputs.apply_migrations }}
+        if: ${{ inputs.apply_migrations && !inputs.preflight_only }}
         run: npm run db:migrate
       - name: Check exact migration history, RLS, Storage and authoritative quantities
+        if: ${{ !inputs.preflight_only }}
         run: node scripts/release/check-stage-database.mjs
       - name: Verify staging app, five role sessions and cross-buyer boundaries
+        if: ${{ !inputs.preflight_only }}
         run: node scripts/release/check-stage-http.mjs
       - name: Install exact reviewed browser test runner (staging job only)
+        if: ${{ !inputs.preflight_only }}
         run: npm install --no-save --package-lock=false --ignore-scripts @playwright/test@1.64.1
       - name: Install pinned Playwright Chromium and system dependencies
+        if: ${{ !inputs.preflight_only }}
         run: npx playwright install --with-deps chromium
       - name: Run real-browser desktop/mobile, role and tenant isolation acceptance
+        if: ${{ !inputs.preflight_only }}
         run: npx playwright test e2e/staging.acceptance.spec.mjs --browser=chromium --workers=1 --reporter=line
