@@ -102,6 +102,6 @@ test("Public legal copy remains gated until client approves real terms and priva
  const privacy=read(root+"privacy/page.tsx");
  const terms=read(root+"terms/page.tsx");
  assert.match(privacy,/has not yet been connected/);
- assert.match(terms,/has not yet been supplied/);
+ assert.match(terms,/have not yet been supplied/);
  assert.match(read(root+"faq/page.tsx"),/approved legal terms/);
 });
