@@ -22,6 +22,8 @@ export const PERMISSIONS = [
   "staff.assign",
   "staff.audit.read",
   "permissions.view",
+  "platform.reports.read",
+  "platform.governance.manage",
 ] as const;
 export type Permission = typeof PERMISSIONS[number];
 
@@ -30,7 +32,7 @@ const ROLE_PERMISSIONS: Record<AccountRole, readonly Permission[]> = {
   FARMER: ["farmer.supply.manage"],
   FIELD_AGENT: ["field.assigned.read", "field.visit.manage", "field.evidence.submit"],
   OPERATIONS: ["operations.verification.review", "operations.supply.review", "operations.catalog.manage", "operations.enquiries.manage", "operations.requests.review"],
-  SUPER_ADMIN: ["operations.verification.review", "operations.supply.review", "operations.catalog.manage", "operations.enquiries.manage", "operations.requests.review", "staff.invite", "staff.manage", "staff.assign", "staff.audit.read", "permissions.view"],
+  SUPER_ADMIN: ["operations.verification.review", "operations.supply.review", "operations.catalog.manage", "operations.enquiries.manage", "operations.requests.review", "staff.invite", "staff.manage", "staff.assign", "staff.audit.read", "permissions.view", "platform.reports.read", "platform.governance.manage"],
 };
 
 export const PERMISSION_DETAILS: ReadonlyArray<{permission:Permission;label:string;description:string}> = [
@@ -49,6 +51,8 @@ export const PERMISSION_DETAILS: ReadonlyArray<{permission:Permission;label:stri
   {permission:"staff.assign",label:"Manage field scopes",description:"Assign or remove Field Agent state scopes."},
   {permission:"staff.audit.read",label:"Read staff audit history",description:"Review auditable staff and access changes."},
   {permission:"permissions.view",label:"View permission templates",description:"Inspect fixed role-based permissions; no custom grants."},
+  {permission:"platform.reports.read",label:"Platform reporting",description:"Read organization-wide operational and provider-verified finance summaries and export aggregate CSV."},
+  {permission:"platform.governance.manage",label:"Governance incidents",description:"Create and transition reason-coded incident investigations without modifying source transactions or roles."},
 ];
 
 export function hasPermission(role:AccountRole, permission:Permission):boolean {
