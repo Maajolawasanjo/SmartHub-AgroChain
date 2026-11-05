@@ -1,19 +1,20 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
-import ts from "typescript";
 import vm from "node:vm";
 
 const source=readFileSync("src/server/auth/context.ts","utf8");
 const match=source.match(/export function mayAccess\([\s\S]*$/);
 assert.ok(match,"Shared permission predicate must exist");
-// Exercise the actual TypeScript predicate without importing server-only/Next.js modules.
-const js=ts.transpileModule(match[0],{
- compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS}
-}).outputText;
-const context={exports:{}};
-vm.runInNewContext(js,context,{timeout:2000});
-const mayAccess=context.exports.mayAccess;
+// Execute the real predicate with only the type-only signature stripped. The
+// source-test CI job intentionally runs without installing node_modules.
+const runnable=match[0].replace(
+ /^export function mayAccess\([^)]*\)\{/,
+ "function mayAccess(ctx,route){"
+);
+assert.ok(runnable.startsWith("function mayAccess(ctx,route){"),
+ "The extracted permission helper has an unexpected signature");
+const mayAccess=vm.runInNewContext("("+runnable+")",{}, {timeout:2000});
 const ctx=(role,status="ACTIVE",verified=true,phoneVerified=true)=>({
  account:{role,status,phone:"+2348012345678"},
  user:{email_confirmed_at:verified?"2026-11-05T12:00:00Z":null,
