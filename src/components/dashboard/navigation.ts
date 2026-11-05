@@ -18,27 +18,27 @@ export const workspaceMeta:Record<WorkspaceRole,{title:string;home:string;descri
 export const workspaceNavigation:Record<WorkspaceRole,NavigationSection[]>={
  BUYER:[
   {title:"Procurement",items:[active("Dashboard","/dashboard","grid"),active("Products & Supply","/dashboard/products","leaf"),active("My Requests & Quotes","/dashboard/requests","clipboard"),active("Official Quotations","/dashboard/quotes","receipt"),active("Orders & Fulfilment","/dashboard/orders","box"),active("Shipments & Receipts","/dashboard/shipments","truck"),active("Payments & Transactions","/dashboard/payments","receipt")]},
-  {title:"My business",items:[active("Business Profile & Settings","/dashboard/settings","settings")]},
+  {title:"My business",items:[active("Business Profile & Settings","/dashboard/settings","settings"),active("Notifications","/inbox","bell"),active("Support Cases","/support","help")]},
  ],
  FARMER:[
   {title:"Farm management",items:[active("Overview","/farmer","grid"),active("My Supply","/farmer/my-supply","leaf"),active("Opportunities","/farmer/opportunities","search"),active("Supply Allocations","/farmer/orders","box"),active("Supplier Settlements","/farmer/settlements","wallet")]},
-  {title:"My account",items:[planned("Notifications","/farmer/notifications","bell"),active("Farm Profile & Verification","/farmer/kyc","check"),planned("Farmer Settings","/farmer/settings","settings")]},
+  {title:"My account",items:[active("Notifications","/inbox","bell"),active("Farm Profile & Verification","/farmer/kyc","check"),active("Farmer Settings","/farmer/settings","settings"),active("Support Cases","/support","help")]},
  ],
  FIELD_AGENT:[
-  {title:"Field operations",items:[active("Overview","/field-agent","grid"),active("Assigned Farmers","/field-agent/farmers","users"),active("Field Visits","/field-agent/visits","calendar"),active("Submitted Reports","/field-agent/reports","file")]},
+  {title:"Field operations",items:[active("Overview","/field-agent","grid"),active("Assigned Farmers","/field-agent/farmers","users"),active("Field Visits","/field-agent/visits","calendar"),active("Submitted Reports","/field-agent/reports","file"),active("Notifications","/inbox","bell"),active("Support Cases","/support","help")]},
  ],
  OPERATIONS:[
   {title:"Reviews",items:[active("Overview","/operations","grid"),active("Farmer Verification","/operations/verification","check"),active("Supply Reviews","/operations/supply","leaf"),active("Commodity Catalog","/operations/catalog","tag"),active("Public Enquiries","/operations/enquiries","file"),active("Field Visit Reports","/operations/field-visits","clipboard")]},
-  {title:"Procurement pipeline",items:[active("Buyer Requests","/operations/requests","clipboard"),active("Matches & Quotes","/operations/matching","file"),active("Orders & Reservations","/operations/orders","truck"),active("Payment Reconciliation","/operations/payments","receipt"),active("Supplier Finance","/operations/settlements","wallet"),active("Fulfilment & Delivery","/operations/fulfilment","truck"),active("Verified Physical Lots","/operations/inventory","box"),active("Disputes","/operations/disputes","shield")]},
+  {title:"Procurement pipeline",items:[active("Buyer Requests","/operations/requests","clipboard"),active("Matches & Quotes","/operations/matching","file"),active("Orders & Reservations","/operations/orders","truck"),active("Payment Reconciliation","/operations/payments","receipt"),active("Supplier Finance","/operations/settlements","wallet"),active("Fulfilment & Delivery","/operations/fulfilment","truck"),active("Verified Physical Lots","/operations/inventory","box"),active("Disputes","/operations/disputes","shield"),active("Support Queue","/support","help"),active("Notifications","/inbox","bell")]},
  ],
  SUPER_ADMIN:[
   {title:"Governance",items:[active("Overview","/admin","grid"),active("Invite Staff","/admin/staff/invite","users"),active("Staff Directory","/admin/staff","users"),active("Invitations","/admin/staff/invites","mail"),active("Roles & Permissions","/admin/permissions","shield"),active("Platform Audit","/admin/audit","file")]},
-  {title:"Oversight",items:[active("Field Visit Reports","/operations/field-visits","clipboard"),active("Buyer Requests","/operations/requests","clipboard"),active("Quote Approvals","/admin/quotes","receipt"),active("Payment Reconciliation","/operations/payments","receipt"),active("Refund Case Reviews","/admin/payments/refunds","shield"),active("Supplier Payable Approvals","/admin/settlements","wallet"),active("Supplier Finance","/operations/settlements","wallet"),active("Fulfilment & Delivery","/operations/fulfilment","truck"),active("Delivery Disputes","/operations/disputes","shield"),active("Orders & Reservations","/operations/orders","truck"),active("Verified Lots","/operations/inventory","box"),planned("User Directory","/admin/users","user"),planned("Reports & Insights","/admin/reports","chart"),planned("Configuration","/admin/settings","settings")]},
+  {title:"Oversight",items:[active("Field Visit Reports","/operations/field-visits","clipboard"),active("Buyer Requests","/operations/requests","clipboard"),active("Quote Approvals","/admin/quotes","receipt"),active("Payment Reconciliation","/operations/payments","receipt"),active("Refund Case Reviews","/admin/payments/refunds","shield"),active("Supplier Payable Approvals","/admin/settlements","wallet"),active("Supplier Finance","/operations/settlements","wallet"),active("Fulfilment & Delivery","/operations/fulfilment","truck"),active("Delivery Disputes","/operations/disputes","shield"),active("Orders & Reservations","/operations/orders","truck"),active("Verified Lots","/operations/inventory","box"),planned("User Directory","/admin/users","user"),planned("Reports & Insights","/admin/reports","chart"),planned("Configuration","/admin/settings","settings"),active("Support Queue","/support","help"),active("Notifications","/inbox","bell")]},
  ],
 };
 
 export const accountNavigation:NavigationSection={title:"ACCOUNT & SUPPORT",items:[
- active("My Profile","/account/profile","user"),active("Change Password","/account/security/password","lock"),active("Contact Support","/contact","help")
+ active("My Profile","/account/profile","user"),active("Change Password","/account/security/password","lock"),active("Support Cases","/support","help"),active("Notifications","/inbox","bell"),active("Notification Settings","/settings/notifications","settings"),active("My Activity","/activity","clock")
 ]};
 
 export function matchesWorkspacePath(path:string,href:string){

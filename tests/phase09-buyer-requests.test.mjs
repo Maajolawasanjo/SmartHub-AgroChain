@@ -58,7 +58,8 @@ test("sensitive demand tables are RLS enabled, Data API grants revoked, and even
   assert.match(migration,new RegExp(`ALTER TABLE "${name}" ENABLE ROW LEVEL SECURITY`));
  assert.match(migration,/REVOKE ALL ON TABLE/);assert.match(migration,/FROM anon, authenticated/);
  assert.match(service,/buyerRequestEvent\.create/);assert.match(service,/auditEvent\.create/);
- assert.match(read("src/app/dashboard/notifications/page.tsx"),/buyerRequestEvent\.findMany/);
+ assert.match(service,/publishInboxEvent\(tx/);
+ assert.match(read("src/app/dashboard/notifications/page.tsx"),/redirect\("\/inbox"\)/);
 });
 test("no request submission claims a quote, order, reservation or payment",()=>{
  assert.doesNotMatch(service,/\b(?:quotation|order|payment|stockReservation|matchProposal)\.create\(/);

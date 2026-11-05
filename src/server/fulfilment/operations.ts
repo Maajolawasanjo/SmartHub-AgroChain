@@ -3,6 +3,7 @@ import {randomUUID} from "node:crypto";
 import {Prisma} from "@/generated/prisma/client";
 import {PublicError} from "@/server/auth/http";
 import {createPlan,createShipment,id,milestone} from "./validation";
+import {publishInboxEvent} from "@/server/communications/inbox";
 import {atomic,operationActor,lockAccount,operationsScope,lockOrder,requirePaid,conflict,audit,shipmentRecord} from "./common";
 
 export async function prepareFulfillment(input:unknown){
@@ -103,7 +104,13 @@ export async function recordDeliveryMilestone(shipmentId:string,input:unknown){
    ...(value.action==="deliver"?{deliveredAt:new Date()}:{})
   }});
   if(changed.count!==1)conflict("Shipment changed during transport milestone.");
-  await tx.deliveryEvent.create({data:{shipmentId:shipment.id,actorId:account.id,kind:kind[value.action],evidenceId,note:value.note}});
+  const recorded=await tx.deliveryEvent.create({data:{shipmentId:shipment.id,actorId:account.id,kind:kind[value.action],evidenceId,note:value.note}});
+  if(value.action==="deliver"){
+   const owners=await tx.buyerMembership.findMany({where:{organizationId:order.organizationId,role:"OWNER"},select:{accountId:true}});
+   await publishInboxEvent(tx,{eventKey:"shipment:delivered:"+recorded.id,eventType:"SHIPMENT_DELIVERY_REPORTED",actorId:account.id,subjectId:shipment.id,
+    recipients:owners.map(m=>({accountId:m.accountId,category:"LOGISTICS",title:"Delivery arrival reported",
+     body:"Shipment "+shipment.reference+" has an Operations-reported arrival. Please confirm quantities physically received.",actionPath:"/dashboard/shipments/"+shipment.id}))});
+  }
   await audit(tx,account.id,shipment.id,"SHIPMENT_"+kind[value.action],{orderId:order.id,evidenceId});
   return {id:shipment.id,status:next[value.action]};
  });

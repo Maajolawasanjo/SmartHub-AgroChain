@@ -107,6 +107,13 @@ model Account {
   supplierPayoutApprovals SupplierObligation[] @relation("SupplierObligationApprover")
   supplierTransfersStarted SupplierSettlementAttempt[] @relation("SettlementInitiator")
   settlementChecks SupplierSettlementReconciliation[] @relation("SettlementCheckActor")
+  notifications Notification[]
+  notificationPreference NotificationPreference?
+  outboxEventsCreated OutboxEvent[] @relation("OutboxActor")
+  notificationDeliveryAttempts NotificationDeliveryAttempt[]
+  supportCasesOpened SupportCase[] @relation("SupportCaseOpener")
+  supportCasesAssigned SupportCase[] @relation("SupportCaseAssignee")
+  supportMessages SupportMessage[] @relation("SupportMessageAuthor")
 
   @@map("app_accounts")
 }
@@ -1611,4 +1618,129 @@ model SupplierSettlementReconciliation {
  actor Account? @relation("SettlementCheckActor",fields:[actorId],references:[id],onDelete:SetNull)
  @@index([attemptId,checkedAt])
  @@map("supplier_settlement_reconciliations")
+}
+
+
+// Phase 15 — first-party transactional inbox and support. Email/SMS is explicitly not delivered.
+enum NotificationCategory {
+  PROCUREMENT
+  FINANCE
+  LOGISTICS
+  SUPPORT
+  SECURITY
+}
+enum OutboxDeliveryChannel {
+  IN_APP
+}
+enum OutboxDeliveryStatus {
+  DELIVERED
+  SKIPPED
+}
+enum SupportCaseStatus {
+  OPEN
+  IN_PROGRESS
+  AWAITING_CUSTOMER
+  RESOLVED
+  CLOSED
+}
+enum SupportCaseCategory {
+  SOURCING
+  PAYMENTS
+  DELIVERY
+  SUPPLIER_SETTLEMENT
+  ACCOUNT
+  OTHER
+}
+
+model OutboxEvent {
+  id        String @id @default(uuid()) @db.Uuid
+  eventKey  String @unique @db.VarChar(180)
+  eventType String @db.VarChar(80)
+  actorId   String? @db.Uuid
+  subjectId String? @db.Uuid
+  metadata  Json?
+  createdAt DateTime @default(now())
+  actor     Account? @relation("OutboxActor",fields:[actorId],references:[id],onDelete:SetNull)
+  notifications Notification[]
+  attempts  NotificationDeliveryAttempt[]
+  @@index([eventType,createdAt])
+  @@map("outbox_events")
+}
+
+model Notification {
+  id         String @id @default(uuid()) @db.Uuid
+  eventId    String @db.Uuid
+  accountId  String @db.Uuid
+  category   NotificationCategory
+  title      String @db.VarChar(160)
+  body       String @db.VarChar(1000)
+  actionPath String @db.VarChar(400)
+  readAt     DateTime?
+  createdAt  DateTime @default(now())
+  event      OutboxEvent @relation(fields:[eventId],references:[id],onDelete:Restrict)
+  account    Account @relation(fields:[accountId],references:[id],onDelete:Restrict)
+  @@unique([eventId,accountId])
+  @@index([accountId,readAt,createdAt])
+  @@map("notifications")
+}
+
+model NotificationDeliveryAttempt {
+  id         String @id @default(uuid()) @db.Uuid
+  eventId    String @db.Uuid
+  accountId  String @db.Uuid
+  channel    OutboxDeliveryChannel @default(IN_APP)
+  status     OutboxDeliveryStatus @default(DELIVERED)
+  deliveredAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  event      OutboxEvent @relation(fields:[eventId],references:[id],onDelete:Restrict)
+  account    Account @relation(fields:[accountId],references:[id],onDelete:Restrict)
+  @@unique([eventId,accountId,channel])
+  @@index([accountId,createdAt])
+  @@map("notification_delivery_attempts")
+}
+
+model NotificationPreference {
+  accountId   String @id @db.Uuid
+  procurement Boolean @default(true)
+  finance     Boolean @default(true)
+  logistics   Boolean @default(true)
+  support     Boolean @default(true)
+  updatedAt   DateTime @updatedAt
+  account     Account @relation(fields:[accountId],references:[id],onDelete:Restrict)
+  @@map("notification_preferences")
+}
+
+model SupportCase {
+  id           String @id @default(uuid()) @db.Uuid
+  reference    String @unique @db.VarChar(40)
+  clientKey    String @unique @db.Uuid
+  openedById   String @db.Uuid
+  assignedToId String? @db.Uuid
+  category     SupportCaseCategory
+  subject      String @db.VarChar(160)
+  status       SupportCaseStatus @default(OPEN)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  closedAt     DateTime?
+  openedBy     Account @relation("SupportCaseOpener",fields:[openedById],references:[id],onDelete:Restrict)
+  assignedTo   Account? @relation("SupportCaseAssignee",fields:[assignedToId],references:[id],onDelete:SetNull)
+  messages     SupportMessage[]
+  @@index([openedById,status,updatedAt])
+  @@index([assignedToId,status,updatedAt])
+  @@index([status,createdAt])
+  @@map("support_cases")
+}
+
+model SupportMessage {
+  id         String @id @default(uuid()) @db.Uuid
+  caseId     String @db.Uuid
+  clientKey  String @unique @db.Uuid
+  authorId   String @db.Uuid
+  body       String @db.VarChar(4000)
+  internal   Boolean @default(false)
+  createdAt  DateTime @default(now())
+  case       SupportCase @relation(fields:[caseId],references:[id],onDelete:Restrict)
+  author     Account @relation("SupportMessageAuthor",fields:[authorId],references:[id],onDelete:Restrict)
+  @@index([caseId,createdAt])
+  @@map("support_messages")
 }

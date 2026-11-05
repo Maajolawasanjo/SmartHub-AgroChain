@@ -6,6 +6,7 @@ import {requireBuyerApi} from "@/server/buyer/guard";
 import {requireActor} from "@/server/agriculture/policies";
 import {hasPermission} from "@/server/admin/permissions";
 import {buyerProfileCompletion} from "@/lib/buyer/profile";
+import {publishInboxEvent} from "@/server/communications/inbox";
 import {requestId,requestCreate,requestSave,requestResponse,requestCancel,requestClaim,requestReview,validateSubmittedDraft,type RequestDraft} from "./validation";
 
 export const MAX_OPEN_DRAFTS=30;
@@ -70,7 +71,17 @@ function header(value:RequestDraft){return {deliveryState:value.deliveryState,de
  deliveryAddress:value.deliveryAddress||null,requiredDate:dateFrom(value.requiredDate),fulfilmentMethod:value.fulfilmentMethod||null,
  notes:value.notes||null};}
 async function event(tx:Tx,requestId:string,actorId:string,kind:"CREATED"|"DRAFT_UPDATED"|"SUBMITTED"|"REVIEW_STARTED"|"CLARIFICATION_REQUESTED"|"CLARIFICATION_ANSWERED"|"SOURCING_STARTED"|"CANCELLED"|"CLOSED",status:string,note?:string){
- await tx.buyerRequestEvent.create({data:{requestId,actorId,kind,status:status as "DRAFT"|"SUBMITTED"|"UNDER_REVIEW"|"MORE_INFO_REQUIRED"|"SOURCING_IN_PROGRESS"|"CANCELLED"|"CLOSED",note:note||null}});
+ const eventRow=await tx.buyerRequestEvent.create({data:{requestId,actorId,kind,status:status as "DRAFT"|"SUBMITTED"|"UNDER_REVIEW"|"MORE_INFO_REQUIRED"|"SOURCING_IN_PROGRESS"|"CANCELLED"|"CLOSED",note:note||null}});
+ if(kind==="CREATED"||kind==="DRAFT_UPDATED")return;
+ const source=await tx.buyerRequest.findUnique({where:{id:requestId},select:{reference:true,organizationId:true}});
+ if(!source)return;
+ const buyerMembers=await tx.buyerMembership.findMany({where:{organizationId:source.organizationId},select:{accountId:true}});
+ const buyers=buyerMembers.filter(x=>x.accountId!==actorId).map(x=>({accountId:x.accountId,category:"PROCUREMENT" as const,
+  title:"Sourcing request update",body:source.reference+" · "+kind.replaceAll("_"," "),actionPath:"/dashboard/requests/"+requestId}));
+ const staff=kind==="SUBMITTED"?(await tx.account.findMany({where:{role:{in:["OPERATIONS","SUPER_ADMIN"]},status:"ACTIVE"},select:{id:true}}))
+  .filter(a=>a.id!==actorId).map(a=>({accountId:a.id,category:"PROCUREMENT" as const,
+   title:"New buyer sourcing request",body:source.reference+" is awaiting review.",actionPath:"/operations/requests/"+requestId})):[];
+ await publishInboxEvent(tx,{eventKey:"buyer-request:event:"+eventRow.id,eventType:"BUYER_REQUEST_"+kind,actorId,subjectId:requestId,recipients:[...buyers,...staff]});
 }
 async function audit(tx:Tx,actorId:string,requestId:string,action:string,details?:Record<string,unknown>){
  await tx.auditEvent.create({data:{actorId,subjectId:requestId,action,details:(details??{}) as unknown as Prisma.InputJsonValue}});

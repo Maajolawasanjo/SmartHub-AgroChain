@@ -2,6 +2,7 @@ import "server-only";
 import {PublicError} from "@/server/auth/http";
 import type {Prisma,OrderStatus} from "@/generated/prisma/client";
 import {getPrisma} from "@/server/db/prisma";
+import {publishInboxEvent} from "@/server/communications/inbox";
 import {verifyProvider,paidAmountMinor,providerDomainValid,providerTransactionId} from "./paystack";
 import {atomic,lockOrder,conflict,audit,buyerOwner,financeActor,ensureFinanceScope} from "./common";
 import {uuid} from "./validation";
@@ -82,6 +83,10 @@ export async function reconcileReference(reference:string,trigger:Trigger,actorI
   await tx.orderStatusEvent.create({data:{orderId:order.id,actorId:attempt.payerId,status:"PAYMENT_VERIFIED",
    note:"Automated server-to-server Paystack verification. Event actor is the original payer, not the person/process that verified the charge."}});
   await audit(tx,attempt.payerId,order.id,"PAYSTACK_PAYMENT_VERIFIED",{verifiedBy:"PAYSTACK_VERIFY_API",trigger,reference,providerTransactionId:transactionId});
+  const owners=await tx.buyerMembership.findMany({where:{organizationId:order.organizationId,role:"OWNER"},select:{accountId:true}});
+  await publishInboxEvent(tx,{eventKey:"buyer-payment:verified:"+attempt.id,eventType:"BUYER_PAYMENT_VERIFIED",actorId:attempt.payerId,subjectId:order.id,
+   recipients:owners.map(owner=>({accountId:owner.accountId,category:"FINANCE",title:"Payment verified",
+    body:order.reference+" has an independently verified Paystack payment.",actionPath:"/dashboard/payments/"+obligation.id}))});
   return {status:"VERIFIED" as const,orderId:order.id,attemptId:attempt.id};
  });
 }
