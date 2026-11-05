@@ -148,5 +148,5 @@ test("Real public Chromium QA is isolated from live operational data and retains
  assert.match(browser,/naturalWidth>0/);
  assert.match(browser,/document.documentElement.scrollWidth-window.innerWidth/);
  assert.match(browser,/public-skip-link/);
- assert.match(browser,/mobile-contact.png/);
+ assert.match(browser,/playwright-artifacts\/mobile-/);
 });
