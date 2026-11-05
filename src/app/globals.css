@@ -459,3 +459,19 @@ a:focus-visible, button:focus-visible { outline: 3px solid #d79416; outline-offs
  .editorial-button,.editorial-inline-link,.editorial-photo img,.editorial-audience-card,.editorial-commodity{transition:none!important}
  .editorial-button:hover,.editorial-audience-card:hover,.editorial-commodity:hover{transform:none!important}
 }
+
+
+/* Phase 18 public FAQ and contrast polish */
+.editorial-faq-group{padding-block:16px 50px;max-width:920px;margin-inline:auto}
+.editorial-faq-group+.editorial-faq-group{border-top:1px solid #dce7da;padding-top:55px}
+.editorial-faq-group .editorial-section-lead{margin-bottom:24px}
+.editorial-faq-group .editorial-section-lead h2{font-size:clamp(30px,3.2vw,43px)}
+.editorial-dark-section .editorial-section-lead h2{color:#fff}
+.editorial-dark-section .editorial-section-lead p{color:#d0e2d3}
+.editorial-dark-section .editorial-assurance{border-top-color:#7fa48a}
+.editorial-questions .editorial-section-lead h2{max-width:690px}
+.editorial-questions p{line-height:1.85;color:#526c5a}
+.editorial-hero .editorial-overlay-card p{color:#bccfbf}
+.editorial-contact-form-wrap{min-width:0}
+.editorial-contact-form-wrap .public-contact-form{max-width:100%;margin:0}
+@media(max-width:640px){.editorial-faq-group+.editorial-faq-group{padding-top:35px}.editorial-contact-form-wrap .public-contact-form{padding:20px}}
