@@ -30,8 +30,6 @@ export default async function Contact({searchParams}:{searchParams:Promise<{inte
    </article>)}</div>
   </section>
   <section id="contact-form" className="editorial-tinted"><div className="container editorial-section">
-    <SectionLead eyebrow="Send your details" title="A clear enquiry helps us understand the next step."
-      description="Choose your enquiry type, share the relevant details and use the protected form when online submissions are enabled. The official email address is always available as an alternative."/>
     <ContactForm enabled={enabled} siteKey={siteKey} interest={p.interest??"other"} product={product}/>
   </div></section>
   <section className="container editorial-section editorial-content-grid is-reversed">
