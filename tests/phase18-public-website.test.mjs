@@ -52,7 +52,9 @@ test("Public contact form remains protected and openly disabled without configur
  assert.match(page,/TURNSTILE_SECRET_KEY/);
  assert.match(page,/CONTACT_HASH_SECRET/);
  assert.match(page,/!!process\.env\.DATABASE_URL/);
- assert.match(page,/mailto:info@smarthubagrochain\.online/);
+ assert.match(form,/mailto:info@smarthubagrochain\.online/);
+ assert.match(page,/id="contact-form"/);
+ assert.match(page,/interest=farmer#contact-form/);
  assert.match(form,/if\(busy\|\|!enabled\)return/);
  assert.doesNotMatch(page,/fake success|sent successfully while disabled/);
 });
@@ -68,7 +70,10 @@ test("Photography is explicitly illustrative, lazy loaded and has nonempty acces
  const editorial=read("src/components/public/editorial.tsx");
  assert.match(editorial,/images\.unsplash\.com/);
  assert.match(editorial,/alt=\{item\.alt\}/);
- assert.match(editorial,/loading=\{priority\?"eager":"lazy"\}/);
+ assert.match(editorial,/import Image from "next\/image"/);
+ assert.match(editorial,/quality=\{75\} priority=\{priority\}/);
+ assert.match(editorial,/sizes="\(max-width: 640px\) 100vw/);
+ assert.match(read("next.config.ts"),/hostname:"images.unsplash.com"/);
  assert.match(editorial,/Not a photograph of SmartHub operations/);
  assert.doesNotMatch(editorial,/client|customer success|partner endorsement/i);
 });
@@ -104,4 +109,28 @@ test("Public legal copy remains gated until client approves real terms and priva
  assert.match(privacy,/has not yet been connected/);
  assert.match(terms,/have not yet been supplied/);
  assert.match(read(root+"faq/page.tsx"),/approved legal terms/);
+});
+
+test("Production public HTML smoke is exercised after successful build, with all live integrations disabled",()=>{
+ const ci=read(".github/workflows/ci.yml");
+ const smoke=read("scripts/check-public-runtime.mjs");
+ assert.match(ci,/npm run verify:public-runtime/);
+ assert.match(read("package.json"),/verify:public-runtime/);
+ assert.match(smoke,/DATABASE_URL:""/);
+ assert.match(smoke,/PUBLIC_CONTACT_ENABLED:"false"/);
+ assert.match(smoke,/SUPPLIER_PAYOUTS_ENABLED:"false"/);
+ assert.match(smoke,//_next\/image\?url=/);
+ assert.match(smoke,//privacy","/terms","/cookies"/);
+ assert.match(smoke,/Published catalogue is not connected yet/);
+});
+test("Private pages and unapproved legal content are excluded from public search indexing",()=>{
+ const robots=read("src/app/robots.ts");
+ for(const privateRoute of ["/inbox","/support","/settings/","/activity"]){
+  assert.ok(robots.includes(privateRoute),privateRoute);
+ }
+ for(const page of ["privacy/page.tsx","terms/page.tsx"]){
+  const content=read(root+page);
+  assert.match(content,/robots:\{index:false,follow:false\}/);
+  assert.match(content,/PublicShell/);
+ }
 });
