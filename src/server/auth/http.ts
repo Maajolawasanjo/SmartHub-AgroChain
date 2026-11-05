@@ -13,10 +13,10 @@ export function errorReply(e:unknown) {
   return reply({error:"We could not complete this request. Please try again later."},503);
 }
 export function requireConfig(){if(!authConfigReady())throw new PublicError(503,"Account services are not configured yet.");}
-export async function readJson(request:NextRequest) {
+export async function readJson(request:NextRequest,maxCharacters=12000) {
   if (!request.headers.get("content-type")?.includes("application/json")) throw new PublicError(415,"Expected JSON data.");
   const raw=await request.text();
-  if(raw.length>12000) throw new PublicError(413,"Request too large.");
+  if(raw.length>maxCharacters) throw new PublicError(413,"Request too large.");
   try { return JSON.parse(raw) as unknown; } catch { throw new PublicError(400,"Invalid form data."); }
 }
 export function assertSameOrigin(request:NextRequest){

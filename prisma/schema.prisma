@@ -75,6 +75,12 @@ model Account {
   buyerMembership BuyerMembership?
   buyerSpecificationsCreated BuyerSavedSpecification[] @relation("BuyerSpecificationCreator")
   buyerVerificationEvents BuyerVerificationEvent[] @relation("BuyerVerificationEventActor")
+  buyerRequestsCreated BuyerRequest[] @relation("BuyerRequestCreator")
+  buyerRequestEvents BuyerRequestEvent[] @relation("BuyerRequestEventActor")
+  buyerClarificationsAsked BuyerRequestClarification[] @relation("BuyerClarificationAsker")
+  buyerClarificationsAnswered BuyerRequestClarification[] @relation("BuyerClarificationAnswerer")
+  buyerRequestsAssigned BuyerRequestAssignment[] @relation("BuyerRequestAssignee")
+  buyerRequestsAssignedBy BuyerRequestAssignment[] @relation("BuyerRequestAssigner")
 
   @@map("app_accounts")
 }
@@ -318,6 +324,7 @@ model Commodity {
   crops           FarmerCrop[]
   supplies        SupplyDeclaration[]
   buyerSavedSpecifications BuyerSavedSpecification[]
+  buyerRequestLines BuyerRequestLine[]
 
   @@index([categoryId, publicPublished, active])
   @@map("commodities")
@@ -349,6 +356,7 @@ model CommodityType {
   createdAt       DateTime @default(now())
   commodity       Commodity @relation(fields: [commodityId], references: [id], onDelete: Restrict)
   buyerSavedSpecifications BuyerSavedSpecification[]
+  buyerRequestLines BuyerRequestLine[]
 
   @@unique([commodityId, slug])
   @@map("commodity_types")
@@ -365,6 +373,7 @@ model CommoditySpecification {
   commodity       Commodity @relation(fields: [commodityId], references: [id], onDelete: Restrict)
   supplyAssessments SupplyInspectionAssessment[]
   buyerSavedSpecifications BuyerSavedSpecification[]
+  buyerRequestLines BuyerRequestLine[]
 
   @@unique([commodityId, name])
   @@map("commodity_specifications")
@@ -629,6 +638,7 @@ model BuyerOrganization {
   destinations           BuyerDeliveryDestination[]
   savedSpecifications    BuyerSavedSpecification[]
   verificationEvents     BuyerVerificationEvent[]
+  buyerRequests BuyerRequest[]
 
   @@map("buyer_organizations")
 }
@@ -699,4 +709,134 @@ model BuyerVerificationEvent {
 
   @@index([organizationId,createdAt])
   @@map("buyer_verification_events")
+}
+
+enum BuyerRequestStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  MORE_INFO_REQUIRED
+  SOURCING_IN_PROGRESS
+  CLOSED
+  CANCELLED
+}
+
+enum BuyerFulfilmentMethod {
+  SMARTHUB_DELIVERY
+  BUYER_PICKUP
+  THIRD_PARTY
+}
+
+enum BuyerRequestEventKind {
+  CREATED
+  DRAFT_UPDATED
+  SUBMITTED
+  REVIEW_STARTED
+  CLARIFICATION_REQUESTED
+  CLARIFICATION_ANSWERED
+  SOURCING_STARTED
+  CANCELLED
+  CLOSED
+}
+
+model BuyerRequest {
+  id                String @id @default(uuid()) @db.Uuid
+  reference         String @unique @db.VarChar(40)
+  clientRequestKey  String @db.Uuid
+  clientRequestHash String @db.VarChar(64)
+  organizationId    String @db.Uuid
+  createdById       String @db.Uuid
+  status            BuyerRequestStatus @default(DRAFT)
+  version           Int @default(1)
+  deliveryState     String? @db.VarChar(60)
+  deliveryCity      String? @db.VarChar(120)
+  deliveryAddress   String? @db.VarChar(240)
+  requiredDate      DateTime? @db.Date
+  fulfilmentMethod  BuyerFulfilmentMethod?
+  notes             String? @db.VarChar(2000)
+  draftPayload      Json?
+  submittedAt       DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  organization      BuyerOrganization @relation(fields:[organizationId],references:[id],onDelete:Restrict)
+  createdBy         Account @relation("BuyerRequestCreator",fields:[createdById],references:[id],onDelete:Restrict)
+  lines             BuyerRequestLine[]
+  events            BuyerRequestEvent[]
+  clarifications    BuyerRequestClarification[]
+  assignment        BuyerRequestAssignment?
+
+  @@unique([organizationId,clientRequestKey])
+  @@index([organizationId,status,updatedAt])
+  @@index([status,submittedAt])
+  @@map("buyer_requests")
+}
+
+model BuyerRequestLine {
+  id                String @id @default(uuid()) @db.Uuid
+  requestId         String @db.Uuid
+  position          Int
+  commodityId       String? @db.Uuid
+  commodityName     String @db.VarChar(120)
+  typeId            String? @db.Uuid
+  specificationId   String? @db.Uuid
+  variety           String? @db.VarChar(120)
+  quantity          Decimal @db.Decimal(18,3)
+  unit              String @db.VarChar(30)
+  quantityFlexible  Boolean @default(false)
+  packaging         String? @db.VarChar(160)
+  qualityNotes      String? @db.VarChar(1500)
+  request           BuyerRequest @relation(fields:[requestId],references:[id],onDelete:Restrict)
+  commodity         Commodity? @relation(fields:[commodityId],references:[id],onDelete:Restrict)
+  type              CommodityType? @relation(fields:[typeId],references:[id],onDelete:SetNull)
+  specification     CommoditySpecification? @relation(fields:[specificationId],references:[id],onDelete:SetNull)
+
+  @@unique([requestId,position])
+  @@map("buyer_request_lines")
+}
+
+model BuyerRequestEvent {
+  id          String @id @default(uuid()) @db.Uuid
+  requestId   String @db.Uuid
+  actorId     String @db.Uuid
+  kind        BuyerRequestEventKind
+  status      BuyerRequestStatus
+  note        String? @db.VarChar(2000)
+  createdAt   DateTime @default(now())
+  request     BuyerRequest @relation(fields:[requestId],references:[id],onDelete:Restrict)
+  actor       Account @relation("BuyerRequestEventActor",fields:[actorId],references:[id],onDelete:Restrict)
+
+  @@index([requestId,createdAt])
+  @@map("buyer_request_events")
+}
+
+model BuyerRequestClarification {
+  id           String @id @default(uuid()) @db.Uuid
+  requestId    String @db.Uuid
+  askedById    String @db.Uuid
+  question     String @db.VarChar(2000)
+  answer       String? @db.VarChar(2000)
+  answeredById String? @db.Uuid
+  askedAt      DateTime @default(now())
+  answeredAt   DateTime?
+  request      BuyerRequest @relation(fields:[requestId],references:[id],onDelete:Restrict)
+  askedBy      Account @relation("BuyerClarificationAsker",fields:[askedById],references:[id],onDelete:Restrict)
+  answeredBy   Account? @relation("BuyerClarificationAnswerer",fields:[answeredById],references:[id],onDelete:SetNull)
+
+  @@index([requestId,askedAt])
+  @@map("buyer_request_clarifications")
+}
+
+model BuyerRequestAssignment {
+  id           String @id @default(uuid()) @db.Uuid
+  requestId    String @unique @db.Uuid
+  assignedToId String @db.Uuid
+  assignedById String @db.Uuid
+  assignedAt   DateTime @default(now())
+  dueAt        DateTime?
+  request      BuyerRequest @relation(fields:[requestId],references:[id],onDelete:Restrict)
+  assignedTo   Account @relation("BuyerRequestAssignee",fields:[assignedToId],references:[id],onDelete:Restrict)
+  assignedBy   Account @relation("BuyerRequestAssigner",fields:[assignedById],references:[id],onDelete:Restrict)
+
+  @@index([assignedToId])
+  @@map("buyer_request_assignments")
 }
