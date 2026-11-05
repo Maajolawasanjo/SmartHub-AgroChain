@@ -17,7 +17,8 @@
     "verify:syntax": "node scripts/check-syntax.mjs",
     "verify:public-runtime": "node scripts/check-public-runtime.mjs",
     "verify:integration-config": "node scripts/release/audit-integration-config.mjs",
-    "verify:deployment-env": "node scripts/release/check-environment.mjs"
+    "verify:deployment-env": "node scripts/release/check-environment.mjs",
+    "db:inspect:production": "node scripts/release/check-production-preflight.mjs"
   },
   "dependencies": {
     "next": "16.4.3",
