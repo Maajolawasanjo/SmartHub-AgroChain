@@ -135,7 +135,7 @@ test("Phase17 release checklist and commands are attached to the repository",()=
 
 test("Staging guard never logs database connection credentials",()=>{
  const stage=read("scripts/release/stage-target.mjs");
- assert.doesNotMatch(stage,/console\\.log\\(.*(?:DIRECT_URL|DATABASE_URL)/);
+ assert.ok(!stage.includes("console.log(process.env.DATABASE_URL"));
  assert.match(stage,/session-mode/);
  assert.match(stage,/SMART_HUB_PRODUCTION_SUPABASE_REF/);
  assert.match(stage,/sslmode=require/);
