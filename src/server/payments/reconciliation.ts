@@ -8,7 +8,7 @@ import {atomic,lockOrder,conflict,audit,buyerOwner,financeActor,ensureFinanceSco
 import {uuid} from "./validation";
 type Trigger="WEBHOOK"|"BUYER"|"OPERATIONS";
 async function freezeVerifiedOrder(tx:Prisma.TransactionClient,order:{id:string;status:OrderStatus},payerId:string,reason:string){
- if(!["PAYMENT_VERIFIED","FULFILLING","COMPLETED"].includes(order.status))return;
+ if(!["PAYMENT_VERIFIED","FULFILLING","COMPLETED","DELIVERY_REVIEW"].includes(order.status))return;
  const changed=await tx.order.updateMany({where:{id:order.id,status:order.status},data:{status:"PAYMENT_REVIEW",version:{increment:1}}});
  if(changed.count!==1)conflict("The order changed during financial exception review.");
  await tx.orderStatusEvent.create({data:{orderId:order.id,actorId:payerId,status:"PAYMENT_REVIEW",
@@ -69,7 +69,11 @@ export async function reconcileReference(reference:string,trigger:Trigger,actorI
   if(late){
    await store("LATE_PAYMENT","Provider reports a genuine payment, but the active hold, order state or earlier review is no longer eligible. Financial resolution required.");
    await tx.paymentObligation.update({where:{id:obligation.id},data:{status:"REVIEW_REQUIRED"}});
-   await tx.paymentAttempt.update({where:{id:attempt.id},data:{status:"UNKNOWN"}});
+   // Preserve a previously VERIFIED attempt as financial evidence. A late/reversed
+   // order moves into financial review, but its historic verified charge must not
+   // be misrepresented as an unknown/unverified payment attempt.
+   if(attempt.status!=="VERIFIED")
+    await tx.paymentAttempt.update({where:{id:attempt.id},data:{status:"UNKNOWN"}});
    await freezeVerifiedOrder(tx,order,attempt.payerId,"Payment is late or order/reservation no longer supports automatic credit.");
    return {status:"REVIEW_REQUIRED" as const,orderId:order.id,attemptId:attempt.id};
   }
