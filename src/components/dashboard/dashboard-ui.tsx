@@ -7,7 +7,7 @@ export function WorkspaceCard({title,description,children,href,action}:{title:st
 }
 const statusTone:Record<string,"positive"|"warning"|"negative"|"neutral">={
  VERIFIED:"positive",APPROVED:"positive",INTERESTED:"positive",ACTIVE:"positive",COMPLETED:"positive",ACCEPTED:"positive",REVIEWED:"positive",PAID:"positive",DELIVERED:"positive",
- PENDING_APPROVAL:"warning",ISSUED:"warning",INVITED:"warning",PAYMENT_REVIEW:"warning",REVIEW_REQUIRED:"warning",PENDING_REVIEW:"warning",UNDER_REVIEW:"warning",SOURCING_IN_PROGRESS:"warning",PENDING_VERIFICATION:"warning",MORE_INFO_REQUIRED:"warning",PENDING:"warning",SUBMITTED:"warning",RETURNED:"warning",DRAFT:"neutral",PROFILE_INCOMPLETE:"warning",IN_PROGRESS:"warning",
+ PENDING_APPROVAL:"warning",ISSUED:"warning",INVITED:"warning",PAYMENT_REVIEW:"warning",DELIVERY_REVIEW:"warning",REVIEW_REQUIRED:"warning",PENDING_REVIEW:"warning",UNDER_REVIEW:"warning",SOURCING_IN_PROGRESS:"warning",PENDING_VERIFICATION:"warning",MORE_INFO_REQUIRED:"warning",PENDING:"warning",SUBMITTED:"warning",RETURNED:"warning",DRAFT:"neutral",PROFILE_INCOMPLETE:"warning",IN_PROGRESS:"warning",
  DECLINED:"negative",REJECTED:"negative",DISABLED:"negative",SUSPENDED:"negative",FAILED:"negative",EXPIRED:"negative",CANCELLED:"neutral",CLOSED:"neutral",WITHDRAWN:"neutral",
 };
 export function StatusPill({status}:{status:string}){
