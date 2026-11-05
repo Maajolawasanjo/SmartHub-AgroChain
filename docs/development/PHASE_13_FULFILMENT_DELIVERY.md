@@ -1,0 +1,32 @@
+# Phase 13 — Fulfilment, pickup, delivery, buyer receipt and disputes
+
+Branch: feat/phase-13-fulfilment-delivery stacked on Phase 12 PR #17. Not merged, deployed or certified for live shipment processing. This phase connects real data structures, APIs and portal pages while preserving strict commercial boundaries.
+
+## Business workflow
+1. Only paid orders whose PaymentObligation is PAID and order status PAYMENT_VERIFIED/FULFILLING may be planned or dispatched. Financial exception PAYMENT_REVIEW is blocking. A Phase 12 provider reversal now freezes an order even while in FULFILLING; no subsequent pickup/receipt can bypass this state.
+2. Assigned Operations reviewer creates a FulfillmentPlan. For SMART_HUB_DELIVERY and THIRD_PARTY methods the buyer-confirmed destination in BuyerRequest is immutable from Operations; buyer pickup requires an explicitly recorded location. Actual request enum is SMARTHUB_DELIVERY, BUYER_PICKUP and THIRD_PARTY.
+3. Operations creates one or more Shipment records with actual carrier/tracking details and ShipmentLine quantities. In a SERIALIZABLE transaction with the Order row locked, the sum of non-cancelled shipment line quantities for every OrderLine cannot exceed its accepted purchased quantity. A planned, uncollected shipment can be cancelled; an already collected/transported shipment cannot be silently cancelled or returned as stock.
+4. Pickup, dispatch and reported arrival require READY documentary ShipmentEvidence uploaded to a private Supabase Storage bucket, checked with JPEG/PNG/WebP/PDF magic bytes and max 10MB. Each delivery milestone consumes a separate unused evidence attachment, and timeline events/audit record the actor.
+5. The buyer's verified organization OWNER confirms the quantities actually received per ShipmentLine. Zero accepted quantity is allowed and shortage is tracked separately. No client can submit quantities higher than shipment line quantity, or submit receipt for another organization's shipment. A buyer attestation is a distinct authenticated action; an Operations delivery event alone is not proof of receipt.
+6. Each accepted physical receipt quantity atomically subtracts the quantity from SourceLot.reservedQuantity, adds it to SourceLot.consumedQuantity and appends a CONSUMED StockMovement linked to the existing Reservation. A reservation becomes CONSUMED only when the cumulative accepted receipts for that OrderLine equal the original ordered quantity. Cumulative accepted receipts cannot exceed order quantities. All changes happen in one SERIALIZABLE transaction using deterministic lot locks.
+7. Missing units automatically create an immutable ReceiptLine shortage and DeliveryIssue and set FulfillmentPlan to REVIEW_REQUIRED. Missing quantities remain held as disputed reservations; they are NEVER silently returned to physical available stock or counted as consumed. Future shipment allocation is paused during investigation.
+8. An authenticated buyer may report delivery damage/quality/not-received issues in the initial seven-day issue window after reported arrival. Operations/Super Admin review records investigation or RESOLUTION_REQUIRED only. There is deliberately no synthetic resolved status, automatic stock adjustment, buyer refund, dispatch completion, supplier payout or delivery issue closure.
+9. Full Order COMPLETED is recorded only when the union of confirmed receipt quantities across shipments equals all ordered quantities AND no delivery issues remain; completion does not imply supplier settlement, which begins in Phase 14.
+
+## Schema and routes
+Models: FulfillmentPlan, Shipment, ShipmentLine, DeliveryEvent, ShipmentEvidence, ReceiptConfirmation, ReceiptLine, DeliveryIssue.
+Enums: FulfillmentStatus, ShipmentStatus, DeliveryEventKind, ReceiptStatus, DeliveryIssueStatus, ShipmentEvidenceStatus.
+Database: unique plan per order, shipment reference, unique shipment/order line pairs, unique buyer receipt per shipment, unique shipment line per receipt, unique issue per shipment, RLS enabled and anon/authenticated table grants revoked.
+Storage: private shipment-evidence bucket (default SHIPMENT_EVIDENCE_BUCKET) with signed URLs issued only after authorized server-side access checks. Supabase secret key stays server-only.
+API: plan, shipment create, milestone, buyer receipt and issue, assigned Operations issue review, authenticated private proof upload and time-limited signed download.
+Portals: Operations fulfilment queue, plan detail, shipment operations, buyer shipment list/detail with proof and receipt, dispute queue; integrated buyer order and Operations order navigation.
+
+## Safety and acceptance gates — not yet verified
+- Run all historical migrations then Phase 13 migration on real Supabase PostgreSQL staging; verify Storage bucket is private, RLS active, grants revoked and generated Prisma model relations valid.
+- Simulate two Operations reviewers scheduling against same order, concurrent buyer receipt and Paystack reversal, two split shipments sharing a lot, duplicate receipt replay, duplicate evidence, stale assignment and revoked accounts.
+- Test full shipment, multi-shipment completion, zero-accepted receipt, partial shortage, buyer damage dispute after receipt, staged evidence upload and scoped signed URL access for Buyer A/B, Operations assigned/unassigned, Super Admin, Farmer and suspended roles.
+- Validate real physical custody and pickup evidence, carrier operations, buyer receipt authorization and dispute escalation SLAs with the SmartHub client. A typed attestation without independent physical goods evidence requires documented commercial acceptance.
+- The current implementation intentionally does NOT have a field driver portal, carrier webhooks, automated proof validation, audited shortage adjudication, automatic replacement fulfilment, inventory restocking, buyer refund resolution or a supplier payout. These require additional approved policy and end-to-end tests; do not label them completed.
+- Phase 14 must ensure no supplier payment is authorized from an unresolved partial receipt, an open DeliveryIssue, a provider PaymentReview exception or a customer refund case.
+
+Phase 13 source-contract tests and GitHub CI check schema/TypeScript/build, but they do not substitute for live Supabase, Storage, browser or physical transport acceptance tests.

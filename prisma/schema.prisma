@@ -94,6 +94,12 @@ model Account {
   paymentReconciliationActors PaymentReconciliation[] @relation("PaymentReconciliationActor")
   refundsRequested RefundRequest[] @relation("RefundRequester")
   refundsReviewed RefundRequest[] @relation("RefundReviewer")
+  plansCreated FulfillmentPlan[] @relation("FulfillmentPlanCreator")
+  shipmentEvents DeliveryEvent[] @relation("ShipmentEventActor")
+  shipmentEvidenceUploaded ShipmentEvidence[] @relation("ShipmentEvidenceUploader")
+  shipmentReceipts ReceiptConfirmation[] @relation("ReceiptBuyer")
+  shipmentIssuesReported DeliveryIssue[] @relation("DeliveryIssueReporter")
+  shipmentIssuesReviewed DeliveryIssue[] @relation("DeliveryIssueReviewer")
 
   @@map("app_accounts")
 }
@@ -1075,6 +1081,7 @@ model Order {
   lines        OrderLine[]
   events       OrderStatusEvent[]
   paymentObligation PaymentObligation?
+  fulfillmentPlan FulfillmentPlan?
   @@index([organizationId,status,createdAt])
   @@index([status,holdExpiresAt])
   @@map("orders")
@@ -1094,6 +1101,7 @@ model OrderLine {
   quoteLine   QuoteLine @relation(fields:[quoteLineId],references:[id],onDelete:Restrict)
   lot         SupplyLot @relation(fields:[lotId],references:[id],onDelete:Restrict)
   reservation Reservation?
+  shipmentLines ShipmentLine[]
   @@index([orderId])
   @@index([lotId])
   @@map("order_lines")
@@ -1278,4 +1286,181 @@ model RefundRequest {
   @@unique([obligationId,requestedById])
   @@index([status,createdAt])
   @@map("refund_requests")
+}
+
+
+// Phase 13 — managed physical fulfilment, private evidence and buyer receipt.
+// Pickup and delivery declarations never consume reserved stock: only buyer-attested receipt does.
+enum FulfillmentStatus {
+  ACTIVE
+  REVIEW_REQUIRED
+  COMPLETED
+}
+enum ShipmentStatus {
+  PLANNED
+  PICKED_UP
+  IN_TRANSIT
+  DELIVERED
+  RECEIVED
+  PARTIAL_RECEIPT
+  ISSUE_REPORTED
+  CANCELLED
+}
+enum DeliveryEventKind {
+  PLAN_CREATED
+  SHIPMENT_PLANNED
+  PICKUP_CONFIRMED
+  DISPATCH_CONFIRMED
+  DELIVERY_REPORTED
+  BUYER_RECEIPT
+  SHORTAGE_REPORTED
+  ISSUE_REVIEWED
+  SHIPMENT_CANCELLED
+}
+enum ReceiptStatus {
+  COMPLETE
+  PARTIAL
+}
+enum DeliveryIssueStatus {
+  OPEN
+  UNDER_REVIEW
+  RESOLUTION_REQUIRED
+}
+enum ShipmentEvidenceStatus {
+  UPLOADING
+  READY
+  FAILED
+}
+
+model FulfillmentPlan {
+  id          String @id @default(uuid()) @db.Uuid
+  orderId     String @unique @db.Uuid
+  createdById String @db.Uuid
+  status      FulfillmentStatus @default(ACTIVE)
+  destinationState String @db.VarChar(60)
+  destinationCity String @db.VarChar(120)
+  destinationAddress String @db.VarChar(240)
+  method      String @db.VarChar(40)
+  handlingNote String? @db.VarChar(1000)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  order       Order @relation(fields:[orderId],references:[id],onDelete:Restrict)
+  createdBy   Account @relation("FulfillmentPlanCreator",fields:[createdById],references:[id],onDelete:Restrict)
+  shipments   Shipment[]
+  @@index([status,updatedAt])
+  @@map("fulfillment_plans")
+}
+
+model Shipment {
+  id           String @id @default(uuid()) @db.Uuid
+  planId       String @db.Uuid
+  reference    String @unique @db.VarChar(40)
+  status       ShipmentStatus @default(PLANNED)
+  carrierName  String @db.VarChar(160)
+  carrierContact String? @db.VarChar(80)
+  vehicleNote  String? @db.VarChar(160)
+  trackingReference String? @db.VarChar(120)
+  pickupAt     DateTime?
+  dispatchAt   DateTime?
+  deliveredAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  plan         FulfillmentPlan @relation(fields:[planId],references:[id],onDelete:Restrict)
+  lines        ShipmentLine[]
+  events       DeliveryEvent[]
+  evidence     ShipmentEvidence[]
+  receipt      ReceiptConfirmation?
+  issue        DeliveryIssue?
+  @@index([planId,status,createdAt])
+  @@map("shipments")
+}
+
+model ShipmentLine {
+  id          String @id @default(uuid()) @db.Uuid
+  shipmentId  String @db.Uuid
+  orderLineId String @db.Uuid
+  quantity    Decimal @db.Decimal(18,3)
+  shipment    Shipment @relation(fields:[shipmentId],references:[id],onDelete:Restrict)
+  orderLine   OrderLine @relation(fields:[orderLineId],references:[id],onDelete:Restrict)
+  receiptLine ReceiptLine?
+  @@unique([shipmentId,orderLineId])
+  @@index([orderLineId])
+  @@map("shipment_lines")
+}
+
+model DeliveryEvent {
+  id          String @id @default(uuid()) @db.Uuid
+  shipmentId  String @db.Uuid
+  actorId     String @db.Uuid
+  kind        DeliveryEventKind
+  note        String? @db.VarChar(2000)
+  evidenceId  String? @unique @db.Uuid
+  createdAt   DateTime @default(now())
+  shipment    Shipment @relation(fields:[shipmentId],references:[id],onDelete:Restrict)
+  actor       Account @relation("ShipmentEventActor",fields:[actorId],references:[id],onDelete:Restrict)
+  evidence    ShipmentEvidence? @relation("ShipmentEventEvidence",fields:[evidenceId],references:[id],onDelete:Restrict)
+  @@index([shipmentId,createdAt])
+  @@map("delivery_events")
+}
+
+model ShipmentEvidence {
+  id          String @id @default(uuid()) @db.Uuid
+  shipmentId  String @db.Uuid
+  uploadedById String @db.Uuid
+  objectPath  String @unique @db.VarChar(500)
+  originalName String @db.VarChar(180)
+  contentType String @db.VarChar(80)
+  sizeBytes   Int
+  status      ShipmentEvidenceStatus @default(UPLOADING)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  shipment    Shipment @relation(fields:[shipmentId],references:[id],onDelete:Restrict)
+  uploadedBy  Account @relation("ShipmentEvidenceUploader",fields:[uploadedById],references:[id],onDelete:Restrict)
+  event       DeliveryEvent? @relation("ShipmentEventEvidence")
+  @@index([shipmentId,status,createdAt])
+  @@map("shipment_evidence")
+}
+
+model ReceiptConfirmation {
+  id          String @id @default(uuid()) @db.Uuid
+  shipmentId  String @unique @db.Uuid
+  buyerId     String @db.Uuid
+  status      ReceiptStatus
+  note        String? @db.VarChar(2000)
+  createdAt   DateTime @default(now())
+  shipment    Shipment @relation(fields:[shipmentId],references:[id],onDelete:Restrict)
+  buyer       Account @relation("ReceiptBuyer",fields:[buyerId],references:[id],onDelete:Restrict)
+  lines       ReceiptLine[]
+  @@index([buyerId,createdAt])
+  @@map("receipt_confirmations")
+}
+
+model ReceiptLine {
+  id             String @id @default(uuid()) @db.Uuid
+  receiptId      String @db.Uuid
+  shipmentLineId String @unique @db.Uuid
+  acceptedQuantity Decimal @db.Decimal(18,3)
+  shortageQuantity Decimal @db.Decimal(18,3)
+  receipt        ReceiptConfirmation @relation(fields:[receiptId],references:[id],onDelete:Restrict)
+  shipmentLine   ShipmentLine @relation(fields:[shipmentLineId],references:[id],onDelete:Restrict)
+  @@index([receiptId])
+  @@map("receipt_lines")
+}
+
+model DeliveryIssue {
+  id          String @id @default(uuid()) @db.Uuid
+  shipmentId  String @unique @db.Uuid
+  reportedById String @db.Uuid
+  reviewedById String? @db.Uuid
+  status      DeliveryIssueStatus @default(OPEN)
+  category    String @db.VarChar(40)
+  description String @db.VarChar(2000)
+  reviewNote  String? @db.VarChar(2000)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  shipment    Shipment @relation(fields:[shipmentId],references:[id],onDelete:Restrict)
+  reportedBy  Account @relation("DeliveryIssueReporter",fields:[reportedById],references:[id],onDelete:Restrict)
+  reviewedBy  Account? @relation("DeliveryIssueReviewer",fields:[reviewedById],references:[id],onDelete:SetNull)
+  @@index([status,createdAt])
+  @@map("delivery_issues")
 }
