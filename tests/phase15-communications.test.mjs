@@ -54,6 +54,8 @@ test("request, payment, delivery and supplier provider outcomes are transactiona
  assert.match(read("src/server/payments/reconciliation.ts"),/BUYER_PAYMENT_VERIFIED/);
  assert.match(read("src/server/settlements/reconciliation.ts"),/SUPPLIER_TRANSFER_VERIFIED/);
  assert.match(read("src/server/fulfilment/operations.ts"),/SHIPMENT_DELIVERY_REPORTED/);
+ assert.match(read("src/server/settlements/agreements.ts"),/farmer-offer:/);
+ assert.match(read("src/server/settlements/approval.ts"),/SUPPLIER_PAYABLE_APPROVED/);
 });
 test("read and read-all APIs enforce actor ownership and same-origin POST",()=>{
  assert.match(inbox,/where:\{id,accountId:account\.id\}/);
