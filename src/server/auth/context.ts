@@ -35,11 +35,21 @@ export function accountDestination(ctx:NonNullable<Awaited<ReturnType<typeof get
   return destinations[account.role];
 }
 
+/** A defense-in-depth authorization predicate shared by portal entrypoints. */
 export function mayAccess(ctx:NonNullable<Awaited<ReturnType<typeof getAccountContext>>>, route:string){
-  if (route.startsWith("/admin")) return ctx.account.role==="SUPER_ADMIN" && ctx.account.status==="ACTIVE";
-  if (route.startsWith("/operations")) return ["OPERATIONS","SUPER_ADMIN"].includes(ctx.account.role) && ctx.account.status==="ACTIVE";
-  if (route.startsWith("/field-agent")) return ctx.account.role==="FIELD_AGENT" && ctx.account.status==="ACTIVE";
-  if (route==="/farmer" || route.startsWith("/farmer/")) return ctx.account.role==="FARMER" && ctx.account.status==="ACTIVE";
-  if (route==="/dashboard" || route.startsWith("/dashboard/")) return ctx.account.role==="BUYER" && ctx.account.status==="ACTIVE";
-  return ctx.account.status==="ACTIVE";
+  // Login alone never grants application access: provider verification and
+  // authoritative DB account state are both required.
+  if(ctx.account.status!=="ACTIVE" || !ctx.user.email_confirmed_at) return false;
+  if(ctx.account.role==="FARMER" &&
+    !(ctx.user.phone_confirmed_at && ctx.user.phone===ctx.account.phone)) return false;
+
+  // Match complete route segments; /admin-extra and /operations-bypass
+  // must never be treated as privileged workspace paths.
+  const inside=(base:string)=>route===base || route.startsWith(base+"/");
+  if(inside("/admin")) return ctx.account.role==="SUPER_ADMIN";
+  if(inside("/operations")) return ["OPERATIONS","SUPER_ADMIN"].includes(ctx.account.role);
+  if(inside("/field-agent")) return ctx.account.role==="FIELD_AGENT";
+  if(inside("/farmer")) return ctx.account.role==="FARMER";
+  if(inside("/dashboard")) return ctx.account.role==="BUYER";
+  return true;
 }
