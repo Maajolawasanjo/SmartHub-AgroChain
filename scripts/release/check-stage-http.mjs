@@ -13,14 +13,21 @@ const home={
  OPERATIONS:"/operations",SUPER_ADMIN:"/admin"
 };
 const errors=[];
-async function get(path,role){
+const readinessToken=process.env.STAGING_READINESS_TOKEN??"";
+assert.ok(readinessToken.length>=32,"Staging readiness token is required and must be at least 32 characters.");
+const withoutToken=await get("/api/internal/readiness");
+if(withoutToken.status!==404)errors.push("Readiness endpoint must be hidden without authorization.");
+const withToken=await get("/api/internal/readiness",null,{Authorization:"Bearer "+readinessToken});
+if(withToken.status!==200)errors.push("Authorized staging readiness probe failed with HTTP "+withToken.status);
+
+async function get(path,role,extraHeaders={}){
  const url=new URL(path,cfg.baseUrl);
  assert.equal(url.origin,cfg.baseUrl,"Smoke checks may not leave the reviewed staging origin.");
  const controller=new AbortController();
  const timeout=setTimeout(()=>controller.abort(),15000);
  try{
   return await fetch(url,{method:"GET",redirect:"manual",cache:"no-store",signal:controller.signal,
-   headers:{"Cache-Control":"no-store",...(role?{Cookie:sessions.get(role)}:{})}});
+   headers:{"Cache-Control":"no-store",...(role?{Cookie:sessions.get(role)}:{}),...extraHeaders}});
  }finally{clearTimeout(timeout);}
 }
 const add=(name,actual,expect)=>{if(!expect(actual))errors.push(name+" (HTTP "+actual+")");};
