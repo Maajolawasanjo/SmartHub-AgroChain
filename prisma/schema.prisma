@@ -1713,6 +1713,7 @@ model NotificationPreference {
 model SupportCase {
   id           String @id @default(uuid()) @db.Uuid
   reference    String @unique @db.VarChar(40)
+  clientKey    String @unique @db.Uuid
   openedById   String @db.Uuid
   assignedToId String? @db.Uuid
   category     SupportCaseCategory
@@ -1733,6 +1734,7 @@ model SupportCase {
 model SupportMessage {
   id         String @id @default(uuid()) @db.Uuid
   caseId     String @db.Uuid
+  clientKey  String @unique @db.Uuid
   authorId   String @db.Uuid
   body       String @db.VarChar(4000)
   internal   Boolean @default(false)
