@@ -65,3 +65,9 @@ These must be carried out in an isolated, approved staging environment with real
 
 ## 8. What is NOT completed
 No separately verified SmartHub Supabase staging project is currently available through the connected tools; therefore **no** application schema migrations, actual RLS probes, authenticated staging browser sessions, five-role acceptance, provider test transactions, backup restore, performance load test or final production signoff has happened. The manual workflow must be configured with an approved staging environment after stacked code is reviewed and merged. Automated source/CI success certifies code checks only.
+
+## Integration Phase 02 — safe preflight on an unmigrated staging database
+
+The manual staging workflow now defaults to a **read-only preflight** (preflight_only=true, apply_migrations=false) requiring no stage user cookies. This checks whether a separately approved staging project has existing Prisma migration history and whether its public schema is safe to proceed with; it does not run Prisma migrations or full five-role acceptance.
+
+For full acceptance choose preflight_only=false. To apply staging migrations, additionally set apply_migrations=true and supply independently reviewed backup/restore evidence and migration approval. The preflight always runs **before** migration and rejects schema drift, unknown tables or disabled RLS. See docs/development/INTEGRATION_PHASE_02_DATABASE.md. Nothing in this phase has been executed against a real database in this session.
