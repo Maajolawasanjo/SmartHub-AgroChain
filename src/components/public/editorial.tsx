@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { BrandLink } from "@/components/ui/brand";
 import Image from "next/image";
 import type {ReactNode} from "react";
 
@@ -34,8 +34,8 @@ export function EditorialHero({eyebrow,title,description,primary,secondary,visua
 }){
  return <section className={"editorial-hero editorial-hero-"+theme}><div className="container editorial-hero-grid">
   <div className="editorial-hero-copy"><Eyebrow>{eyebrow}</Eyebrow><h1>{title}</h1><p>{description}</p>
-   <div className="editorial-actions"><Link className="editorial-button editorial-button-primary" href={primary.href}>{primary.label}<span aria-hidden="true">↗</span></Link>
-    {secondary&&<Link className="editorial-button editorial-button-secondary" href={secondary.href}>{secondary.label}</Link>}</div>
+   <div className="editorial-actions"><BrandLink variant="primary" className="editorial-button editorial-button-primary" href={primary.href}>{primary.label}<span aria-hidden="true">↗</span></BrandLink>
+    {secondary&&<BrandLink variant="secondary" className="editorial-button editorial-button-secondary" href={secondary.href}>{secondary.label}</BrandLink>}</div>
    {note&&<p className="editorial-fineprint">{note}</p>}
   </div><div className="editorial-hero-visual"><EditorialPhoto visual={visual} priority caption/>
    {children&&<div className="editorial-overlay-card">{children}</div>}
@@ -47,8 +47,8 @@ export function EditorialCTA({eyebrow,title,description,primary,secondary}:{
 }){
  return <section className="container editorial-ending"><div className="editorial-ending-inner">
   <Eyebrow>{eyebrow}</Eyebrow><h2>{title}</h2><p>{description}</p><div className="editorial-actions">
-   <Link className="editorial-button editorial-button-primary" href={primary.href}>{primary.label}<span aria-hidden="true">↗</span></Link>
-   {secondary&&<Link className="editorial-button editorial-button-secondary" href={secondary.href}>{secondary.label}</Link>}
+   <BrandLink variant="primary" className="editorial-button editorial-button-primary" href={primary.href}>{primary.label}<span aria-hidden="true">↗</span></BrandLink>
+   {secondary&&<BrandLink variant="secondary" className="editorial-button editorial-button-secondary" href={secondary.href}>{secondary.label}</BrandLink>}
   </div></div></section>;
 }
 export const managedSteps=[
