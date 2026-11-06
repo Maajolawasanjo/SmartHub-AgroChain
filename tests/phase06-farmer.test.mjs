@@ -43,7 +43,7 @@ test("dashboard reads real farmer events and next harvest, not fabricated opport
  const page=read("src/app/farmer/page.tsx");
  assert.match(page,/farmerVerificationEvent\.findMany/);assert.match(page,/supplyReviewEvent\.findMany/);
  assert.match(page,/expectedHarvestAt:\{gte:today\}/);
- assert.match(page,/Not enabled yet/);assert.doesNotMatch(page,/mock|fake opportunity|sample farmer/i);
+ assert.match(page,/db\.order\.count/);assert.match(page,/db\.matchProposal\.count/);assert.match(page,/farmerId:account\.id/);assert.doesNotMatch(page,/Not enabled yet|mock|fake opportunity|sample farmer/i);
 });
 test("KYC and settings expose real account data without invented document or preference saves",()=>{
  const kyc=read("src/app/farmer/kyc/page.tsx");
