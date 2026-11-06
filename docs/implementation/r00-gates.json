@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "baseline_commit": "35f8c523e8f0518d2ebcbdb0d300c0cbf9bd831d",
+  "baseline_date": "2026-11-06",
+  "public_metadata_only": true,
+  "source_docs_private": true,
+  "gates": [
+    {
+      "id": "R00-D01",
+      "category": "architecture",
+      "status": "PENDING_OWNER_DECISION",
+      "decision_record_ref": null,
+      "approved_by": null,
+      "approved_at": null
+    },
+    {
+      "id": "R00-D02",
+      "category": "transaction-lifecycle",
+      "status": "PENDING_OWNER_DECISION",
+      "decision_record_ref": null,
+      "approved_by": null,
+      "approved_at": null
+    },
+    {
+      "id": "R00-D03",
+      "category": "farmer-dashboard",
+      "status": "PENDING_OWNER_DECISION",
+      "decision_record_ref": null,
+      "approved_by": null,
+      "approved_at": null
+    },
+    {
+      "id": "R00-D04",
+      "category": "privileged-access",
+      "status": "PENDING_OWNER_DECISION",
+      "decision_record_ref": null,
+      "approved_by": null,
+      "approved_at": null
+    },
+    {
+      "id": "R00-D05",
+      "category": "release-scope",
+      "status": "PENDING_OWNER_DECISION",
+      "decision_record_ref": null,
+      "approved_by": null,
+      "approved_at": null
+    },
+    {
+      "id": "R00-D08",
+      "category": "commercial-terms",
+      "status": "PENDING_OWNER_DECISION",
+      "decision_record_ref": null,
+      "approved_by": null,
+      "approved_at": null
+    },
+    {
+      "id": "R00-D09",
+      "category": "financial-authority",
+      "status": "PENDING_OWNER_DECISION",
+      "decision_record_ref": null,
+      "approved_by": null,
+      "approved_at": null
+    }
+  ]
+}
