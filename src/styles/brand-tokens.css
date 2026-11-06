@@ -13,7 +13,12 @@
 
   --brand-forest-deep: color-mix(in srgb, var(--brand-forest), black 15%);
   --brand-forest-hover: color-mix(in srgb, var(--brand-forest), var(--brand-agricultural) 24%);
-  --brand-forest-muted: color-mix(in srgb, var(--brand-forest), white 30%);
+  /* Muted copy must still reach WCAG AA on Warm Ivory, Sage and white. */
+  --brand-forest-muted: color-mix(in srgb, var(--brand-forest), white 18%);
+  /* Agricultural Green remains the visual accent; this ink variant is safe as small text. */
+  --brand-agricultural-ink: color-mix(in srgb, var(--brand-agricultural), var(--brand-forest) 35%);
+  /* Gold is decorative on pale surfaces. This brighter variant reads on Forest Green. */
+  --brand-gold-on-dark: color-mix(in srgb, var(--brand-gold), white 10%);
   --brand-sage-border: color-mix(in srgb, var(--brand-sage), var(--brand-forest) 12%);
   --brand-gold-subtle: color-mix(in srgb, var(--brand-gold), white 83%);
 
@@ -36,7 +41,10 @@
   --text-primary: var(--brand-forest);
   --text-muted: var(--brand-forest-muted);
   --border-subtle: var(--brand-sage-border);
-  --focus-accent: var(--brand-gold);
+  /* Forest is visible on light canvases; Gold is reserved for focus on dark Forest. */
+  --focus-accent: var(--brand-forest);
+  --focus-on-dark: var(--brand-gold);
+  --focus-ring-width: 3px;
   --radius-control: .75rem;
   --radius-card: 1.125rem;
   --shadow-card: 0 18px 52px rgb(23 76 53 / 7%);
@@ -56,6 +64,7 @@
   --color-soft-sage: var(--brand-sage);
   --color-warm-ivory: var(--brand-ivory);
   --color-agricultural: var(--brand-agricultural);
+  --color-agricultural-ink: var(--brand-agricultural-ink);
 }
 
 :where(html, body, button, input, textarea, select, optgroup) {
