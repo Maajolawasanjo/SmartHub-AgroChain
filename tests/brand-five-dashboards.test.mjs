@@ -27,7 +27,7 @@ test("all five dashboard roles use one accessible chrome, sharing one Satoshi an
   assert.match(navigation,new RegExp("\\b"+role+":\\{title:"));
  }
  assert.match(chrome,/return <div className="workspace-layout">/);
- assert.match(chrome,/className="workspace-sidebar"/);
+ assert.match(chrome,/workspace-sidebar\\$\\{open/);
  assert.match(chrome,/className="workspace-page-heading"/);
  assert.match(chrome,/aria-current=\{active\?"page":undefined\}/);
  assert.match(chrome,/aria-expanded=\{open\}/);
