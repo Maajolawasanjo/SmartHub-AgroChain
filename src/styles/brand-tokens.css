@@ -1,0 +1,76 @@
+/*
+ * SmartHub AgroChain brand foundation (single source of truth).
+ * Forest Green is the ONLY primary dark brand color.
+ * White is a neutral content surface, not a sixth brand accent.
+ * Satoshi is loaded globally from Fontshare in src/app/layout.tsx.
+ */
+:root {
+  --brand-forest: #174C35;
+  --brand-gold: #D5A649;
+  --brand-sage: #E7EFE6;
+  --brand-ivory: #F8F7F1;
+  --brand-agricultural: #398453;
+
+  --brand-forest-deep: color-mix(in srgb, var(--brand-forest), black 15%);
+  --brand-forest-hover: color-mix(in srgb, var(--brand-forest), var(--brand-agricultural) 24%);
+  --brand-forest-muted: color-mix(in srgb, var(--brand-forest), white 30%);
+  --brand-sage-border: color-mix(in srgb, var(--brand-sage), var(--brand-forest) 12%);
+  --brand-gold-subtle: color-mix(in srgb, var(--brand-gold), white 83%);
+
+  --font-satoshi: "Satoshi", "Segoe UI", Arial, sans-serif;
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+  --font-weight-black: 900;
+
+  --type-display: clamp(2.5rem, 6vw, 5rem);
+  --type-section: clamp(1.9rem, 4vw, 3.5rem);
+  --type-page: clamp(1.6rem, 3vw, 2.5rem);
+  --type-body: clamp(.9375rem, 1vw, 1.0625rem);
+  --type-ui: .875rem;
+
+  --surface-page: var(--brand-ivory);
+  --surface-soft: var(--brand-sage);
+  --surface-card: #fff;
+  --text-primary: var(--brand-forest);
+  --text-muted: var(--brand-forest-muted);
+  --border-subtle: var(--brand-sage-border);
+  --focus-accent: var(--brand-gold);
+  --radius-control: .75rem;
+  --radius-card: 1.125rem;
+  --shadow-card: 0 18px 52px rgb(23 76 53 / 7%);
+}
+
+@theme inline {
+  --font-sans: var(--font-satoshi);
+  /* Backward-compatible Tailwind utilities. */
+  --color-brand: var(--brand-forest);
+  --color-brand-dark: var(--brand-forest-deep);
+  --color-amber: var(--brand-gold);
+  --color-surface: var(--surface-page);
+  --color-ink: var(--text-primary);
+  /* Preferred semantic utility names. */
+  --color-forest: var(--brand-forest);
+  --color-harvest-gold: var(--brand-gold);
+  --color-soft-sage: var(--brand-sage);
+  --color-warm-ivory: var(--brand-ivory);
+  --color-agricultural: var(--brand-agricultural);
+}
+
+:where(html, body, button, input, textarea, select, optgroup) {
+  font-family: var(--font-satoshi);
+}
+
+:where(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--font-satoshi);
+  color: inherit;
+}
+
+:where(button, input, textarea, select) {
+  font-family: inherit;
+}
+
+:where(.tabular-nums, [data-financial-value], [data-inventory-quantity]) {
+  font-variant-numeric: tabular-nums;
+}
