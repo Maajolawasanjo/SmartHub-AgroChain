@@ -4,6 +4,7 @@
 @import "../styles/brand-tokens.css";
 @import "../styles/brand-components.css";
 @import "../styles/dashboard-tokens.css";
+@import "../styles/admin-access-blueprint.css";
 
 :root { color-scheme: light; }
 * { box-sizing: border-box; }
