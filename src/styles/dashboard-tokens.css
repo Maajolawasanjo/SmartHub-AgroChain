@@ -1,0 +1,64 @@
+/*
+ * SmartHub AgroChain — dashboard visual contract.
+ * All five role portals inherit the same semantic Satoshi + five-color tokens.
+ * No role-specific data, authorization or workflow behavior belongs here.
+ */
+:root {
+  --dashboard-canvas: var(--brand-ivory);
+  --dashboard-sidebar: var(--brand-forest);
+  --dashboard-sidebar-hover: var(--brand-forest-hover);
+  --dashboard-sidebar-active: var(--brand-sage);
+  --dashboard-sidebar-active-text: var(--brand-forest);
+  --dashboard-surface: var(--surface-card);
+  --dashboard-surface-soft: var(--brand-sage);
+  --dashboard-heading: var(--brand-forest);
+  --dashboard-foreground: var(--brand-forest);
+  --dashboard-muted: var(--text-muted);
+  --dashboard-border: var(--border-subtle);
+  --dashboard-accent: var(--brand-agricultural);
+  --dashboard-highlight: var(--brand-gold);
+  --dashboard-row-hover: var(--brand-ivory);
+  --dashboard-radius: var(--radius-card);
+  --dashboard-control-radius: var(--radius-control);
+  --dashboard-card-shadow: var(--shadow-card);
+  --dashboard-focus: var(--focus-accent);
+  --dashboard-page-gutter: clamp(1.125rem, 3.2vw, 3rem);
+  --dashboard-table-min-width: 38.75rem;
+  --dashboard-label-size: .875rem;
+}
+
+/* Existing portal shells stay separate for layout, but share visual inheritance. */
+:where(.workspace-layout,.agro-dashboard){
+  font-family: var(--font-satoshi);
+  color: var(--dashboard-foreground);
+  background: var(--dashboard-canvas);
+}
+
+:where(.workspace-content,.agro-content) :is(h1,h2,h3,h4),
+:where(.staff-profile-card,.field-agent-detail-heading) :is(h1,h2,h3){
+  font-family: var(--font-satoshi);
+  color: var(--dashboard-heading);
+}
+
+:where(.workspace-content,.agro-content) :is(input,select,textarea,button),
+:where(.staff-field,.field-agent-cancel-row) :is(input,select,textarea){
+  font-family: var(--font-satoshi);
+}
+
+:where(.workspace-content,.agro-content) :is(input,select,textarea):focus-visible,
+:where(.workspace-content,.agro-content) :is(button,a):focus-visible,
+:where(.workspace-sidebar,.agro-sidebar) :is(button,a):focus-visible{
+  outline: 3px solid var(--dashboard-focus);
+  outline-offset: 3px;
+}
+
+:where(.workspace-table,.staff-permission-table,.agro-data-list,.staff-metric,.agro-number){
+  font-variant-numeric: tabular-nums;
+}
+
+:where(.workspace-nav-item,.agro-side-nav a,.workspace-cta,.agro-button){
+  transition: background-color .16s ease, border-color .16s ease;
+}
+@media (prefers-reduced-motion: reduce){
+  :where(.workspace-nav-item,.agro-side-nav a,.workspace-cta,.agro-button){transition:none}
+}
