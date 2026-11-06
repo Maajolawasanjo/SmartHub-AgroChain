@@ -33,7 +33,7 @@ test("all five dashboard roles use one accessible chrome, sharing one Satoshi an
  assert.match(chrome,/aria-expanded=\{open\}/);
  assert.match(chrome,/Skip to main content/);
  assert.match(global,/@import "\.\.\/styles\/dashboard-tokens\.css"/);
- for(const value of ["--dashboard-sidebar: var(--brand-forest)","--dashboard-surface-soft: var(--brand-sage)","--dashboard-canvas: var(--brand-ivory)","--dashboard-highlight: var(--brand-gold)","--dashboard-accent: var(--brand-agricultural)","--dashboard-heading: var(--brand-forest)"])
+ for(const value of ["--dashboard-sidebar: var(--brand-forest)","--dashboard-surface-soft: var(--brand-sage)","--dashboard-canvas: var(--brand-ivory)","--dashboard-highlight: var(--brand-gold)","--dashboard-accent: var(--brand-agricultural-ink)","--dashboard-accent-visual: var(--brand-agricultural)","--dashboard-heading: var(--brand-forest)"])
   assert.ok(tokens.includes(value),value);
  for(const value of ["#174C35","#D5A649","#E7EFE6","#F8F7F1","#398453"])
   assert.ok(root.includes(value),value);
