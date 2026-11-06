@@ -2,7 +2,7 @@
 
 SmartHub AgroChain is a Nigeria-focused agricultural technology initiative designed to improve agricultural sourcing, supply information, and coordination between producers, buyers, and SmartHub operations.
 
-**Status:** V2 planning and architecture. Application implementation has not yet begun in this repository.
+**Status (6 November 2026):** Substantial full-stack application code, database migrations and automated source tests are present. This is **not** a production-readiness claim; connected multi-role and provider acceptance remains required. Requirements decisions are tracked under the [R00 governance protocol](docs/implementation/R00_REQUIREMENTS_GOVERNANCE.md).
 
 ## Technology direction
 
