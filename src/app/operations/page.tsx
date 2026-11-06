@@ -12,7 +12,7 @@ export default async function OperationsDashboard(){
  db.order.count({where:{status:"PENDING_PAYMENT"}}),
  db.supplyLot.count({where:{status:"AVAILABLE"}})
  ]);
- return <PortalFrame name={account.fullName} role="OPERATIONS" route="/operations" title="Operations Dashboard" subtitle="Review actual farmer and agricultural supply records. Matching, quotations and payments are separate future modules.">
+ return <PortalFrame name={account.fullName} role="OPERATIONS" route="/operations" title="Operations Dashboard" subtitle="Coordinate live verification, supply review, buyer sourcing, quotations, order reservations, fulfilment and financial review. Every status comes from recorded operations.">
  <div className="agro-grid">
   <section className="agro-panel"><h2>Pending-payment orders</h2><div className="agro-number">{pendingOrders}</div><p>Recorded orders holding inspected physical supply; no payment verified yet</p><Link className="action action-primary" href="/operations/orders">Review orders</Link></section>
   <section className="agro-panel"><h2>Registered available sourcing lots</h2><div className="agro-number">{physicalLots}</div><p>Evidence-backed physical lots, not expected harvest figures</p><Link className="action action-outline" href="/operations/inventory">Review lot ledger</Link></section>
