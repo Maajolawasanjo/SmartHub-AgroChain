@@ -1,6 +1,7 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
-import {readFileSync} from "node:fs";
+import {readFileSync,readdirSync} from "node:fs";
+import path from "node:path";
 
 const read=path=>readFileSync(path,"utf8");
 const blueprint=read("src/server/admin/target-access-blueprint.ts");
@@ -89,4 +90,12 @@ test("catalogue cannot claim Admin completion or approve disputed policies",()=>
  assert.match(doc,/R00-D09/);
  assert.match(doc,/financial authority/i);
  assert.match(doc,/mandatory MFA/i);
+});
+
+test("target blueprint is imported only by the read-only Admin permissions page",()=>{
+ function walk(dir){return readdirSync(dir,{withFileTypes:true}).flatMap(e=>{
+  const file=path.join(dir,e.name);return e.isDirectory()?walk(file):e.isFile()&&/\\.(?:ts|tsx)$/.test(e.name)?[file]:[];
+ });}
+ const imports=walk("src").filter(file=>file!=="src/server/admin/target-access-blueprint.ts"&&read(file).includes('from "@/server/admin/target-access-blueprint"'));
+ assert.deepEqual(imports,["src/app/admin/permissions/page.tsx"],"The blueprint cannot enter any API, guard, server action or auth workflow");
 });
