@@ -68,7 +68,7 @@ export default function Home(){
   <section className="editorial-dark-section"><div className="container editorial-dark-grid">
    <div className="editorial-dark-copy"><Eyebrow>The SmartHub operating model</Eyebrow>
     <h2>Not just connecting people. <em>Coordinating what happens next.</em></h2>
-    <p>A listing alone cannot confirm a harvest, reserve goods, settle a supplier or prove delivery. SmartHub separates these decisions and keeps records of who reviewed what.</p>
+    <p>A listing alone cannot confirm a harvest, reserve goods, settle a supplier or prove delivery. SmartHub's managed sourcing model separates these decisions and keeps records of who reviewed what.</p>
     <div className="editorial-tick-list"><span>Structured buyer demand and quotations</span><span>Farmer and physical-supply review</span><span>Shipment, receipt and issue records</span><span>Supplier agreements and independent payment checks</span></div>
     <Link className="editorial-button editorial-button-primary" href="/product">Inside the platform <span aria-hidden="true">↗</span></Link>
    </div>
