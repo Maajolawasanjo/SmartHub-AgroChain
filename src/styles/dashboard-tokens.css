@@ -15,7 +15,8 @@
   --dashboard-foreground: var(--brand-forest);
   --dashboard-muted: var(--text-muted);
   --dashboard-border: var(--border-subtle);
-  --dashboard-accent: var(--brand-agricultural);
+  --dashboard-accent: var(--brand-agricultural-ink);
+  --dashboard-accent-visual: var(--brand-agricultural);
   --dashboard-highlight: var(--brand-gold);
   --dashboard-row-hover: var(--brand-ivory);
   --dashboard-radius: var(--radius-card);
