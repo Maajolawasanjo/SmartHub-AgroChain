@@ -94,7 +94,7 @@ test("catalogue cannot claim Admin completion or approve disputed policies",()=>
 
 test("target blueprint is imported only by the read-only Admin permissions page",()=>{
  function walk(dir){return readdirSync(dir,{withFileTypes:true}).flatMap(e=>{
-  const file=path.join(dir,e.name);return e.isDirectory()?walk(file):e.isFile()&&/\\.(?:ts|tsx)$/.test(e.name)?[file]:[];
+  const file=path.join(dir,e.name);return e.isDirectory()?walk(file):e.isFile()&&/\.(?:ts|tsx)$/.test(e.name)?[file]:[];
  });}
  const imports=walk("src").filter(file=>file!=="src/server/admin/target-access-blueprint.ts"&&read(file).includes('from "@/server/admin/target-access-blueprint"'));
  assert.deepEqual(imports,["src/app/admin/permissions/page.tsx"],"The blueprint cannot enter any API, guard, server action or auth workflow");
