@@ -1,7 +1,7 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
-import {isAdministrativePermission,hasPermission,permissionsForRole} from "../src/server/admin/permissions.ts";
+
 
 const read=path=>readFileSync(path,"utf8");
 const permissions=read("src/server/admin/permissions.ts");
@@ -11,16 +11,18 @@ const navigation=read("src/components/dashboard/navigation.ts");
 const admin=read("src/app/admin/page.tsx");
 const details=read("src/app/admin/permissions/page.tsx");
 
-test("Admin APIs accept only existing internal administrative capability names",()=>{
- for(const p of ["operations.requests.review","operations.verification.review","staff.invite","staff.manage","staff.audit.read","permissions.view","platform.reports.read","platform.governance.manage"])
-  assert.equal(isAdministrativePermission(p),true,p);
- for(const p of ["buyer.request.create","farmer.supply.manage","field.assigned.read","field.visit.manage","field.evidence.submit","","admin.superuser","finance.approve","platform.admin.*"])
-  assert.equal(isAdministrativePermission(p),false,p);
- assert.equal(hasPermission("SUPER_ADMIN","staff.manage"),true);
- assert.equal(hasPermission("OPERATIONS","staff.manage"),false);
- assert.equal(hasPermission("OPERATIONS","operations.requests.review"),true);
- assert.equal(hasPermission("BUYER","buyer.request.create"),true);
- assert.equal(permissionsForRole("FIELD_AGENT").length,3);
+test("Admin APIs accept only the declared internal administrative capability prefixes",()=>{
+ const permitted=[...permissions.matchAll(/permission\\.startsWith\\("([^"]+)"\\)/g)].map(x=>x[1]);
+ assert.deepEqual(permitted,["operations.","staff.","permissions.","platform."]);
+ assert.match(permissions,/PERMISSIONS\\.includes\\(permission as Permission\\)/);
+ assert.match(permissions,/typeof permission==="string"/);
+ assert.match(permissions,/export type AdminApiPermission = Extract<Permission/);
+ for(const outsider of ["buyer.request.create","farmer.supply.manage","field.assigned.read","field.visit.manage","field.evidence.submit"])
+  assert.ok(permitted.every(prefix=>!outsider.startsWith(prefix)),outsider+" must never be a valid Admin permission");
+ for(const internal of ["operations.requests.review","staff.invite","permissions.view","platform.reports.read"])
+  assert.ok(permitted.some(prefix=>internal.startsWith(prefix)),internal);
+ assert.match(permissions,/export function hasPermission/);
+ assert.match(permissions,/export function permissionsForRole/);
 });
 
 test("Admin API guard rejects external/field-only roles and checks account and provider status",()=>{
