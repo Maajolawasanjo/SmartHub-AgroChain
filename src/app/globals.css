@@ -75,7 +75,7 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--focus-accent); 
 .workspace-skip:focus{top:15px}
 .workspace-sidebar{background:linear-gradient(180deg,var(--dashboard-sidebar),var(--brand-forest-deep));color:var(--dashboard-surface);display:flex;flex-direction:column;gap:0;min-width:0;min-height:100dvh;position:sticky;top:0;height:100dvh;overflow-y:auto;z-index:50;scrollbar-width:thin}
 .workspace-sidebar-brand{display:flex;align-items:center;justify-content:space-between;padding:27px 19px 22px;border-bottom:1px solid #ffffff1f}
-.workspace-brand-mark{font-family:var(--font-satoshi);display:flex;gap:10px;align-items:center;color:var(--dashboard-surface);text-decoration:none;font-size:16px;font-weight:820;letter-spacing:-.035em;line-height:1.12}
+.workspace-brand-mark{font-family:var(--font-satoshi);display:flex;gap:10px;align-items:center;color:var(--dashboard-surface);text-decoration:none;font-size:16px;font-weight:700;letter-spacing:-.035em;line-height:1.12}
 .workspace-brand-symbol{display:flex;width:39px;height:39px;flex-shrink:0;align-items:center;justify-content:center;border:1px solid color-mix(in srgb,var(--brand-gold) 43%,transparent);background:#ffffff13;color:var(--brand-gold);border-radius:11px}
 .workspace-brand-accent{color:var(--brand-gold)}.workspace-brand-mark small{font-size:9.5px;display:block;font-weight:500;color:var(--brand-sage);letter-spacing:0;margin-top:5px}
 .workspace-close{display:none;border:0;background:transparent;color:var(--dashboard-surface);font-size:27px;line-height:1;cursor:pointer;padding:4px 9px}
