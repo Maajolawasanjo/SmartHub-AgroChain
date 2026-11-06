@@ -4,8 +4,8 @@ import {PublicShell} from "@/components/public-shell";
 import {EditorialHero,EditorialPhoto,SectionLead,Eyebrow,EditorialCTA,managedSteps} from "@/components/public/editorial";
 
 export const metadata:Metadata={
- title:"SmartHub AgroChain | Managed Agricultural Sourcing in Nigeria",
- description:"A clearer route between agricultural demand and reviewed supply. Learn how SmartHub coordinates buyer requests, farmer participation, quotations and delivery in Nigeria.",
+ title:"SmartHub AgroChain | Agricultural Technology & Sourcing in Nigeria",
+ description:"SmartHub AgroChain connects farmers, agricultural buyers and businesses in Nigeria through technology-enabled sourcing, market access and supply-chain coordination.",
  openGraph:{title:"SmartHub AgroChain — From the field to real demand",description:"Managed agricultural sourcing built around real requirements, verified information and accountable fulfilment.",type:"website"}
 };
 const audiences=[
@@ -25,11 +25,11 @@ const commodityGroups=[
 ];
 export default function Home(){
  return <PublicShell>
-  <EditorialHero eyebrow="Agricultural sourcing, handled with intention" 
-   title={<>From the field to <em>real demand.</em></>}
-   description="Agriculture moves through people, information and trust. SmartHub AgroChain is building a more coordinated way for Nigerian businesses to source agricultural produce and for farmers to participate in relevant market opportunities."
-   primary={{label:"Explore buyer sourcing",href:"/for-buyers"}} secondary={{label:"I am a farmer",href:"/for-farmers"}}
-   note="Managed procurement — not an instant-checkout marketplace. Supply and service availability are confirmed case by case."
+  <EditorialHero eyebrow="BUILDING A BETTER AGRICULTURAL SUPPLY CHAIN"
+   title={<>Connecting Agricultural Supply With <em>Real Market Demand</em></>}
+   description="SmartHub AgroChain is a Nigerian agricultural technology platform designed to connect farmers, buyers and agricultural businesses through better sourcing, market access and supply-chain coordination."
+   primary={{label:"Start a Buyer Request",href:"/signup?role=buyer"}} secondary={{label:"Join as a Farmer",href:"/signup?role=farmer"}}
+   note="Better information. Better connections. A more organised agricultural supply chain."
    visual="land">
    <span className="editorial-overlay-kicker">How it connects</span>
    <div className="editorial-overlay-chain"><span>Buyer requirement</span><span aria-hidden="true">→</span><span>SmartHub review</span><span aria-hidden="true">→</span><span>Suitable supply</span></div>
@@ -48,7 +48,7 @@ export default function Home(){
    </div>
   </section>
   <section className="editorial-tinted"><div className="container editorial-section">
-   <SectionLead eyebrow="Built for the agricultural value chain" title="One system. Different people. A shared purpose."
+   <SectionLead eyebrow="THE AGRICULTURAL VALUE CHAIN" title="Connecting the People Who Move Agriculture Forward"
     description="SmartHub's relationships are managed through the platform and its operations team, rather than unrestricted direct buyer-to-farmer trading."/>
    <div className="editorial-audience-grid">{audiences.map((a,i)=><article className="editorial-audience-card" key={a.href}>
     <EditorialPhoto visual={a.visual}/>
@@ -57,7 +57,7 @@ export default function Home(){
    <p className="editorial-image-disclaimer">Photographs are illustrative agricultural imagery, not depictions of SmartHub suppliers or confirmed operations.</p>
   </div></section>
   <section className="container editorial-section editorial-process-home">
-   <div className="editorial-process-heading"><SectionLead eyebrow="The managed sourcing journey" title="A clear process beats a vague promise."
+   <div className="editorial-process-heading"><SectionLead eyebrow="THE SMART HUB PROCESS" title="A clear process beats a vague promise."
     description="From the first requirement to the receipt record, each milestone has a purpose and an accountable next step."/>
     <Link className="editorial-inline-link" href="/how-it-works">Explore the complete journey <span aria-hidden="true">↗</span></Link>
    </div>
@@ -68,7 +68,7 @@ export default function Home(){
   <section className="editorial-dark-section"><div className="container editorial-dark-grid">
    <div className="editorial-dark-copy"><Eyebrow>The SmartHub operating model</Eyebrow>
     <h2>Not just connecting people. <em>Coordinating what happens next.</em></h2>
-    <p>A listing alone cannot confirm a harvest, reserve goods, settle a supplier or prove delivery. SmartHub separates these decisions and keeps records of who reviewed what.</p>
+    <p>A listing alone cannot confirm a harvest, reserve goods, settle a supplier or prove delivery. SmartHub's managed sourcing model separates these decisions and keeps records of who reviewed what.</p>
     <div className="editorial-tick-list"><span>Structured buyer demand and quotations</span><span>Farmer and physical-supply review</span><span>Shipment, receipt and issue records</span><span>Supplier agreements and independent payment checks</span></div>
     <Link className="editorial-button editorial-button-primary" href="/product">Inside the platform <span aria-hidden="true">↗</span></Link>
    </div>

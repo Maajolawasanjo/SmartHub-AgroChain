@@ -20,7 +20,7 @@ test("desktop hero, public story and photography render without placeholder boxe
  test.setTimeout(85000);
  await page.setViewportSize({width:1440,height:900});
  await page.goto("/",{waitUntil:"domcontentloaded"});
- await expect(page.getByRole("heading",{level:1})).toContainText("From the field");
+ await expect(page.getByRole("heading",{level:1})).toContainText("Connecting Agricultural Supply With Real Market Demand");
  await expect(page.locator(".editorial-audience-card")).toHaveCount(3);
  await expect(page.locator(".editorial-step")).toHaveCount(6);
  const hero=page.locator(".editorial-hero-visual img").first();
