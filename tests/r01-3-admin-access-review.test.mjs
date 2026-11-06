@@ -12,9 +12,11 @@ const admin=read("src/app/admin/page.tsx");
 const details=read("src/app/admin/permissions/page.tsx");
 
 test("Admin APIs accept only the declared internal administrative capability prefixes",()=>{
- const permitted=[...permissions.matchAll(/permission\\.startsWith\\("([^"]+)"\\)/g)].map(x=>x[1]);
+ const permitted=["operations.","staff.","permissions.","platform."];
+ for(const prefix of permitted)assert.ok(permissions.includes('permission.startsWith("'+prefix+'")'),"Missing runtime check for "+prefix);
+ assert.equal(permissions.split("permission.startsWith(").length-1,4,"No unexpected Admin namespace prefix");
  assert.deepEqual(permitted,["operations.","staff.","permissions.","platform."]);
- assert.match(permissions,/PERMISSIONS\\.includes\\(permission as Permission\\)/);
+ assert.ok(permissions.includes("PERMISSIONS.includes(permission as Permission)"),"Admin gate must still require a declared capability");
  assert.match(permissions,/typeof permission==="string"/);
  assert.match(permissions,/export type AdminApiPermission = Extract<Permission/);
  for(const outsider of ["buyer.request.create","farmer.supply.manage","field.assigned.read","field.visit.manage","field.evidence.submit"])
