@@ -1,6 +1,7 @@
 # SmartHub AgroChain V2 — Master Implementation Roadmap
 
 **Status:** Engineering implementation plan; not a production-readiness certificate.
+**Current requirements gate (6 November 2026):** This roadmap does not resolve contradictions among client-approved specifications. Consult [R00 Requirements Governance](R00_REQUIREMENTS_GOVERNANCE.md) and [non-confidential decision gate metadata](r00-gates.json). Detailed source quotations, options and approvals remain outside the public repository. Do not implement a disputed commercial, privileged-access or architectural policy without explicit product-owner signoff. The 2026-10-31 baseline below is historical.
 **Core stack:** Next.js App Router, TypeScript, React, Tailwind CSS, shadcn/ui, Prisma, Supabase PostgreSQL/Auth/Storage.
 **Source hierarchy:** Client-approved PRD, Authentication Specification, Farmer Portal Specification, Buyer Portal Specification, Business Logic, User Flow, Public Website V3.0. Client decisions take precedence over suggestions in this roadmap.
 
