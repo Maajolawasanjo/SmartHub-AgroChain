@@ -1,3 +1,5 @@
+import "server-only";
+
 /**
  * R01.2 approved-source role and action vocabulary. PRESENTATION/PLANNING ONLY.
  *
