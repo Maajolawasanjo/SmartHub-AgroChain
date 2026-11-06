@@ -46,22 +46,6 @@
       "approved_at": null
     },
     {
-      "id": "R00-D06",
-      "category": "public-content",
-      "status": "PENDING_OWNER_DECISION",
-      "decision_record_ref": null,
-      "approved_by": null,
-      "approved_at": null
-    },
-    {
-      "id": "R00-D07",
-      "category": "buyer-dashboard",
-      "status": "PENDING_OWNER_DECISION",
-      "decision_record_ref": null,
-      "approved_by": null,
-      "approved_at": null
-    },
-    {
       "id": "R00-D08",
       "category": "commercial-terms",
       "status": "PENDING_OWNER_DECISION",
