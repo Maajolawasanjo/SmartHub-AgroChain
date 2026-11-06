@@ -89,3 +89,51 @@ test("unapproved legal notices are visible but not search-indexable",async({page
   expect(robots,route+" must not be indexed before legal signoff").toContain("noindex");
  }
 });
+
+
+test("desktop and mobile inherit the canonical Satoshi brand and readable surface palette",async({page})=>{
+ test.setTimeout(100000);
+ await mkdir("playwright-artifacts",{recursive:true});
+ for(const width of [390,1440]){
+  await page.setViewportSize({width,height:900});
+  const res=await page.goto("/",{waitUntil:"domcontentloaded"});
+  expect(res?.status()).toBe(200);
+  const branding=await page.evaluate(()=>{
+   const r=getComputedStyle(document.documentElement);
+   const body=getComputedStyle(document.body);
+   const hero=getComputedStyle(document.querySelector(".editorial-hero h1"));
+   const footer=getComputedStyle(document.querySelector("footer.public-footer"));
+   return {
+    forest:r.getPropertyValue("--brand-forest").trim().toLowerCase(),
+    gold:r.getPropertyValue("--brand-gold").trim().toLowerCase(),
+    sage:r.getPropertyValue("--brand-sage").trim().toLowerCase(),
+    ivory:r.getPropertyValue("--brand-ivory").trim().toLowerCase(),
+    agricultural:r.getPropertyValue("--brand-agricultural").trim().toLowerCase(),
+    bodyFont:body.fontFamily,heroFont:hero.fontFamily,heroWeight:hero.fontWeight,
+    footerBackground:footer.backgroundColor,
+    focusLight:r.getPropertyValue("--focus-accent").trim(),
+    focusDark:r.getPropertyValue("--focus-on-dark").trim()
+   };
+  });
+  expect(branding.forest).toBe("#174c35");
+  expect(branding.gold).toBe("#d5a649");
+  expect(branding.sage).toBe("#e7efe6");
+  expect(branding.ivory).toBe("#f8f7f1");
+  expect(branding.agricultural).toBe("#398453");
+  expect(branding.bodyFont).toContain("Satoshi");
+  expect(branding.heroFont).toContain("Satoshi");
+  expect(branding.heroWeight).toBe("900");
+  expect(branding.footerBackground).toBe("rgb(23, 76, 53)");
+  expect(branding.focusLight).toBe("var(--brand-forest)");
+  expect(branding.focusDark).toBe("var(--brand-gold)");
+  await page.screenshot({path:"playwright-artifacts/brand-phase06-home-"+width+".png",fullPage:true,animations:"disabled"});
+  await page.goto("/login",{waitUntil:"domcontentloaded"});
+  await expect(page.locator(".auth-layout .auth-heading h1")).toBeVisible();
+  const account=await page.locator(".auth-layout .auth-heading h1").evaluate(node=>({
+    family:getComputedStyle(node).fontFamily,weight:getComputedStyle(node).fontWeight
+  }));
+  expect(account.family).toContain("Satoshi");
+  expect(account.weight).toBe("900");
+  await page.screenshot({path:"playwright-artifacts/brand-phase06-login-"+width+".png",fullPage:true,animations:"disabled"});
+ }
+});
