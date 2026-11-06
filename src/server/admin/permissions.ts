@@ -27,6 +27,25 @@ export const PERMISSIONS = [
 ] as const;
 export type Permission = typeof PERMISSIONS[number];
 
+/**
+ * Current /api/admin endpoints may request only internal administrative capabilities.
+ * Buyer, Farmer and Field Agent portal permissions cannot authorize Admin APIs.
+ * This narrows a route boundary; it does not grant new permissions or resolve the
+ * approved future department/individual access model.
+ */
+export type AdminApiPermission = Extract<Permission,
+  `operations.${string}` | `staff.${string}` | `permissions.${string}` | `platform.${string}`
+>;
+export function isAdministrativePermission(permission:Permission|string):permission is AdminApiPermission {
+ return typeof permission==="string" && (
+  permission.startsWith("operations.") ||
+  permission.startsWith("staff.") ||
+  permission.startsWith("permissions.") ||
+  permission.startsWith("platform.")
+ ) && PERMISSIONS.includes(permission as Permission);
+}
+
+
 const ROLE_PERMISSIONS: Record<AccountRole, readonly Permission[]> = {
   BUYER: ["buyer.request.create"],
   FARMER: ["farmer.supply.manage"],

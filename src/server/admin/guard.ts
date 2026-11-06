@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getAccountContext } from "@/server/auth/context";
 import { getPrisma } from "@/server/db/prisma";
 import { PublicError, requireConfig } from "@/server/auth/http";
-import { hasPermission, type Permission } from "./permissions";
+import { hasPermission, isAdministrativePermission, type AdminApiPermission } from "./permissions";
 import { z } from "zod";
 
 export async function requireSuperAdminPage(){
@@ -15,11 +15,11 @@ export async function requireSuperAdminPage(){
   return ctx;
 }
 
-export async function requireAdminApi(permission:Permission="staff.manage"){
+export async function requireAdminApi(permission:AdminApiPermission="staff.manage"){
   requireConfig();
   const ctx=await getAccountContext();
   if(!ctx)throw new PublicError(401,"Sign in to continue.");
-  if(ctx.account.status!=="ACTIVE"||!ctx.user.email_confirmed_at||!hasPermission(ctx.account.role,permission))
+  if(ctx.account.status!=="ACTIVE"||!ctx.user.email_confirmed_at||!["SUPER_ADMIN","OPERATIONS"].includes(ctx.account.role)||!isAdministrativePermission(permission)||!hasPermission(ctx.account.role,permission))
     throw new PublicError(403,"You do not have permission to perform this action.");
   return {ctx,db:getPrisma()};
 }
