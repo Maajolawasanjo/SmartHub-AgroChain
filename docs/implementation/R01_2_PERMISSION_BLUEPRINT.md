@@ -5,7 +5,7 @@
 
 ## Deliverable
 
-The existing /admin/permissions page now distinguishes **today's server-enforced fixed permissions** from the **requested Admin access model**, with no route to create privileges from this new UI. The target catalogue lives at `src/server/admin/target-access-blueprint.ts`, is server-only, and is explicitly marked `NON_EXECUTABLE_REQUIREMENTS_CATALOGUE`. It intentionally has no mapping of target roles to effective grants. It introduces no additional `AccountRole` enum values, no Supabase claims, no permission grants and no schema migrations.
+The existing /admin/permissions page now distinguishes **today's server-enforced fixed permissions** from the **requested Admin access model**, with no route to create privileges from this new UI. This is **not an implemented role grant**; it is requirements metadata for review only. The target catalogue lives at `src/server/admin/target-access-blueprint.ts`, is server-only, and is explicitly marked `NON_EXECUTABLE_REQUIREMENTS_CATALOGUE`. It intentionally has no mapping of target roles to effective grants. It introduces no additional `AccountRole` enum values, no Supabase claims, no permission grants and no schema migrations.
 
 The requested eight initial role templates are:
 
