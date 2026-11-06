@@ -124,8 +124,8 @@ test("desktop and mobile inherit the canonical Satoshi brand and readable surfac
   expect(branding.heroFont).toContain("Satoshi");
   expect(branding.heroWeight).toBe("900");
   expect(branding.footerBackground).toBe("rgb(23, 76, 53)");
-  expect(branding.focusLight).toBe("var(--brand-forest)");
-  expect(branding.focusDark).toBe("var(--brand-gold)");
+  expect(branding.focusLight.toLowerCase()).toBe("#174c35");
+  expect(branding.focusDark.toLowerCase()).toBe("#d5a649");
   await page.screenshot({path:"playwright-artifacts/brand-phase06-home-"+width+".png",fullPage:true,animations:"disabled"});
   await page.goto("/login",{waitUntil:"domcontentloaded"});
   await expect(page.locator(".auth-layout .auth-heading h1")).toBeVisible();
