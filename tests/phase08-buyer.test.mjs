@@ -54,7 +54,7 @@ test("new business tables are RLS protected and inaccessible through the public 
 test("phase 08 never invents requests, quotes, payments or orders",()=>{
  const dashboard=read("src/app/dashboard/page.tsx");
  assert.match(dashboard,/Metric not available/);
- assert.match(dashboard,/do not submit a sourcing request/);
+ assert.match(dashboard,/buyerSavedSpecification\.count/);assert.match(dashboard,/Orders in Fulfilment/);assert.match(dashboard,/Payments Due/);
  assert.doesNotMatch(actions,/\b(?:buyerRequest|quotation|order|payment|stockReservation)\.create\(/);
  assert.match(read("src/app/dashboard/payments/page.tsx"),/not a stored-value wallet/);
 });
