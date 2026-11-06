@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandLink } from "./ui/brand";
 const nav=[
  ["Platform","/product"],["How it works","/how-it-works"],
  ["For buyers","/for-buyers"],["For farmers","/for-farmers"],
@@ -12,7 +13,7 @@ export function SiteHeader(){
     {nav.map(([name,path])=><Link key={path} href={path}>{name}</Link>)}
    </nav>
    <div className="public-actions"><Link href="/login" className="public-login">Sign in</Link>
-    <Link className="action action-primary" href="/contact?interest=buyer">Discuss sourcing <span aria-hidden="true">↗</span></Link>
+    <BrandLink variant="primary" className="action action-primary" href="/contact?interest=buyer">Discuss sourcing <span aria-hidden="true">↗</span></BrandLink>
    </div>
    <details className="public-mobile-menu"><summary aria-label="Open website navigation">Menu <span aria-hidden="true">☰</span></summary>
     <nav aria-label="Mobile navigation">{nav.map(([name,path])=><Link key={path} href={path}>{name}</Link>)}
