@@ -65,12 +65,14 @@ CREATE TABLE smarthub_admin_access.role_version_capabilities (
   action_key varchar(16) NOT NULL
     CHECK (action_key IN ('view','create','edit','approve','delete','export','manage')),
   scope_kind varchar(32) NOT NULL,
-  scope_reference varchar(160),
+  scope_reference varchar(160) NOT NULL DEFAULT '',
   classification varchar(24) NOT NULL DEFAULT 'ORDINARY',
   PRIMARY KEY (role_version_id, module_key, action_key, scope_kind, scope_reference),
   CHECK (scope_kind IN ('COMPANY','DEPARTMENT','STATE','LOCAL_GOVERNMENT','OPERATIONAL_AREA',
                        'PROJECT','ASSIGNED_RECORD','OWN_RECORD','BUSINESS_RELATIONSHIP')),
   CHECK (classification IN ('ORDINARY','SENSITIVE','CRITICAL')),
+  CHECK ((scope_kind IN ('COMPANY','OWN_RECORD','ASSIGNED_RECORD') AND scope_reference = '') OR
+         (scope_kind NOT IN ('COMPANY','OWN_RECORD','ASSIGNED_RECORD') AND length(trim(scope_reference)) > 0)),
   CHECK (length(trim(module_key)) > 0)
 );
 
