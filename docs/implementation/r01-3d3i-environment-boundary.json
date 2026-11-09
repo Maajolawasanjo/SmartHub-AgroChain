@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "milestone": "R01.3D.3I",
+  "confirmedAsOf": "2026-11-09",
+  "classification": "NON_SECRET_ENVIRONMENT_IDENTIFIERS_ONLY",
+  "production": {
+    "supabaseProjectRef": "ematieqwxoiwoovmqdba",
+    "supabaseProjectName": "TAIMAKO Care",
+    "verification": "Matched existing SmartHub GitHub deployment doc and Supabase account project, 74 public tables incl. migration ledger",
+    "vercelTeamSlug": "maajo-lawasanjos-projects",
+    "vercelProjectNames": [
+      "smarthub-agrochain",
+      "smarthub-agrochain-v2"
+    ]
+  },
+  "staging": {
+    "supabaseProjectRef": null,
+    "vercelProjectId": null,
+    "reviewedAppOrigin": null,
+    "reviewedDeploymentSha": null,
+    "status": "NOT_FOUND_IN_CONNECTED_ACCOUNT",
+    "liveAcceptance": "NOT_RUN"
+  },
+  "currentVercelConnection": {
+    "teamSlug": "abiodun-lateefs-projects",
+    "smartHubProjectVisible": false,
+    "note": "Current connection cannot inspect or deploy the Ma'ajo team projects"
+  },
+  "governance": {
+    "requiredOwnerDecisions": [
+      "R00-D01",
+      "R00-D04",
+      "R00-D09"
+    ],
+    "allApproved": false
+  },
+  "limitations": [
+    "A connected-account project listing is not a global inventory; a stage project could exist under a different account.",
+    "The production Supabase reference is public/nonsecret but should be re-reviewed if production is formally migrated.",
+    "Never treat this status registry, a matching environment variable, or offline tests as permission to create a new staging project, run migrations or enable mandatory MFA.",
+    "Deployments remain unverified; GitHub Vercel checks currently point to a team build-rate-limit page.",
+    "No secrets, database URLs, JWTs, service role keys or staging sessions are recorded here."
+  ]
+}
