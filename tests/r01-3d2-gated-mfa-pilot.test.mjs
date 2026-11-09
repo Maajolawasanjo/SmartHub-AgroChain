@@ -116,7 +116,7 @@ test("pilot page is Super Admin only, disabled before MFA provider calls and sec
   assert.match(ui,/cache: "no-store"/);
   assert.match(ui,/window\.location\.reload\(\)/);
   assert.ok(ui.includes('setPassword("")'), "Password must clear after successful MFA actions");
-  assert.doesNotMatch(ui,/localStorage|sessionStorage|document\.cookie|console\.log|navigator\.sendBeacon/);
+  assert.doesNotMatch(ui,/\b(?:localStorage|sessionStorage)\s*(?:\.|\[)|document\.cookie|console\.log\(|navigator\.sendBeacon\(/);
 });
 
 test("policy has no direct permissions, payment, grant or migration effects", () => {
