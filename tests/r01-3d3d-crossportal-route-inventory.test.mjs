@@ -49,7 +49,7 @@ test("R01.3D.3D checks staff MFA by current server role and never grants nonstaf
     await assert.rejects(handler(actor(role)),error=>error instanceof PublicError&&error.status===403);
   }
   assert.equal(observed.length,2);
-  assert.doesNotMatch(helper,/\$executeRaw|\.role\s*=|\.updateUser\(|\.enroll\(|\.unenroll\(|SUPABASE_SECRET_KEY/);
+  assert.doesNotMatch(helper,/\$executeRaw|\.role\s*=(?!=)|\.updateUser\(|\.enroll\(|\.unenroll\(|SUPABASE_SECRET_KEY/);
 });
 
 test("staff support replies and private notes require gate, but AAL1 owner recovery messages remain possible",()=>{
