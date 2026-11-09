@@ -25,7 +25,7 @@ export default async function PlatformControls(){
   {label:"Backend database variable",value:flags.databaseConfigured?"Set":"Missing",note:"This does not verify network connectivity, migrations, RLS, backups or data health."}
  ];
  return <DashboardFrame role="SUPER_ADMIN" name={ctx.account.fullName} title="Platform Configuration & Release Gates" description="Read-only operational flags. Payment, payout, identity and security controls are never changed from a web dashboard.">
- <div className="staff-page-links"><Link href="/admin">← Administration</Link><Link href="/admin/permissions">Fixed permissions</Link><Link href="/admin/security/mfa">Authenticator security pilot</Link><Link href="/admin/governance">Governance incidents</Link></div>
+ <div className="staff-page-links"><Link href="/admin">← Administration</Link><Link href="/admin/permissions">Fixed permissions</Link><Link href="/admin/security/mfa">Authenticator security pilot</Link><Link href="/admin/security/mfa/recovery">Recovery governance</Link><Link href="/admin/governance">Governance incidents</Link></div>
  <section className="agro-panel"><h2>Server-controlled release boundaries</h2>
  {rows.map(row=><article key={row.label} className="agro-record"><div><strong>{row.label}</strong><p>{row.value}</p><p>{row.note}</p></div></article>)}</section>
  <section className="agro-panel" aria-labelledby="privileged-readiness-heading">
