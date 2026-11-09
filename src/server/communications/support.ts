@@ -5,7 +5,7 @@ import {z} from "zod";
 import {PublicError} from "@/server/auth/http";
 import {getPrisma} from "@/server/db/prisma";
 import {requireWorkspaceAccount,publishInboxEvent,uuid,type Tx} from "./inbox";
-import {requireSupportStaffMfa} from "./staff-mfa";
+import {requireSupportStaffMfa,canReadPrivilegedSupportCases} from "./staff-mfa";
 
 const category=z.enum(["SOURCING","PAYMENTS","DELIVERY","SUPPLIER_SETTLEMENT","ACCOUNT","OTHER"]);
 const create=z.strictObject({clientKey:uuid,category,subject:z.string().trim().min(6).max(160),
@@ -139,17 +139,28 @@ export async function changeSupportCase(caseId:string,input:unknown){
   return {id:row.id,status:state,assignedToId:assigned};
  });
 }
+// Both read paths re-derive the current identity and database role.
+// The argument is only an expected-identity assertion for legacy page callers;
+// it must never be a source of authorization or support note visibility.
+async function trustedSupportReader(expected:{id:string;role:string}){
+ const ctx=await requireWorkspaceAccount();
+ if(ctx.account.id!==expected.id || ctx.account.role!==expected.role)
+  throw new PublicError(403,"Support identity changed. Sign in again.");
+ const staffView=await canReadPrivilegedSupportCases(ctx);
+ return {ctx,staffView};
+}
 export async function supportCaseList(account:{id:string;role:string}){
- return getPrisma().supportCase.findMany({where:isStaff(account.role)?{}:{openedById:account.id},
+ const {ctx,staffView}=await trustedSupportReader(account);
+ return ctx.db.supportCase.findMany({where:staffView?{}:{openedById:ctx.account.id},
   orderBy:{updatedAt:"desc"},take:80,
   select:{id:true,reference:true,openedById:true,assignedToId:true,category:true,subject:true,status:true,updatedAt:true,
    openedBy:{select:{fullName:true}}}});
 }
 export async function supportCaseDetail(id:string,account:{id:string;role:string}){
  uuid.parse(id);
- const staff=isStaff(account.role);
- return getPrisma().supportCase.findFirst({where:{id,...(staff?{}:{openedById:account.id})},
+ const {ctx,staffView}=await trustedSupportReader(account);
+ return ctx.db.supportCase.findFirst({where:{id,...(staffView?{}:{openedById:ctx.account.id})},
   include:{openedBy:{select:{fullName:true,role:true}},assignedTo:{select:{fullName:true}},
-   messages:{where:staff?{}:{internal:false},orderBy:{createdAt:"asc"},take:120,
+   messages:{where:staffView?{}:{internal:false},orderBy:{createdAt:"asc"},take:120,
     include:{author:{select:{fullName:true,role:true}}}}}});
 }
