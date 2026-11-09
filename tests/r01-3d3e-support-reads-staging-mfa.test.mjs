@@ -1,5 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import {assertReviewedStagingProjectRefs} from "../scripts/release/reviewed-environment-boundary.mjs";
 import { readFileSync } from "node:fs";
 import { stripTypeScriptTypes } from "node:module";
 
@@ -97,15 +98,16 @@ const runnable = harnessSource
  .replace(/^import .*\n/gm,"")
  .split("\nif(process.argv[1]")[0]
  .replace(/^export /gm,"");
-const staging = new Function("assert","createClient",
+const staging = new Function("assert","createClient","assertReviewedStagingProjectRefs",
   runnable+"\nreturn {assertIsolatedMfaStage,inspectIsolatedMfaSessions};")(
-    assert,()=>{throw new Error("Not used for offline configuration check");}
+    assert,()=>{throw new Error("Not used for offline configuration check");},
+    assertReviewedStagingProjectRefs
   );
 const stageEnv = () => ({
   RELEASE_STAGE_CONFIRM:"I_ACKNOWLEDGE_STAGING_ONLY",
   STAGING_MFA_TEST_ISOLATED:"true",
   SMART_HUB_STAGE_SUPABASE_REF:"abcdefghijklmnopqrst",
-  SMART_HUB_PRODUCTION_SUPABASE_REF:"bcdefghijklmnopqrstu",
+  SMART_HUB_PRODUCTION_SUPABASE_REF:"ematieqwxoiwoovmqdba",
   NEXT_PUBLIC_SUPABASE_URL:"https://abcdefghijklmnopqrst.supabase.co",
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:"sb_publishable_an_isolated_test_key",
   PAYMENTS_ENABLED:"false",SUPPLIER_PAYOUTS_ENABLED:"false",
