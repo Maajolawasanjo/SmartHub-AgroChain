@@ -1,0 +1,66 @@
+name: Isolated staging authenticated HTTP security acceptance
+
+on:
+  workflow_dispatch:
+    inputs:
+      isolated_staging_confirmed:
+        description: "Reviewed nonproduction app, disposable sessions and seeded support cases only"
+        type: boolean
+        required: true
+        default: false
+      mfa_mode:
+        description: "baseline: test existing role/tenant isolation; enforced: require approved R00 and AAL1/AAL2 rejection checks"
+        type: choice
+        required: true
+        default: baseline
+        options:
+          - baseline
+          - enforced
+
+permissions:
+  contents: read
+
+concurrency:
+  group: smarthub-isolated-staging-http
+  cancel-in-progress: false
+
+jobs:
+  http-readonly:
+    name: Authenticated staging role, support and MFA HTTP read checks
+    if: ${{ inputs.isolated_staging_confirmed }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    environment: staging
+    env:
+      RELEASE_STAGE_CONFIRM: I_ACKNOWLEDGE_STAGING_ONLY
+      STAGING_MFA_TEST_ISOLATED: "true"
+      STAGING_MFA_HTTP_MODE: ${{ inputs.mfa_mode }}
+      STAGING_MFA_HTTP_ENFORCEMENT_APPROVED: ${{ vars.STAGING_MFA_HTTP_ENFORCEMENT_APPROVED }}
+      SMART_HUB_STAGE_SUPABASE_REF: ${{ vars.SMART_HUB_STAGE_SUPABASE_REF }}
+      SMART_HUB_PRODUCTION_SUPABASE_REF: ${{ vars.SMART_HUB_PRODUCTION_SUPABASE_REF }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ vars.SMART_HUB_STAGING_SUPABASE_URL }}
+      STAGING_BASE_URL: ${{ vars.SMART_HUB_STAGING_BASE_URL }}
+      STAGING_REVIEWED_ORIGIN: ${{ vars.SMART_HUB_STAGE_REVIEWED_ORIGIN }}
+      PRODUCTION_BASE_URL: ${{ vars.SMART_HUB_PRODUCTION_BASE_URL }}
+      STAGING_BUYER_A_SUPPORT_CASE_ID: ${{ vars.STAGING_BUYER_A_SUPPORT_CASE_ID }}
+      STAGING_OPERATIONS_OWN_SUPPORT_CASE_ID: ${{ vars.STAGING_OPERATIONS_OWN_SUPPORT_CASE_ID }}
+      STAGING_SUPER_ADMIN_OWN_SUPPORT_CASE_ID: ${{ vars.STAGING_SUPER_ADMIN_OWN_SUPPORT_CASE_ID }}
+      STAGING_SUPPORT_INTERNAL_MARKER: ${{ secrets.STAGING_SUPPORT_INTERNAL_MARKER }}
+      STAGING_SESSION_BUYER_A: ${{ secrets.STAGING_SESSION_BUYER_A }}
+      STAGING_SESSION_BUYER_B: ${{ secrets.STAGING_SESSION_BUYER_B }}
+      STAGING_SESSION_OPERATIONS: ${{ secrets.STAGING_SESSION_OPERATIONS }}
+      STAGING_SESSION_SUPER_ADMIN: ${{ secrets.STAGING_SESSION_SUPER_ADMIN }}
+      STAGING_SESSION_OPERATIONS_AAL1: ${{ secrets.STAGING_SESSION_OPERATIONS_AAL1 }}
+      STAGING_SESSION_OPERATIONS_AAL2: ${{ secrets.STAGING_SESSION_OPERATIONS_AAL2 }}
+      STAGING_SESSION_SUPER_ADMIN_AAL1: ${{ secrets.STAGING_SESSION_SUPER_ADMIN_AAL1 }}
+      STAGING_SESSION_SUPER_ADMIN_AAL2: ${{ secrets.STAGING_SESSION_SUPER_ADMIN_AAL2 }}
+      PAYMENTS_ENABLED: "false"
+      SUPPLIER_PAYOUTS_ENABLED: "false"
+      PUBLIC_SIGNUP_ENABLED: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Verify isolated staging target and run GET-only authenticated cross-role security checks
+        run: node scripts/release/check-stage-mfa-http-readonly.mjs
