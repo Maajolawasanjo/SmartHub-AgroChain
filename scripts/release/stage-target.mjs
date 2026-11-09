@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import {assertReviewedStagingProjectRefs} from "./reviewed-environment-boundary.mjs";
 
 // Fail-closed, NO database access or migration until every staging boundary is
 // validated. Never log raw Postgres URLs: they contain credentials.
@@ -35,7 +36,7 @@ export function assertStageTarget(){
  assert.match(ref,/^[a-z0-9]{20}$/,"Provide the reviewed STAGING Supabase project ref.");
  const prodRef=process.env.SMART_HUB_PRODUCTION_SUPABASE_REF??"";
  assert.match(prodRef,/^[a-z0-9]{20}$/,"Provide the independently reviewed PRODUCTION Supabase ref.");
- assert.notEqual(ref,prodRef,"STAGING and PRODUCTION Supabase refs must differ. Refusing DB access.");
+ assertReviewedStagingProjectRefs(ref,prodRef);
  const publicUrl=new URL(process.env.NEXT_PUBLIC_SUPABASE_URL??"http://invalid");
  assert.equal(publicUrl.protocol,"https:","The public Supabase URL must use HTTPS.");
  assert.equal(publicUrl.hostname,ref+".supabase.co","The public Supabase host must match the reviewed staging project.");
