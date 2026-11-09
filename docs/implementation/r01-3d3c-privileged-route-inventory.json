@@ -1,0 +1,223 @@
+{
+  "version": 1,
+  "baselineCommit": "df98d0e184560b2779288fef713002bddd133abe",
+  "date": "2026-11-09",
+  "scope": "Tracked Next.js route.ts files under Admin, Operations, account, and Auth API namespaces; other endpoints remain separately reviewed.",
+  "readyForMfaEnforcement": false,
+  "ownerAcceptanceSigned": false,
+  "liveAuthenticationTested": false,
+  "providerRecoveryTested": false,
+  "warnings": [
+    "Source route enumeration is NOT a statement that all indirect service guards have been inspected or tested.",
+    "New routes fail inventory tests until explicitly classified and reviewed.",
+    "Existing Operations and Super Admin AAL2 checks remain dormant until owner and rollout signoffs.",
+    "Do not use this JSON registry to authorize API calls; it is a test/review inventory only.",
+    "Webhooks, field-agent, buyer, farmer, public support and callbacks are not necessarily listed here; treat provider and cross-portal paths separately."
+  ],
+  "groups": {
+    "admin": [
+      {
+        "path": "src/app/api/admin/audit/route.ts",
+        "mfaStatus": "CURRENT_GUARD_NOT_LIVE_MFA_TESTED"
+      },
+      {
+        "path": "src/app/api/admin/governance/incidents/[id]/assign/route.ts",
+        "mfaStatus": "CURRENT_GUARD_NOT_LIVE_MFA_TESTED"
+      },
+      {
+        "path": "src/app/api/admin/governance/incidents/[id]/transition/route.ts",
+        "mfaStatus": "CURRENT_GUARD_NOT_LIVE_MFA_TESTED"
+      },
+      {
+        "path": "src/app/api/admin/governance/incidents/route.ts",
+        "mfaStatus": "CURRENT_GUARD_NOT_LIVE_MFA_TESTED"
+      },
+      {
+        "path": "src/app/api/admin/payments/refunds/[id]/review/route.ts",
+        "mfaStatus": "CURRENT_GUARD_NOT_LIVE_MFA_TESTED"
+      },
+      {
+        "path": "src/app/api/admin/reports/export/route.ts",
+        "mfaStatus": "CURRENT_GUARD_NOT_LIVE_MFA_TESTED"
+      },
+      {
+        "path": "src/app/api/admin/security/mfa/[action]/route.ts",
+        "mfaStatus": "STEP_UP_EXCEPTION_AAL1"
+      },
+      {
+        "path": "src/app/api/admin/settlements/[id]/approve/route.ts",
+        "mfaStatus": "CURRENT_GUARD_NOT_LIVE_MFA_TESTED"
+      },
+      {
+        "path": "src/app/api/admin/settlements/attempts/[id]/reconcile/route.ts",
+        "mfaStatus": "CURRENT_GUARD_NOT_LIVE_MFA_TESTED"
+      },
+      {
+        "path": "src/app/api/admin/staff/[id]/assignments/route.ts",
+        "mfaStatus": "CURRENT_GUARD_NOT_LIVE_MFA_TESTED"
+      },
+      {
+        "path": "src/app/api/admin/staff/[id]/auth-sync/route.ts",
+        "mfaStatus": "CURRENT_GUARD_NOT_LIVE_MFA_TESTED"
+      },
+      {
+        "path": "src/app/api/admin/staff/[id]/role/route.ts",
+        "mfaStatus": "CURRENT_GUARD_NOT_LIVE_MFA_TESTED"
+      },
+      {
+        "path": "src/app/api/admin/staff/[id]/route.ts",
+        "mfaStatus": "CURRENT_GUARD_NOT_LIVE_MFA_TESTED"
+      },
+      {
+        "path": "src/app/api/admin/staff/[id]/status/route.ts",
+        "mfaStatus": "CURRENT_GUARD_NOT_LIVE_MFA_TESTED"
+      },
+      {
+        "path": "src/app/api/admin/staff/invitations/[id]/route.ts",
+        "mfaStatus": "CURRENT_GUARD_NOT_LIVE_MFA_TESTED"
+      },
+      {
+        "path": "src/app/api/admin/staff/invitations/route.ts",
+        "mfaStatus": "CURRENT_GUARD_NOT_LIVE_MFA_TESTED"
+      },
+      {
+        "path": "src/app/api/admin/staff/invite/route.ts",
+        "mfaStatus": "CURRENT_GUARD_NOT_LIVE_MFA_TESTED"
+      },
+      {
+        "path": "src/app/api/admin/staff/route.ts",
+        "mfaStatus": "CURRENT_GUARD_NOT_LIVE_MFA_TESTED"
+      }
+    ],
+    "operations": [
+      {
+        "path": "src/app/api/operations/catalog/manage/route.ts",
+        "mfaStatus": "DELEGATED_SERVICE_REVIEW_REQUIRED"
+      },
+      {
+        "path": "src/app/api/operations/commodities/route.ts",
+        "mfaStatus": "DELEGATED_SERVICE_REVIEW_REQUIRED"
+      },
+      {
+        "path": "src/app/api/operations/enquiries/[id]/route.ts",
+        "mfaStatus": "DELEGATED_SERVICE_REVIEW_REQUIRED"
+      },
+      {
+        "path": "src/app/api/operations/field-visits/[id]/evidence/[evidenceId]/route.ts",
+        "mfaStatus": "DELEGATED_SERVICE_REVIEW_REQUIRED"
+      },
+      {
+        "path": "src/app/api/operations/field-visits/[id]/review/route.ts",
+        "mfaStatus": "DELEGATED_SERVICE_REVIEW_REQUIRED"
+      },
+      {
+        "path": "src/app/api/operations/field-visits/route.ts",
+        "mfaStatus": "DELEGATED_SERVICE_REVIEW_REQUIRED"
+      },
+      {
+        "path": "src/app/api/operations/fulfilment/issues/[id]/review/route.ts",
+        "mfaStatus": "DELEGATED_SERVICE_REVIEW_REQUIRED"
+      },
+      {
+        "path": "src/app/api/operations/fulfilment/plans/route.ts",
+        "mfaStatus": "DELEGATED_SERVICE_REVIEW_REQUIRED"
+      },
+      {
+        "path": "src/app/api/operations/fulfilment/shipments/[id]/milestone/route.ts",
+        "mfaStatus": "DELEGATED_SERVICE_REVIEW_REQUIRED"
+      },
+      {
+        "path": "src/app/api/operations/fulfilment/shipments/route.ts",
+        "mfaStatus": "DELEGATED_SERVICE_REVIEW_REQUIRED"
+      },
+      {
+        "path": "src/app/api/operations/lots/[id]/status/route.ts",
+        "mfaStatus": "DELEGATED_SERVICE_REVIEW_REQUIRED"
+      },
+      {
+        "path": "src/app/api/operations/lots/route.ts",
+        "mfaStatus": "DELEGATED_SERVICE_REVIEW_REQUIRED"
+      },
+      {
+        "path": "src/app/api/operations/matching/[id]/invite/route.ts",
+        "mfaStatus": "DELEGATED_SERVICE_REVIEW_REQUIRED"
+      },
+      {
+        "path": "src/app/api/operations/matching/route.ts",
+        "mfaStatus": "DELEGATED_SERVICE_REVIEW_REQUIRED"
+      },
+      {
+        "path": "src/app/api/operations/orders/[id]/release/route.ts",
+        "mfaStatus": "DELEGATED_SERVICE_REVIEW_REQUIRED"
+      },
+      {
+        "path": "src/app/api/operations/orders/route.ts",
+        "mfaStatus": "DELEGATED_SERVICE_REVIEW_REQUIRED"
+      },
+      {
+        "path": "src/app/api/operations/payments/[id]/reconcile/route.ts",
+        "mfaStatus": "DELEGATED_SERVICE_REVIEW_REQUIRED"
+      },
+      {
+        "path": "src/app/api/operations/quotes/[id]/transition/route.ts",
+        "mfaStatus": "DELEGATED_SERVICE_REVIEW_REQUIRED"
+      },
+      {
+        "path": "src/app/api/operations/quotes/route.ts",
+        "mfaStatus": "DELEGATED_SERVICE_REVIEW_REQUIRED"
+      },
+      {
+        "path": "src/app/api/operations/requests/[id]/claim/route.ts",
+        "mfaStatus": "DELEGATED_SERVICE_REVIEW_REQUIRED"
+      },
+      {
+        "path": "src/app/api/operations/requests/[id]/review/route.ts",
+        "mfaStatus": "DELEGATED_SERVICE_REVIEW_REQUIRED"
+      },
+      {
+        "path": "src/app/api/operations/reviews/[kind]/[id]/claim/route.ts",
+        "mfaStatus": "DELEGATED_SERVICE_REVIEW_REQUIRED"
+      },
+      {
+        "path": "src/app/api/operations/reviews/[kind]/[id]/route.ts",
+        "mfaStatus": "DELEGATED_SERVICE_REVIEW_REQUIRED"
+      },
+      {
+        "path": "src/app/api/operations/settlements/[id]/transfer/route.ts",
+        "mfaStatus": "DELEGATED_SERVICE_REVIEW_REQUIRED"
+      },
+      {
+        "path": "src/app/api/operations/settlements/agreements/[id]/obligation/route.ts",
+        "mfaStatus": "DELEGATED_SERVICE_REVIEW_REQUIRED"
+      },
+      {
+        "path": "src/app/api/operations/settlements/attempts/[id]/reconcile/route.ts",
+        "mfaStatus": "DELEGATED_SERVICE_REVIEW_REQUIRED"
+      },
+      {
+        "path": "src/app/api/operations/settlements/terms/route.ts",
+        "mfaStatus": "DELEGATED_SERVICE_REVIEW_REQUIRED"
+      }
+    ],
+    "account": [
+      {
+        "path": "src/app/api/account/[action]/route.ts",
+        "mfaStatus": "SENSITIVE_ACCOUNT_GUARDED"
+      },
+      {
+        "path": "src/app/api/account/security/operations-mfa/[action]/route.ts",
+        "mfaStatus": "STEP_UP_EXCEPTION_AAL1"
+      }
+    ],
+    "auth": [
+      {
+        "path": "src/app/api/auth/[action]/route.ts",
+        "mfaStatus": "ACCOUNT_RECOVERY_EXCEPTION"
+      },
+      {
+        "path": "src/app/api/auth/accept-invite/route.ts",
+        "mfaStatus": "ACCOUNT_RECOVERY_EXCEPTION"
+      }
+    ]
+  }
+}
