@@ -1,6 +1,7 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
+import {spawnSync} from "node:child_process";
 import {
   assessMfaOperationalEvidence,
   REQUIRED_MFA_EVIDENCE
@@ -104,4 +105,19 @@ test("no experimental recovery code endpoint, factor reset or privilege elevatio
   assert.match(reporter,/authorizesEnforcement:false/);
   assert.match(reporter,/authorizesProductionDeploy:false/);
   assert.doesNotMatch(reporter,/process\.env\.[A-Z_]+\s*=|\.unenroll\(|\.approve\(|auth\.admin/);
+});
+
+test("offline CLI reports existing blockers and strict mode fails without secrets or mutations",()=>{
+  const plain=spawnSync(process.execPath,["scripts/release/report-mfa-acceptance.mjs"],{
+    encoding:"utf8",timeout:12000
+  });
+  assert.equal(plain.status,0,plain.stderr);
+  assert.match(plain.stdout,/MFA operational evidence status: BLOCKED/);
+  assert.match(plain.stdout,/Missing or unreviewed requirements: 10/);
+  assert.doesNotMatch(plain.stdout,/sb_secret|postgresql:\/\/|Bearer /);
+  const strict=spawnSync(process.execPath,[
+    "scripts/release/report-mfa-acceptance.mjs","--require-complete"
+  ],{encoding:"utf8",timeout:12000});
+  assert.equal(strict.status,1,strict.stderr);
+  assert.match(strict.stdout,/This report cannot authorize provider mutations/);
 });
