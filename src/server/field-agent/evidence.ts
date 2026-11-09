@@ -5,7 +5,7 @@ import { PublicError } from "@/server/auth/http";
 import { getPrisma } from "@/server/db/prisma";
 import type { Prisma } from "@/generated/prisma/client";
 import { requireFieldAgentApi } from "./guard";
-import { assertAgentCanReadVisit } from "./actions";
+import { findCurrentAgentReadyEvidencePath } from "./record-scope";
 
 const MAX_FILE_BYTES=10*1024*1024;
 const BUCKET=process.env.FIELD_EVIDENCE_BUCKET||"field-visit-evidence";
@@ -122,10 +122,11 @@ export async function removeFieldVisitEvidence(visitId:string,evidenceId:string)
 }
 
 export async function fieldEvidenceRedirect(visitId:string,evidenceId:string,agentId:string){
-  await assertAgentCanReadVisit(visitId,agentId);
-  const evidence=await getPrisma().fieldVisitEvidence.findFirst({where:{id:evidenceId,visitId,status:"READY"},select:{objectPath:true}});
-  if(!evidence)throw new PublicError(404,"Evidence not found.");
-  const {data,error}=await createSupabaseAdminClient().storage.from(BUCKET).createSignedUrl(evidence.objectPath,60,{download:true});
+  // Fetch the authorized object path only when ownership, current account
+  // status, active state assignment and READY evidence all match in ONE read.
+  const objectPath=await findCurrentAgentReadyEvidencePath(visitId,evidenceId,agentId);
+  if(!objectPath)throw new PublicError(404,"Evidence not found.");
+  const {data,error}=await createSupabaseAdminClient().storage.from(BUCKET).createSignedUrl(objectPath,60,{download:true});
   if(error||!data?.signedUrl)throw new PublicError(503,"Private evidence is temporarily unavailable.");
   return data.signedUrl;
 }
