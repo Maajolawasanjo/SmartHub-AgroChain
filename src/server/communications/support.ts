@@ -5,6 +5,7 @@ import {z} from "zod";
 import {PublicError} from "@/server/auth/http";
 import {getPrisma} from "@/server/db/prisma";
 import {requireWorkspaceAccount,publishInboxEvent,uuid,type Tx} from "./inbox";
+import {requireSupportStaffMfa} from "./staff-mfa";
 
 const category=z.enum(["SOURCING","PAYMENTS","DELIVERY","SUPPLIER_SETTLEMENT","ACCOUNT","OTHER"]);
 const create=z.strictObject({clientKey:uuid,category,subject:z.string().trim().min(6).max(160),
@@ -58,7 +59,15 @@ export async function openSupportCase(input:unknown){
  });
 }
 export async function replySupportCase(caseId:string,input:unknown){
- uuid.parse(caseId);const value=reply.parse(input);const {account,db}=await requireWorkspaceAccount();
+ uuid.parse(caseId);const value=reply.parse(input);const ctx=await requireWorkspaceAccount();
+ const {account,db}=ctx;
+ // Staff support actions must not bypass the Admin/Operations MFA layer.
+ // Keep a staff user's own non-internal recovery conversation available at
+ // AAL1; an internal note or reply on another customer's case is privileged.
+ if(isStaff(account.role)){
+  const record=await db.supportCase.findUnique({where:{id:caseId},select:{openedById:true}});
+  if(value.internal || record?.openedById!==account.id)await requireSupportStaffMfa(ctx);
+ }
  return atomic(db,async tx=>{
   const actor=await lockAccount(tx,account.id),row=await lockCase(tx,caseId);
   const staff=isStaff(actor.role),owner=row.openedById===account.id;
@@ -89,7 +98,12 @@ export async function replySupportCase(caseId:string,input:unknown){
  });
 }
 export async function changeSupportCase(caseId:string,input:unknown){
- uuid.parse(caseId);const value=command.parse(input);const {account,db}=await requireWorkspaceAccount();
+ uuid.parse(caseId);const value=command.parse(input);const ctx=await requireWorkspaceAccount();
+ const {account,db}=ctx;
+ // Case-owner reopening remains an AAL1 recovery path. Claiming or changing
+ // staff-owned workflow status requires approved privileged MFA when active.
+ if(value.action!=="reopen" && isStaff(account.role))
+  await requireSupportStaffMfa(ctx);
  return atomic(db,async tx=>{
   const actor=await lockAccount(tx,account.id),row=await lockCase(tx,caseId);
   const staff=isStaff(actor.role),owner=row.openedById===account.id;
