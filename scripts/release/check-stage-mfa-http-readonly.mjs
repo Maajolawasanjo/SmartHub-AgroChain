@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import {assertReviewedStagingProjectRefs} from "./reviewed-environment-boundary.mjs";
 import {readFileSync} from "node:fs";
 import {fileURLToPath} from "node:url";
 import {resolve} from "node:path";
@@ -30,7 +31,7 @@ export function assertMfaHttpStagingTarget(env,governance) {
   const productionRef=env.SMART_HUB_PRODUCTION_SUPABASE_REF??"";
   assert.match(stageRef,ref,"Reviewed staging project reference is required.");
   assert.match(productionRef,ref,"Reviewed production project reference is required.");
-  assert.notEqual(stageRef,productionRef,"Staging and production Supabase cannot be identical.");
+  assertReviewedStagingProjectRefs(stageRef,productionRef);
   const auth=new URL(env.NEXT_PUBLIC_SUPABASE_URL??"http://invalid");
   assert.equal(auth.protocol,"https:");
   assert.equal(auth.hostname,stageRef+".supabase.co");
