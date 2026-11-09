@@ -71,11 +71,11 @@ test("support cases and messages have idempotency keys and client cannot access 
  assert.match(support,/old\.openedById!==account\.id/);
  assert.match(support,/previous\.caseId!==caseId\|\|previous\.authorId!==account\.id/);
  assert.match(support,/openedById:account\.id/);
- assert.match(support,/where:\{id,\.\.\.\(staff\?\{\}:\{openedById:account\.id\}\)\}/);
+ assert.match(support,/where:\{id,\.\.\.\(staffView\?\{\}:\{openedById:ctx\.account\.id\}\)\}/);
 });
 test("staff internal notes are never included in buyer/customer conversation queries or notifications",()=>{
  assert.match(support,/if\(value\.internal&&!staff\)/);
- assert.match(support,/where:staff\?\{\}:\{internal:false\}/);
+ assert.match(support,/where:staffView\?\{\}:\{internal:false\}/);
  assert.match(support,/if\(!value\.internal\)/);
  assert.match(support,/row\.assignedToId!==account\.id/);
  assert.match(support,/SUPPORT_INTERNAL_NOTE/);
