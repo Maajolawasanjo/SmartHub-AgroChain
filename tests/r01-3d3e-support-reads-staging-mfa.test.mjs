@@ -201,3 +201,57 @@ test("manual staging workflow cannot run MFA tests in production or mutate provi
   for(const id of ["R00-D01","R00-D04","R00-D09"])
     assert.equal(gates.find(x=>x.id===id)?.status,"PENDING_OWNER_DECISION");
 });
+
+test("staging provider evidence rejects impersonation, stale factor state and non-TOTP AAL2",async()=>{
+  const cfg=staging.assertIsolatedMfaStage(stageEnv());
+  const baseline = token=>({
+    id:token===cfg.aal1?cfg.expectedAal1UserId:cfg.expectedAal2UserId,
+    email_confirmed_at:"2026-11-09T12:00:00Z",is_anonymous:false,
+    factors:[{factor_type:"totp",status:"verified"}]
+  });
+  const assurance = token=>({
+    currentLevel:token===cfg.aal1?"aal1":"aal2",nextLevel:"aal2",
+    currentAuthenticationMethods:token===cfg.aal1?["password"]:["mfa/totp","password"]
+  });
+  const factory=({changeUser=(user)=>user,changeAssurance=(level)=>level}={})=>()=>({
+    auth:{
+      getUser:async token=>({data:{user:changeUser(baseline(token),token)},error:null}),
+      mfa:{getAuthenticatorAssuranceLevel:async token=>({
+        data:changeAssurance(assurance(token),token),error:null})}
+    }
+  });
+  const cases=[
+    [factory({changeUser:(user,token)=>token===cfg.aal2?{...user,id:cfg.expectedAal1UserId}:user}),
+      /session does not belong/],
+    [factory({changeUser:user=>({...user,email_confirmed_at:null})}),/confirmed non-anonymous/],
+    [factory({changeUser:user=>({...user,is_anonymous:true})}),/confirmed non-anonymous/],
+    [factory({changeUser:user=>({...user,factors:[]})}),/verified TOTP factor/],
+    [factory({changeUser:user=>({...user,factors:[{factor_type:"phone",status:"verified"}]})}),
+      /verified TOTP factor/],
+    [factory({changeUser:user=>({...user,factors:[{factor_type:"totp",status:"unverified"}]})}),
+      /verified TOTP factor/],
+    [factory({changeAssurance:level=>({...level,nextLevel:"aal1"})}),
+      /current and next assurance levels/],
+    [factory({changeAssurance:(level,token)=>token===cfg.aal2?
+      {...level,currentAuthenticationMethods:["mfa/phone"]}:level}),/TOTP challenge evidence/],
+    [factory({changeAssurance:(level,token)=>token===cfg.aal1?
+      {...level,currentAuthenticationMethods:["totp"]}:level}),/TOTP challenge evidence/],
+    [factory({changeAssurance:level=>({...level,currentAuthenticationMethods:null})}),
+      /authentication method evidence/],
+    [factory({changeAssurance:(level,token)=>token===cfg.aal2?
+      {...level,currentLevel:"aal1"}:level}),/current and next assurance levels/],
+  ];
+  for(const [mockProvider,expected] of cases)
+    await assert.rejects(staging.inspectIsolatedMfaSessions(cfg,mockProvider),expected);
+});
+
+test("staging acceptance makes read-only token-scoped provider calls and never logs Auth evidence",()=>{
+  assert.match(harnessSource,/auth\.getUser\(token\)/);
+  assert.match(harnessSource,/auth\.mfa\.getAuthenticatorAssuranceLevel\(token\)/);
+  assert.match(harnessSource,/user\.factors\.some\(f=>f\.factor_type==="totp"&&f\.status==="verified"\)/);
+  assert.match(harnessSource,/name==="totp"\|\|name==="mfa\/totp"/);
+  assert.match(harnessSource,/expectedUserId/);
+  assert.match(harnessSource,/assurance\.data\.nextLevel!=="aal2"/);
+  assert.doesNotMatch(harnessSource,/console\.log\(|console\.error\(|JSON\.stringify\(user\)|JSON\.stringify\(assurance\)/);
+  assert.doesNotMatch(harnessSource,/\.enroll\(|\.unenroll\(|\.challengeAndVerify\(|\.signOut\(|auth\.admin\./);
+});
