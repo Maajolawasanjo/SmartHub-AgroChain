@@ -8,6 +8,7 @@ import { PublicError,assertSameOrigin,errorReply,readJson,reply,requireConfig } 
 import { emailSchema } from "@/server/auth/validators";
 import { verifyCurrentPassword } from "@/server/auth/reauth";
 import { STAFF_ROLES } from "@/server/admin/permissions";
+import {requirePrivilegedMfaForSuperAdminActor} from "@/server/admin/privileged-actor-mfa";
 
 export const runtime="nodejs";
 export async function POST(request:NextRequest){
@@ -16,6 +17,9 @@ export async function POST(request:NextRequest){
   const ctx=await getAccountContext();
   if(!ctx || ctx.account.role!=="SUPER_ADMIN" || ctx.account.status!=="ACTIVE" || !ctx.user.email_confirmed_at)
    throw new PublicError(403,"Only an approved Super Admin may invite staff.");
+  // Direct privileged route: require server-verified MFA when the approved
+  // enforcement gate is active, before reserving or sending an invitation.
+  await requirePrivilegedMfaForSuperAdminActor(ctx);
   if(!process.env.SUPABASE_SECRET_KEY)throw new PublicError(503,"Admin invitation service is not configured.");
   const {email,role,currentPassword}=z.object({email:emailSchema,role:z.enum(STAFF_ROLES),currentPassword:z.string().min(1).max(256)}).parse(await readJson(request));
   await verifyCurrentPassword(ctx.user.email,currentPassword,ctx.user.id);
