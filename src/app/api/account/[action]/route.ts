@@ -20,7 +20,7 @@ async function handle(request:NextRequest,action:string){
  // Protected credential/contact changes need AAL2 once the approved rollout
  // starts; logout, revoke-others and recovery must remain possible from AAL1.
  // A verified provider email and authoritative role/status are still required.
- if (["password","email","phone"].includes(action) && ctx.user.email_confirmed_at) {
+ if (["password","email","phone"].includes(action)) {
   if (ctx.account.role==="OPERATIONS") await requireOperationsMfaForActor(ctx);
   if (ctx.account.role==="SUPER_ADMIN") await requirePrivilegedMfaForSuperAdminActor(ctx);
  }
