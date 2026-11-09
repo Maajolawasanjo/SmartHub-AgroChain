@@ -4,7 +4,7 @@ import {existsSync,readFileSync} from "node:fs";
 import {assertStageTarget} from "../scripts/release/stage-target.mjs";
 const read=p=>readFileSync(p,"utf8");
 const ref="abcdefghijklmnopqrst";
-const prodRef="zyxwvutsrqponmlkjihg";
+const prodRef="ematieqwxoiwoovmqdba";
 const valid={
  RELEASE_STAGE_CONFIRM:"I_ACKNOWLEDGE_STAGING_ONLY",
  SMART_HUB_STAGE_SUPABASE_REF:ref,
