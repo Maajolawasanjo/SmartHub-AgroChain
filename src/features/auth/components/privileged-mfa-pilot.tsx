@@ -11,8 +11,8 @@ type Result = {
   setupSecret?: string;
 };
 
-async function action(name: string, input: Record<string, unknown>): Promise<Result> {
-  const response = await fetch(`/api/admin/security/mfa/${name}`, {
+async function action(endpointBase: string, name: string, input: Record<string, unknown>): Promise<Result> {
+  const response = await fetch(`${endpointBase}/${name}`, {
     method: "POST",
     credentials: "same-origin",
     cache: "no-store",
@@ -34,10 +34,12 @@ export function PrivilegedMfaPilotConsole({
   verifiedFactors,
   pendingFactors,
   assurance,
+  endpointBase = "/api/admin/security/mfa",
 }: {
   verifiedFactors: Factor[];
   pendingFactors: Factor[];
   assurance: "aal1" | "aal2" | "unknown";
+  endpointBase?: "/api/admin/security/mfa" | "/api/account/security/operations-mfa";
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -55,7 +57,7 @@ export function PrivilegedMfaPilotConsole({
     setError("");
     setNotice("");
     try {
-      const result = await action(name, payload);
+      const result = await action(endpointBase, name, payload);
       setNotice(result.message || "Authenticator request completed.");
       if (name === "enroll") {
         if (!result.factorId || !result.setupSecret) throw new Error("Setup could not be completed.");

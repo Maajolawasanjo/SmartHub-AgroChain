@@ -6,6 +6,8 @@ import { getAccountContext } from "@/server/auth/context";
 import { PublicError,assertSameOrigin,errorReply,readJson,reply,requireConfig } from "@/server/auth/http";
 import { emailSchema,passwordSchema,phoneSchema } from "@/server/auth/validators";
 import { verifyCurrentPassword } from "@/server/auth/reauth";
+import { requireOperationsMfaForActor } from "@/server/operations/mfa-policy";
+import { requirePrivilegedMfaForSuperAdminActor } from "@/server/admin/privileged-actor-mfa";
 
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
@@ -15,6 +17,13 @@ async function handle(request:NextRequest,action:string){
  const data=await readJson(request);
  const ctx=await getAccountContext();
  if(!ctx || ctx.account.status!=="ACTIVE")throw new PublicError(401,"Sign in with an active account to continue.");
+ // Protected credential/contact changes need AAL2 once the approved rollout
+ // starts; logout, revoke-others and recovery must remain possible from AAL1.
+ // A verified provider email and authoritative role/status are still required.
+ if (["password","email","phone"].includes(action)) {
+  if (ctx.account.role==="OPERATIONS") await requireOperationsMfaForActor(ctx);
+  if (ctx.account.role==="SUPER_ADMIN") await requirePrivilegedMfaForSuperAdminActor(ctx);
+ }
  const db=getPrisma();
  const supabase=await createSupabaseServerClient();
  switch(action){

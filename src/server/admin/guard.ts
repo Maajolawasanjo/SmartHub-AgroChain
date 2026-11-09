@@ -7,6 +7,7 @@ import { hasPermission, isAdministrativePermission, type AdminApiPermission } fr
 import { evaluateCurrentAdminCapability } from "./current-access-decision";
 import { privilegedMfaEnforcementEnabled, inspectCurrentPrivilegedMfaAccess } from "./privileged-mfa-enforcement";
 import { z } from "zod";
+import { requireOperationsMfaForActor } from "@/server/operations/mfa-policy";
 
 export async function requireSuperAdminPage(){
   const ctx=await getAccountContext();
@@ -47,6 +48,7 @@ export async function requireAdminApi(permission:AdminApiPermission="staff.manag
     if (!mfa.allowed)
       throw new PublicError(403,"An authenticator challenge is required. Open account security to continue.");
   }
+  if (ctx.account.role==="OPERATIONS") await requireOperationsMfaForActor(ctx);
   return {ctx,db:getPrisma()};
 }
 

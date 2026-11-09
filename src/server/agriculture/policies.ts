@@ -3,6 +3,8 @@ import { getAccountContext } from "@/server/auth/context";
 import { PublicError, requireConfig } from "@/server/auth/http";
 import { getPrisma } from "@/server/db/prisma";
 import { hasPermission } from "@/server/admin/permissions";
+import { requireOperationsMfaForActor } from "@/server/operations/mfa-policy";
+import { requirePrivilegedMfaForSuperAdminActor } from "@/server/admin/privileged-actor-mfa";
 
 export async function requireActor(role: "FARMER" | "OPERATIONS") {
   requireConfig();
@@ -17,6 +19,12 @@ export async function requireActor(role: "FARMER" | "OPERATIONS") {
   } else if (!hasPermission(ctx.account.role,"operations.supply.review")) {
     throw new PublicError(403, "Operations access required.");
   }
+  // Apply MFA after existing account/role checks, never instead of them.
+  // Both boundaries remain off until separately signed rollout gates pass.
+  if (role === "OPERATIONS" && ctx.account.role === "OPERATIONS")
+    await requireOperationsMfaForActor(ctx);
+  if (role === "OPERATIONS" && ctx.account.role === "SUPER_ADMIN")
+    await requirePrivilegedMfaForSuperAdminActor(ctx);
   return { ...ctx, db: getPrisma() };
 }
 
