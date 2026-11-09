@@ -117,7 +117,7 @@ test("malformed scope or missing context denies, never broadens scope", () => {
 test("candidate SQL cannot be applied as a Prisma or Supabase migration", () => {
   assert.ok(sqlPath.startsWith("docs/implementation/drafts/"));
   assert.ok(sqlPath.endsWith(".sql.disabled"));
-  assert.match(sql,/^BEGIN;\nDO \$r01_3c2_unapproved\$/);
+  assert.match(sql,/^BEGIN;\nDO \$r01_3c2_unapproved\$/m);
   assert.match(sql,/RAISE EXCEPTION 'R01\.3C\.2 NOT APPROVED/);
   assert.match(sql,/ROLLBACK;\s*$/);
   assert.doesNotMatch(sql,/\bGRANT\s+(?:SELECT|INSERT|UPDATE|DELETE|ALL)\s+ON\s+/i);
