@@ -5,6 +5,7 @@ import { hasPermission } from "@/server/admin/permissions";
 import { getPrisma } from "@/server/db/prisma";
 import type { Prisma } from "@/generated/prisma/client";
 import { requireFieldAgentApi } from "./guard";
+import { requireCurrentAgentScopedVisit } from "./record-scope";
 import { fieldVisitCancelInput, fieldVisitCreateInput, fieldVisitReviewInput, fieldVisitUpdateInput } from "./validators";
 
 const editableStatuses=["DRAFT","IN_PROGRESS","RETURNED"] as const;
@@ -155,10 +156,9 @@ export async function reviewFieldVisit(id:string,input:unknown){
 }
 
 export async function assertAgentCanReadVisit(visitId:string,agentId:string){
-  const db=getPrisma();
-  const visit=await db.fieldVisit.findFirst({where:{id:visitId,fieldAgentId:agentId,farm:{is:{state:{in:await activeStates(agentId)}}}},select:{id:true}});
-  if(!visit)throw new PublicError(404,"Field visit not found in your active assignment scope.");
-  return visit;
+  // Authoritative actor, visit ownership and current state assignment are
+  // evaluated together in the database. No cached state list is trusted here.
+  return requireCurrentAgentScopedVisit(visitId,agentId);
 }
 
 export async function activeStates(agentId:string){
