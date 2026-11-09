@@ -24,6 +24,8 @@ const executable = stripTypeScriptTypes(helper
   .replace(/^import \{ PublicError \} from [^\n]+\n/m, "")
   .replace(/^import \{ requireOperationsMfaForActor \} from [^\n]+\n/m, "")
   .replace(/^import \{ requirePrivilegedMfaForSuperAdminActor \} from [^\n]+\n/m, "")
+  .replace(/^import [^\n]*operationsMfaEnforcementEnabled[^\n]*\n/gm, "")
+  .replace(/^import [^\n]*privilegedMfaEnforcementEnabled[^\n]*\n/gm, "")
   .replace(/^export /gm, ""), {mode:"strip"});
 function checkActor(){
   const observed=[];
