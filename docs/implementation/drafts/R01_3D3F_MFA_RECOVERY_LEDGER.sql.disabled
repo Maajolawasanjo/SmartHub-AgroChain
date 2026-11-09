@@ -1,0 +1,76 @@
+-- NON-EXECUTABLE R01.3D.3F DESIGN DRAFT.
+-- File extension .sql.disabled is intentional. DO NOT COPY INTO prisma/migrations,
+-- Supabase SQL editor, production, or staging without R00-D01/R00-D04 owner
+-- signoff, independent security review, audited dry run and backup/restore proof.
+--
+-- No route or migration in this milestone executes any of this SQL.
+-- Names, roles, indexes and RLS must be reconciled with the actual DB schema.
+--
+-- REVIEW-ONLY proposed tables:
+CREATE SCHEMA IF NOT EXISTS security_private;
+REVOKE ALL ON SCHEMA security_private FROM PUBLIC, anon, authenticated;
+
+CREATE TABLE security_private.mfa_recovery_requests (
+  id uuid PRIMARY KEY,
+  subject_account_id uuid NOT NULL REFERENCES public.app_accounts(id),
+  requested_by_id uuid NOT NULL REFERENCES public.app_accounts(id),
+  support_case_id uuid NOT NULL REFERENCES public.support_cases(id),
+  incident_reference varchar(120) NOT NULL UNIQUE,
+  justification varchar(2000) NOT NULL,
+  identity_reverified_at timestamptz,
+  identity_evidence_digest char(64),
+  status varchar(30) NOT NULL DEFAULT 'OPEN'
+    CHECK (status IN ('OPEN','UNDER_REVIEW','REJECTED','CANCELLED','EXECUTED')),
+  version integer NOT NULL DEFAULT 1 CHECK (version>=1),
+  issued_at timestamptz NOT NULL DEFAULT now(),
+  expires_at timestamptz NOT NULL,
+  nonce_digest char(64) NOT NULL UNIQUE,
+  nonce_consumed_at timestamptz,
+  CHECK (expires_at>issued_at),
+  CHECK (nonce_consumed_at IS NULL OR nonce_consumed_at>=issued_at)
+);
+
+CREATE TABLE security_private.mfa_recovery_officer_decisions (
+  id uuid PRIMARY KEY,
+  request_id uuid NOT NULL REFERENCES security_private.mfa_recovery_requests(id),
+  request_version integer NOT NULL CHECK (request_version>=1),
+  officer_account_id uuid NOT NULL REFERENCES public.app_accounts(id),
+  decision varchar(20) NOT NULL CHECK (decision IN ('APPROVE','REJECT')),
+  verification_session_digest char(64) NOT NULL,
+  independent_identity_evidence_digest char(64) NOT NULL,
+  decided_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (request_id,request_version,officer_account_id)
+);
+
+CREATE TABLE security_private.mfa_recovery_events (
+  id uuid PRIMARY KEY,
+  request_id uuid NOT NULL REFERENCES security_private.mfa_recovery_requests(id),
+  sequence integer NOT NULL CHECK (sequence>=1),
+  request_version integer NOT NULL CHECK (request_version>=1),
+  actor_account_id uuid NOT NULL REFERENCES public.app_accounts(id),
+  event_type varchar(40) NOT NULL
+    CHECK (event_type IN ('REQUESTED','IDENTITY_REVERIFIED','OFFICER_APPROVED',
+      'OFFICER_REJECTED','CANCELLED','EXECUTION_PREPARED','EXECUTION_RESULT',
+      'SESSIONS_REVOKED','NOTIFICATION_SENT')),
+  prior_digest char(64) NOT NULL,
+  event_digest char(64) NOT NULL,
+  occurred_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (request_id,sequence),
+  UNIQUE (request_id,event_digest)
+);
+
+-- DO NOT grant Data API roles any table, function, schema or sequence access.
+REVOKE ALL ON ALL TABLES IN SCHEMA security_private FROM PUBLIC, anon, authenticated;
+ALTER TABLE security_private.mfa_recovery_requests ENABLE ROW LEVEL SECURITY;
+ALTER TABLE security_private.mfa_recovery_officer_decisions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE security_private.mfa_recovery_events ENABLE ROW LEVEL SECURITY;
+-- No exposed RLS policies. The separately authorized server workflow must
+-- run with a dedicated, narrowly granted DB role, NOT client-visible keys.
+
+-- Future design needs separate, independently reviewed functions/permissions
+-- for append-only events, request locking, serializable CAS/version updates,
+-- nonce consumption before any Auth provider action, immutable signed external
+-- audit anchor, session revocation proof, and failure/retry reconciliation.
+-- This draft does NOT create those functions or a factor-removal capability.
+-- JWT access tokens may remain valid until expiration after refresh-session
+-- revocation. No security promise should contradict that limitation.
