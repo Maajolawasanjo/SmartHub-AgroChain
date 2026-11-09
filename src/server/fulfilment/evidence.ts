@@ -7,6 +7,8 @@ import {getPrisma} from "@/server/db/prisma";
 import {createSupabaseAdminClient} from "@/lib/supabase/admin";
 import {id} from "./validation";
 import {atomic,lockAccount,shipmentRecord} from "./common";
+import {requireOperationsMfaForActor} from "@/server/operations/mfa-policy";
+import {requirePrivilegedMfaForSuperAdminActor} from "@/server/admin/privileged-actor-mfa";
 
 const BUCKET=process.env.SHIPMENT_EVIDENCE_BUCKET||"shipment-evidence";
 const LIMIT=10*1024*1024;
@@ -25,6 +27,10 @@ async function actor(){
   throw new PublicError(401,"Verified active account required.");
  if(!["BUYER","OPERATIONS","SUPER_ADMIN"].includes(ctx.account.role))
   throw new PublicError(403,"This account may not view or upload shipment evidence.");
+ // Shared shipment evidence URLs and uploads are cross-portal. Supplement,
+ // never replace, the existing ownership and assigned Operations scope.
+ if(ctx.account.role==="OPERATIONS")await requireOperationsMfaForActor(ctx);
+ if(ctx.account.role==="SUPER_ADMIN")await requirePrivilegedMfaForSuperAdminActor(ctx);
  return ctx;
 }
 async function requireScope(tx:Prisma.TransactionClient,actorId:string,role:string,shipmentId:string){
