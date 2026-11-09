@@ -1,0 +1,219 @@
+-- R01.3C.2 CANDIDATE ONLY: not a migration; DO NOT EXECUTE.
+-- The guard below deliberately aborts a transaction before any DDL.
+-- R00-D01/D04/D09 require signed owner decisions and verified staging testing.
+-- This proposal assumes an integrated PostgreSQL authority; if R00-D01
+-- selects separate Admin storage, rewrite all auth/Staff Directory FKs.
+BEGIN;
+DO $r01_3c2_unapproved$
+BEGIN
+  RAISE EXCEPTION 'R01.3C.2 NOT APPROVED: architectural, privileged-access and financial authority decisions outstanding';
+END;
+$r01_3c2_unapproved$;
+
+CREATE SCHEMA IF NOT EXISTS smarthub_admin_access;
+REVOKE ALL ON SCHEMA smarthub_admin_access FROM PUBLIC, anon, authenticated;
+
+-- Staff Directory precedes Auth linking. No role can be inferred from job title.
+CREATE TABLE smarthub_admin_access.staff_directory_records (
+  id uuid PRIMARY KEY,
+  staff_code varchar(48) NOT NULL UNIQUE,
+  auth_account_id uuid UNIQUE REFERENCES public.app_accounts(id) ON DELETE RESTRICT,
+  department_key varchar(80) NOT NULL,
+  job_title varchar(160) NOT NULL,
+  engagement_status varchar(32) NOT NULL
+    CHECK (engagement_status IN ('PENDING','ELIGIBLE','SUSPENDED','ENDED')),
+  approved_at timestamptz,
+  approved_by_account_id uuid REFERENCES public.app_accounts(id) ON DELETE RESTRICT,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (id, auth_account_id)
+);
+
+CREATE TABLE smarthub_admin_access.role_templates (
+  id uuid PRIMARY KEY,
+  role_key varchar(80) NOT NULL UNIQUE,
+  title varchar(160) NOT NULL,
+  lifecycle_status varchar(24) NOT NULL DEFAULT 'DRAFT'
+    CHECK (lifecycle_status IN ('DRAFT','ACTIVE','INACTIVE','ARCHIVED')),
+  created_by_account_id uuid NOT NULL REFERENCES public.app_accounts(id) ON DELETE RESTRICT,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  archived_at timestamptz
+);
+
+-- Never edit permission rows of an approved/active version; issue a new version.
+CREATE TABLE smarthub_admin_access.role_template_versions (
+  id uuid PRIMARY KEY,
+  role_template_id uuid NOT NULL REFERENCES smarthub_admin_access.role_templates(id) ON DELETE RESTRICT,
+  version_number integer NOT NULL CHECK (version_number >= 1),
+  approval_status varchar(24) NOT NULL DEFAULT 'DRAFT'
+    CHECK (approval_status IN ('DRAFT','PENDING','APPROVED','REJECTED','RETIRED')),
+  requested_by_account_id uuid NOT NULL REFERENCES public.app_accounts(id) ON DELETE RESTRICT,
+  approved_by_account_id uuid REFERENCES public.app_accounts(id) ON DELETE RESTRICT,
+  approval_reference varchar(160),
+  approved_at timestamptz,
+  business_reason varchar(2000) NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (role_template_id, version_number),
+  CHECK (approved_by_account_id IS NULL OR approved_by_account_id <> requested_by_account_id),
+  CHECK ((approval_status <> 'APPROVED') OR
+         (approved_by_account_id IS NOT NULL AND approval_reference IS NOT NULL AND approved_at IS NOT NULL))
+);
+
+CREATE TABLE smarthub_admin_access.role_version_capabilities (
+  role_version_id uuid NOT NULL REFERENCES smarthub_admin_access.role_template_versions(id) ON DELETE RESTRICT,
+  module_key varchar(80) NOT NULL,
+  action_key varchar(16) NOT NULL
+    CHECK (action_key IN ('view','create','edit','approve','delete','export','manage')),
+  scope_kind varchar(32) NOT NULL,
+  scope_reference varchar(160) NOT NULL DEFAULT '',
+  classification varchar(24) NOT NULL DEFAULT 'ORDINARY',
+  PRIMARY KEY (role_version_id, module_key, action_key, scope_kind, scope_reference),
+  CHECK (scope_kind IN ('COMPANY','DEPARTMENT','STATE','LOCAL_GOVERNMENT','OPERATIONAL_AREA',
+                       'PROJECT','ASSIGNED_RECORD','OWN_RECORD','BUSINESS_RELATIONSHIP')),
+  CHECK (classification IN ('ORDINARY','SENSITIVE','CRITICAL')),
+  CHECK ((scope_kind IN ('COMPANY','OWN_RECORD','ASSIGNED_RECORD') AND scope_reference = '') OR
+         (scope_kind NOT IN ('COMPANY','OWN_RECORD','ASSIGNED_RECORD') AND length(trim(scope_reference)) > 0)),
+  CHECK (length(trim(module_key)) > 0)
+);
+
+-- This is a proposal: the real grant transition must first verify current
+-- Staff Directory engagement, role-version activation, MFA and approver policy.
+CREATE TABLE smarthub_admin_access.principal_role_assignments (
+  id uuid PRIMARY KEY,
+  staff_record_id uuid NOT NULL,
+  principal_account_id uuid NOT NULL,
+  role_version_id uuid NOT NULL REFERENCES smarthub_admin_access.role_template_versions(id) ON DELETE RESTRICT,
+  lifecycle_status varchar(32) NOT NULL DEFAULT 'REQUESTED'
+    CHECK (lifecycle_status IN ('REQUESTED','APPROVED','PROVISIONING','ACTIVE',
+      'PROVISIONING_FAILED','REJECTED','REVOKED','SUSPENDED','EXPIRED')),
+  scope_kind varchar(32) NOT NULL,
+  scope_reference varchar(160),
+  business_reason varchar(2000) NOT NULL,
+  requested_by_account_id uuid NOT NULL REFERENCES public.app_accounts(id) ON DELETE RESTRICT,
+  approved_by_account_id uuid REFERENCES public.app_accounts(id) ON DELETE RESTRICT,
+  approval_reference varchar(160),
+  effective_from timestamptz NOT NULL,
+  expires_at timestamptz,
+  provisioned_at timestamptz,
+  revoked_at timestamptz,
+  revoked_by_account_id uuid REFERENCES public.app_accounts(id) ON DELETE RESTRICT,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  FOREIGN KEY (staff_record_id, principal_account_id)
+    REFERENCES smarthub_admin_access.staff_directory_records(id, auth_account_id) ON DELETE RESTRICT,
+  CHECK (expires_at IS NULL OR expires_at > effective_from),
+  CHECK (approved_by_account_id IS NULL OR approved_by_account_id <> principal_account_id),
+  CHECK (approved_by_account_id IS NULL OR approved_by_account_id <> requested_by_account_id),
+  CHECK (scope_kind IN ('COMPANY','DEPARTMENT','STATE','LOCAL_GOVERNMENT','OPERATIONAL_AREA',
+                       'PROJECT','ASSIGNED_RECORD','OWN_RECORD','BUSINESS_RELATIONSHIP')),
+  CHECK (lifecycle_status <> 'ACTIVE' OR
+    (approved_by_account_id IS NOT NULL AND approval_reference IS NOT NULL AND provisioned_at IS NOT NULL))
+);
+
+CREATE INDEX principal_role_assignments_effective_idx
+  ON smarthub_admin_access.principal_role_assignments(principal_account_id, lifecycle_status, effective_from, expires_at);
+CREATE INDEX principal_role_assignments_version_idx
+  ON smarthub_admin_access.principal_role_assignments(role_version_id, lifecycle_status);
+
+CREATE TABLE smarthub_admin_access.individual_permission_exceptions (
+  id uuid PRIMARY KEY,
+  staff_record_id uuid NOT NULL,
+  principal_account_id uuid NOT NULL,
+  module_key varchar(80) NOT NULL,
+  action_key varchar(16) NOT NULL
+    CHECK (action_key IN ('view','create','edit','approve','delete','export','manage')),
+  effect varchar(16) NOT NULL CHECK (effect IN ('GRANT','RESTRICT')),
+  scope_kind varchar(32) NOT NULL
+    CHECK (scope_kind IN ('COMPANY','DEPARTMENT','STATE','LOCAL_GOVERNMENT','OPERATIONAL_AREA',
+                         'PROJECT','ASSIGNED_RECORD','OWN_RECORD','BUSINESS_RELATIONSHIP')),
+  scope_reference varchar(160),
+  classification varchar(24) NOT NULL CHECK (classification IN ('ORDINARY','SENSITIVE','CRITICAL')),
+  lifecycle_status varchar(32) NOT NULL DEFAULT 'REQUESTED'
+    CHECK (lifecycle_status IN ('REQUESTED','APPROVED','PROVISIONING','ACTIVE',
+      'PROVISIONING_FAILED','REJECTED','REVOKED','SUSPENDED','EXPIRED')),
+  business_reason varchar(2000) NOT NULL,
+  requested_by_account_id uuid NOT NULL REFERENCES public.app_accounts(id) ON DELETE RESTRICT,
+  approved_by_account_id uuid REFERENCES public.app_accounts(id) ON DELETE RESTRICT,
+  approval_reference varchar(160),
+  effective_from timestamptz NOT NULL,
+  expires_at timestamptz,
+  provisioned_at timestamptz,
+  next_review_at timestamptz,
+  revoked_at timestamptz,
+  revoked_by_account_id uuid REFERENCES public.app_accounts(id) ON DELETE RESTRICT,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  FOREIGN KEY (staff_record_id, principal_account_id)
+    REFERENCES smarthub_admin_access.staff_directory_records(id, auth_account_id) ON DELETE RESTRICT,
+  CHECK (expires_at IS NULL OR expires_at > effective_from),
+  CHECK (approved_by_account_id IS NULL OR approved_by_account_id <> principal_account_id),
+  CHECK (approved_by_account_id IS NULL OR approved_by_account_id <> requested_by_account_id),
+  CHECK (lifecycle_status <> 'ACTIVE' OR
+    (approved_by_account_id IS NOT NULL AND approval_reference IS NOT NULL AND provisioned_at IS NOT NULL))
+);
+
+CREATE INDEX individual_permissions_effective_idx
+  ON smarthub_admin_access.individual_permission_exceptions(principal_account_id,lifecycle_status,effective_from,expires_at);
+CREATE INDEX individual_permissions_module_idx
+  ON smarthub_admin_access.individual_permission_exceptions(module_key,action_key,effect,lifecycle_status);
+
+-- Audit data must persist after assignment/exception revocation.
+CREATE TABLE smarthub_admin_access.access_change_events (
+  id uuid PRIMARY KEY,
+  actor_account_id uuid NOT NULL REFERENCES public.app_accounts(id) ON DELETE RESTRICT,
+  principal_account_id uuid NOT NULL REFERENCES public.app_accounts(id) ON DELETE RESTRICT,
+  staff_record_id uuid REFERENCES smarthub_admin_access.staff_directory_records(id) ON DELETE RESTRICT,
+  source_type varchar(32) NOT NULL
+    CHECK (source_type IN ('ROLE_TEMPLATE','ROLE_ASSIGNMENT','INDIVIDUAL_EXCEPTION','STAFF_STATUS','RECOVERY')),
+  source_id uuid NOT NULL,
+  event_type varchar(48) NOT NULL,
+  approval_reference varchar(160),
+  business_reason varchar(2000) NOT NULL,
+  previous_state jsonb,
+  new_state jsonb,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX access_change_events_actor_idx
+  ON smarthub_admin_access.access_change_events(actor_account_id,created_at);
+CREATE INDEX access_change_events_subject_idx
+  ON smarthub_admin_access.access_change_events(principal_account_id,created_at);
+
+-- Append-only even for privileged operators. No silent audit rewriting.
+CREATE FUNCTION smarthub_admin_access.reject_access_event_mutation()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = ''
+AS $r01_3c2_immutable$
+BEGIN
+  RAISE EXCEPTION 'Access change events are append-only';
+END;
+$r01_3c2_immutable$;
+CREATE TRIGGER access_change_events_immutable
+  BEFORE UPDATE OR DELETE ON smarthub_admin_access.access_change_events
+  FOR EACH ROW EXECUTE FUNCTION smarthub_admin_access.reject_access_event_mutation();
+
+-- Unapproved tables are not browser-accessible. RLS policies are intentionally
+-- ABSENT; approved permission checks and trusted backend roles must be designed
+-- before any release. In a real migration, scope every SQL principal explicitly.
+ALTER TABLE smarthub_admin_access.staff_directory_records ENABLE ROW LEVEL SECURITY;
+ALTER TABLE smarthub_admin_access.role_templates ENABLE ROW LEVEL SECURITY;
+ALTER TABLE smarthub_admin_access.role_template_versions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE smarthub_admin_access.role_version_capabilities ENABLE ROW LEVEL SECURITY;
+ALTER TABLE smarthub_admin_access.principal_role_assignments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE smarthub_admin_access.individual_permission_exceptions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE smarthub_admin_access.access_change_events ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE smarthub_admin_access.staff_directory_records FORCE ROW LEVEL SECURITY;
+ALTER TABLE smarthub_admin_access.role_templates FORCE ROW LEVEL SECURITY;
+ALTER TABLE smarthub_admin_access.role_template_versions FORCE ROW LEVEL SECURITY;
+ALTER TABLE smarthub_admin_access.role_version_capabilities FORCE ROW LEVEL SECURITY;
+ALTER TABLE smarthub_admin_access.principal_role_assignments FORCE ROW LEVEL SECURITY;
+ALTER TABLE smarthub_admin_access.individual_permission_exceptions FORCE ROW LEVEL SECURITY;
+ALTER TABLE smarthub_admin_access.access_change_events FORCE ROW LEVEL SECURITY;
+
+REVOKE ALL ON ALL TABLES IN SCHEMA smarthub_admin_access FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON ALL SEQUENCES IN SCHEMA smarthub_admin_access FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON ALL FUNCTIONS IN SCHEMA smarthub_admin_access FROM PUBLIC, anon, authenticated;
+
+-- The transactional abort above makes all of these declarations unexecutable,
+-- including on a database where the schema already exists.
+ROLLBACK;
