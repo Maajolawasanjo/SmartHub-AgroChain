@@ -87,8 +87,8 @@ test("Staging workflow must validate separate production reference BEFORE migrat
  assert.match(guard,/SMART_HUB_PRODUCTION_SUPABASE_REF/);
  assert.match(guard,/session-mode port 5432/);
  assert.match(guard,/sslmode=require/);
- assert.match(guard,/assertReviewedStagingProjectRefs\\(ref,prodRef\\)/);
- assert.match(guard,/reviewed-environment-boundary\\.mjs/);
- assert.match(readFileSync("scripts/release/reviewed-environment-boundary.mjs","utf8"),/assert\\.notEqual\\(stageRef,REVIEWED_PRODUCTION_SUPABASE_REF/);
+ assert.ok(guard.includes("assertReviewedStagingProjectRefs(ref,prodRef)"));
+ assert.ok(guard.includes("reviewed-environment-boundary.mjs"));
+ assert.ok(readFileSync("scripts/release/reviewed-environment-boundary.mjs","utf8").includes("assert.notEqual(stageRef,REVIEWED_PRODUCTION_SUPABASE_REF"));
  assert.doesNotMatch(guard,/console\.log\(.*DATABASE_URL/);
 });
