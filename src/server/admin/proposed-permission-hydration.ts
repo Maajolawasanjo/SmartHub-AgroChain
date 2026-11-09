@@ -51,6 +51,8 @@ const deny = (reason: Extract<HydrationResult, {ok: false}>["reason"]): Hydratio
 
 const str = (value: unknown): value is string =>
   typeof value === "string" && value.trim().length > 0 && value.length <= 256;
+const reasonText = (value: unknown): value is string =>
+  typeof value === "string" && value.trim().length >= 12 && value.length <= 2000;
 const row = (value: unknown): value is Record<string, unknown> =>
   !!value && typeof value === "object" && !Array.isArray(value);
 const finite = (value: unknown): value is number =>
@@ -117,7 +119,7 @@ export function hydrateProposedPermissionRows(input: {
     if (!row(raw) || !str(raw.sourceId) || !str(raw.principalId) ||
         raw.principalId !== input.principalId || !knownCapability(raw.capability) ||
         !["ROLE_TEMPLATE", "INDIVIDUAL_GRANT", "INDIVIDUAL_RESTRICTION"].includes(String(raw.sourceKind)) ||
-        !["REQUESTED", "APPROVED", "PROVISIONING", "ACTIVE", "REVOKED", "SUSPENDED", "EXPIRED", "REJECTED"].includes(String(raw.status)))
+        !["REQUESTED", "APPROVED", "PROVISIONING", "PROVISIONING_FAILED", "ACTIVE", "REVOKED", "SUSPENDED", "EXPIRED", "REJECTED"].includes(String(raw.status)))
       return deny("MALFORMED_ROW");
 
     // Stored inactive/history rows MUST NOT silently reactivate on hydration.
@@ -125,10 +127,9 @@ export function hydrateProposedPermissionRows(input: {
 
     // A record is authoritative only after the separate provisioning step.
     if (raw.provisioningStatus !== "PROVISIONED" ||
-        !str(raw.approvalReference) || !str(raw.businessReason) ||
+        !str(raw.approvalReference) || !reasonText(raw.businessReason) ||
         !str(raw.requestedById) || !str(raw.approvedById) ||
         raw.approvedById === input.principalId ||
-        raw.requestedById === input.principalId ||
         raw.approvedById === raw.requestedById ||
         !finite(raw.effectiveFromMs) ||
         raw.effectiveFromMs > input.atMs ||
