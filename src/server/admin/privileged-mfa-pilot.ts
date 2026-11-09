@@ -10,7 +10,7 @@ import decisions from "../../../docs/implementation/r00-gates.json";
  * separately required for privileged pages, APIs, MFA recovery and finance.
  */
 export function privilegedMfaPilotEnabled(): boolean {
-  const gate = decisions.gates.find(value => value.id === "R00-D04");
+  const gate = decisions.gates.find(value => value.id === "R00-D04") as\n    | { status: string; decision_record_ref: unknown; approved_by: unknown; approved_at: unknown }\n    | undefined;
   return (
     gate?.status === "APPROVED" &&
     typeof gate.decision_record_ref === "string" &&
