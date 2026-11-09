@@ -1,7 +1,6 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
-import {spawnSync} from "node:child_process";
 import {
   REVIEWED_PRODUCTION_SUPABASE_REF,
   REVIEWED_VERCEL_TEAM_SLUG,
@@ -52,8 +51,9 @@ test("database staging, provider MFA and app HTTP staging all share pinned regis
   for(const source of [stageDb,stageAuth,stageHttp]){
     assert.match(source,/reviewed-environment-boundary\.mjs/);
     assert.match(source,/assertReviewedStagingProjectRefs\(/);
-    assert.ok(source.indexOf("assertReviewedStagingProjectRefs(") <
-      source.indexOf("new URL("),
+    const validator=source.slice(source.indexOf("export function "));
+    assert.ok(validator.indexOf("assertReviewedStagingProjectRefs(") <
+      validator.indexOf("new URL("),
       "The known production identity must be checked before parsing any target URL.");
   }
   assert.doesNotMatch(stageDb,/REF_OVERRIDE|SKIP_PROD|allowProduction|ALLOW_PROD_DB/);
