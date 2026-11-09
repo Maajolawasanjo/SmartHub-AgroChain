@@ -4,6 +4,7 @@ import {PublicError} from "@/server/auth/http";
 import {requireActor} from "@/server/agriculture/policies";
 import {getPrisma} from "@/server/db/prisma";
 import {hasPermission} from "@/server/admin/permissions";
+import {requirePrivilegedMfaForSuperAdminActor} from "@/server/admin/privileged-actor-mfa";
 
 export type Tx=Prisma.TransactionClient;
 const options={isolationLevel:Prisma.TransactionIsolationLevel.Serializable,timeout:30000,maxWait:10000} as const;
@@ -30,6 +31,9 @@ export async function operationsActor(){
 export async function superAdminActor(){
  const ctx=await requireActor("OPERATIONS");
  if(ctx.account.role!=="SUPER_ADMIN")throw new PublicError(403,"An independent Super Admin approval is required.");
+ // Independent maker/checker and transaction guards remain authoritative.
+ // Gate a current provider MFA check before any financial reads or writes.
+ await requirePrivilegedMfaForSuperAdminActor(ctx);
  return ctx;
 }
 export async function lockAccount(tx:Tx,id:string,role:string){
