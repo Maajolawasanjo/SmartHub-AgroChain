@@ -1,0 +1,612 @@
+{
+  "schemaVersion": 1,
+  "scope": "All src/app/**/route.ts files in Next.js App Router; routes outside src/app/ and RPC/service methods need separate review.",
+  "baselineCommit": "84faf6d49770959c62a49578077d659e61f7bfeb",
+  "asOf": "2026-11-09",
+  "ownerSigned": false,
+  "allEntryPointsAccepted": false,
+  "liveAuthMfaTested": false,
+  "recoveryExercised": false,
+  "notes": [
+    "Inventory is not an authorization source or production MFA certification.",
+    "New/removed routes fail source CI until reviewed.",
+    "Support staff mutations and shipment staff evidence have additional dormant server-side MFA checks; support read paths still need access review.",
+    "Provider webhooks must retain signature validation and MUST NOT be gated on an end-user MFA session.",
+    "Public signup, account recovery and staff acceptance require distinct controls and do not inherit privileged MFA checks.",
+    "Cross-domain server actions, DB RPC, service identities, signed URLs, and middleware remain separate audit scope."
+  ],
+  "counts": {
+    "ACCOUNT_NOTIFICATION_SCOPE": 3,
+    "ACCOUNT_SECURITY_RECOVERY_BOUNDARY": 2,
+    "ADMIN_PARTIAL_MFA_INVENTORY": 18,
+    "AUTH_CALLBACK_RECOVERY_EXCEPTION": 1,
+    "AUTH_SIGNIN_AND_RECOVERY": 2,
+    "BEARER_HEALTH_PROBE_NOT_USER_MFA": 1,
+    "BUYER_ORGANIZATION_SCOPE": 16,
+    "FARMER_OWNERSHIP_SCOPE": 11,
+    "FIELD_AGENT_ASSIGNMENT_SCOPE": 8,
+    "OPERATIONS_PARTIAL_MFA_INVENTORY": 27,
+    "PROVIDER_SIGNATURE_NOT_USER_MFA": 1,
+    "PUBLIC_INTAKE_NO_USER_MFA": 1,
+    "SHIPMENT_STAFF_MFA_SCOPE_SEPARATE": 2,
+    "SUPPORT_PARTIAL_STAFF_MFA": 3
+  },
+  "entries": [
+    {
+      "path": "src/app/api/account/[action]/route.ts",
+      "reviewClass": "ACCOUNT_SECURITY_RECOVERY_BOUNDARY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/account/security/operations-mfa/[action]/route.ts",
+      "reviewClass": "ACCOUNT_SECURITY_RECOVERY_BOUNDARY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/admin/audit/route.ts",
+      "reviewClass": "ADMIN_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/admin/governance/incidents/[id]/assign/route.ts",
+      "reviewClass": "ADMIN_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/admin/governance/incidents/[id]/transition/route.ts",
+      "reviewClass": "ADMIN_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/admin/governance/incidents/route.ts",
+      "reviewClass": "ADMIN_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/admin/payments/refunds/[id]/review/route.ts",
+      "reviewClass": "ADMIN_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/admin/reports/export/route.ts",
+      "reviewClass": "ADMIN_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/admin/security/mfa/[action]/route.ts",
+      "reviewClass": "ADMIN_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/admin/settlements/[id]/approve/route.ts",
+      "reviewClass": "ADMIN_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/admin/settlements/attempts/[id]/reconcile/route.ts",
+      "reviewClass": "ADMIN_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/admin/staff/[id]/assignments/route.ts",
+      "reviewClass": "ADMIN_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/admin/staff/[id]/auth-sync/route.ts",
+      "reviewClass": "ADMIN_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/admin/staff/[id]/role/route.ts",
+      "reviewClass": "ADMIN_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/admin/staff/[id]/route.ts",
+      "reviewClass": "ADMIN_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/admin/staff/[id]/status/route.ts",
+      "reviewClass": "ADMIN_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/admin/staff/invitations/[id]/route.ts",
+      "reviewClass": "ADMIN_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/admin/staff/invitations/route.ts",
+      "reviewClass": "ADMIN_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/admin/staff/invite/route.ts",
+      "reviewClass": "ADMIN_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/admin/staff/route.ts",
+      "reviewClass": "ADMIN_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/auth/[action]/route.ts",
+      "reviewClass": "AUTH_SIGNIN_AND_RECOVERY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/auth/accept-invite/route.ts",
+      "reviewClass": "AUTH_SIGNIN_AND_RECOVERY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/buyer/destinations/[id]/route.ts",
+      "reviewClass": "BUYER_ORGANIZATION_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/buyer/destinations/route.ts",
+      "reviewClass": "BUYER_ORGANIZATION_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/buyer/payments/[id]/verify/route.ts",
+      "reviewClass": "BUYER_ORGANIZATION_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/buyer/payments/checkout/route.ts",
+      "reviewClass": "BUYER_ORGANIZATION_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/buyer/payments/refunds/route.ts",
+      "reviewClass": "BUYER_ORGANIZATION_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/buyer/profile/route.ts",
+      "reviewClass": "BUYER_ORGANIZATION_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/buyer/quotes/[id]/decision/route.ts",
+      "reviewClass": "BUYER_ORGANIZATION_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/buyer/requests/[id]/cancel/route.ts",
+      "reviewClass": "BUYER_ORGANIZATION_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/buyer/requests/[id]/clarification/draft/route.ts",
+      "reviewClass": "BUYER_ORGANIZATION_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/buyer/requests/[id]/respond/route.ts",
+      "reviewClass": "BUYER_ORGANIZATION_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/buyer/requests/[id]/route.ts",
+      "reviewClass": "BUYER_ORGANIZATION_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/buyer/requests/route.ts",
+      "reviewClass": "BUYER_ORGANIZATION_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/buyer/shipments/[id]/issue/route.ts",
+      "reviewClass": "BUYER_ORGANIZATION_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/buyer/shipments/[id]/receipt/route.ts",
+      "reviewClass": "BUYER_ORGANIZATION_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/buyer/specifications/[id]/route.ts",
+      "reviewClass": "BUYER_ORGANIZATION_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/buyer/specifications/route.ts",
+      "reviewClass": "BUYER_ORGANIZATION_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/farmer/crops/[id]/route.ts",
+      "reviewClass": "FARMER_OWNERSHIP_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/farmer/crops/route.ts",
+      "reviewClass": "FARMER_OWNERSHIP_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/farmer/farms/[id]/route.ts",
+      "reviewClass": "FARMER_OWNERSHIP_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/farmer/farms/route.ts",
+      "reviewClass": "FARMER_OWNERSHIP_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/farmer/opportunities/[id]/respond/route.ts",
+      "reviewClass": "FARMER_OWNERSHIP_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/farmer/settlements/agreements/[id]/decision/route.ts",
+      "reviewClass": "FARMER_OWNERSHIP_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/farmer/settlements/bank/route.ts",
+      "reviewClass": "FARMER_OWNERSHIP_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/farmer/supplies/[id]/route.ts",
+      "reviewClass": "FARMER_OWNERSHIP_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/farmer/supplies/[id]/withdraw/route.ts",
+      "reviewClass": "FARMER_OWNERSHIP_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/farmer/supplies/route.ts",
+      "reviewClass": "FARMER_OWNERSHIP_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/farmer/verification/route.ts",
+      "reviewClass": "FARMER_OWNERSHIP_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/field-agent/farms/route.ts",
+      "reviewClass": "FIELD_AGENT_ASSIGNMENT_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/field-agent/visits/[id]/cancel/route.ts",
+      "reviewClass": "FIELD_AGENT_ASSIGNMENT_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/field-agent/visits/[id]/evidence/[evidenceId]/route.ts",
+      "reviewClass": "FIELD_AGENT_ASSIGNMENT_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/field-agent/visits/[id]/evidence/route.ts",
+      "reviewClass": "FIELD_AGENT_ASSIGNMENT_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/field-agent/visits/[id]/route.ts",
+      "reviewClass": "FIELD_AGENT_ASSIGNMENT_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/field-agent/visits/[id]/start/route.ts",
+      "reviewClass": "FIELD_AGENT_ASSIGNMENT_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/field-agent/visits/[id]/submit/route.ts",
+      "reviewClass": "FIELD_AGENT_ASSIGNMENT_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/field-agent/visits/route.ts",
+      "reviewClass": "FIELD_AGENT_ASSIGNMENT_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/inbox/[id]/read/route.ts",
+      "reviewClass": "ACCOUNT_NOTIFICATION_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/inbox/read-all/route.ts",
+      "reviewClass": "ACCOUNT_NOTIFICATION_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/internal/readiness/route.ts",
+      "reviewClass": "BEARER_HEALTH_PROBE_NOT_USER_MFA",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/operations/catalog/manage/route.ts",
+      "reviewClass": "OPERATIONS_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/operations/commodities/route.ts",
+      "reviewClass": "OPERATIONS_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/operations/enquiries/[id]/route.ts",
+      "reviewClass": "OPERATIONS_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/operations/field-visits/[id]/evidence/[evidenceId]/route.ts",
+      "reviewClass": "OPERATIONS_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/operations/field-visits/[id]/review/route.ts",
+      "reviewClass": "OPERATIONS_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/operations/field-visits/route.ts",
+      "reviewClass": "OPERATIONS_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/operations/fulfilment/issues/[id]/review/route.ts",
+      "reviewClass": "OPERATIONS_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/operations/fulfilment/plans/route.ts",
+      "reviewClass": "OPERATIONS_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/operations/fulfilment/shipments/[id]/milestone/route.ts",
+      "reviewClass": "OPERATIONS_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/operations/fulfilment/shipments/route.ts",
+      "reviewClass": "OPERATIONS_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/operations/lots/[id]/status/route.ts",
+      "reviewClass": "OPERATIONS_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/operations/lots/route.ts",
+      "reviewClass": "OPERATIONS_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/operations/matching/[id]/invite/route.ts",
+      "reviewClass": "OPERATIONS_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/operations/matching/route.ts",
+      "reviewClass": "OPERATIONS_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/operations/orders/[id]/release/route.ts",
+      "reviewClass": "OPERATIONS_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/operations/orders/route.ts",
+      "reviewClass": "OPERATIONS_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/operations/payments/[id]/reconcile/route.ts",
+      "reviewClass": "OPERATIONS_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/operations/quotes/[id]/transition/route.ts",
+      "reviewClass": "OPERATIONS_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/operations/quotes/route.ts",
+      "reviewClass": "OPERATIONS_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/operations/requests/[id]/claim/route.ts",
+      "reviewClass": "OPERATIONS_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/operations/requests/[id]/review/route.ts",
+      "reviewClass": "OPERATIONS_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/operations/reviews/[kind]/[id]/claim/route.ts",
+      "reviewClass": "OPERATIONS_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/operations/reviews/[kind]/[id]/route.ts",
+      "reviewClass": "OPERATIONS_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/operations/settlements/[id]/transfer/route.ts",
+      "reviewClass": "OPERATIONS_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/operations/settlements/agreements/[id]/obligation/route.ts",
+      "reviewClass": "OPERATIONS_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/operations/settlements/attempts/[id]/reconcile/route.ts",
+      "reviewClass": "OPERATIONS_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/operations/settlements/terms/route.ts",
+      "reviewClass": "OPERATIONS_PARTIAL_MFA_INVENTORY",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/payments/paystack/webhook/route.ts",
+      "reviewClass": "PROVIDER_SIGNATURE_NOT_USER_MFA",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/preferences/notifications/route.ts",
+      "reviewClass": "ACCOUNT_NOTIFICATION_SCOPE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/public/enquiries/route.ts",
+      "reviewClass": "PUBLIC_INTAKE_NO_USER_MFA",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/shipments/[id]/evidence/[evidenceId]/route.ts",
+      "reviewClass": "SHIPMENT_STAFF_MFA_SCOPE_SEPARATE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/shipments/[id]/evidence/route.ts",
+      "reviewClass": "SHIPMENT_STAFF_MFA_SCOPE_SEPARATE",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/support/cases/[id]/messages/route.ts",
+      "reviewClass": "SUPPORT_PARTIAL_STAFF_MFA",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/support/cases/[id]/transition/route.ts",
+      "reviewClass": "SUPPORT_PARTIAL_STAFF_MFA",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/support/cases/route.ts",
+      "reviewClass": "SUPPORT_PARTIAL_STAFF_MFA",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/auth/callback/route.ts",
+      "reviewClass": "AUTH_CALLBACK_RECOVERY_EXCEPTION",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    }
+  ]
+}
