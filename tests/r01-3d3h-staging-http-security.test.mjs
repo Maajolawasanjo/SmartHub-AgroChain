@@ -27,7 +27,7 @@ const env=()=>({
   RELEASE_STAGE_CONFIRM:"I_ACKNOWLEDGE_STAGING_ONLY",
   STAGING_MFA_TEST_ISOLATED:"true",
   SMART_HUB_STAGE_SUPABASE_REF:"abcdefghijklmnopqrst",
-  SMART_HUB_PRODUCTION_SUPABASE_REF:"bcdefghijklmnopqrstu",
+  SMART_HUB_PRODUCTION_SUPABASE_REF:"ematieqwxoiwoovmqdba",
   NEXT_PUBLIC_SUPABASE_URL:"https://abcdefghijklmnopqrst.supabase.co",
   STAGING_BASE_URL:"https://smarthub-staging.example.test",
   STAGING_REVIEWED_ORIGIN:"https://smarthub-staging.example.test",
