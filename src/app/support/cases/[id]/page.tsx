@@ -3,18 +3,22 @@ import {notFound} from "next/navigation";
 import {DashboardFrame} from "@/components/dashboard/dashboard-frame";
 import {requireWorkspaceAccount} from "@/server/communications/inbox";
 import {supportCaseDetail} from "@/server/communications/support";
+import {canReadPrivilegedSupportCases} from "@/server/communications/staff-mfa";
 import {SupportMessageForm,SupportStateActions} from "@/features/communications/communication-actions";
 export const dynamic="force-dynamic";
 export const metadata={robots:{index:false,follow:false}};
 export default async function SupportDetail({params}:{params:Promise<{id:string}>}){
- const {account}=await requireWorkspaceAccount(),{id}=await params;
+ const ctx=await requireWorkspaceAccount(),{account}=ctx,{id}=await params;
  const record=await supportCaseDetail(id,account).catch(()=>null);
  if(!record)notFound();
- const staff=["OPERATIONS","SUPER_ADMIN"].includes(account.role);
+ const staff=await canReadPrivilegedSupportCases(ctx);
+ const staffRole=["OPERATIONS","SUPER_ADMIN"].includes(account.role);
+ const mfaPath=account.role==="OPERATIONS"?"/account/security/operations-mfa":"/account/security/mfa";
  const owner=record.openedById===account.id;
  const canRespond=owner||staff&&(account.role==="SUPER_ADMIN"||record.assignedToId===account.id);
  return <DashboardFrame role={account.role} name={account.fullName} title={"Support "+record.reference} description={record.subject}>
  <div className="agro-toolbar"><Link href="/support">← All support cases</Link><Link href="/inbox">Inbox</Link></div>
+ {staffRole&&!staff&&<p className="agro-alert">Other customers' cases and private notes require an authenticator challenge. You can still read and respond to your own case. <Link href={mfaPath}>Open authenticator security</Link></p>}
  <section className="agro-panel"><h2>{record.category.replaceAll("_"," ")} · {record.status.replaceAll("_"," ")}</h2>
  <p>Opened by: {record.openedBy.fullName} · Assigned: {record.assignedTo?.fullName??"Not assigned"}</p>
  <p>Updated: {record.updatedAt.toLocaleString("en-NG")}</p>
