@@ -4,6 +4,7 @@ import {PublicError} from "@/server/auth/http";
 import {requireBuyerApi,buyerMembership} from "@/server/buyer/guard";
 import {requireActor} from "@/server/agriculture/policies";
 import {hasPermission} from "@/server/admin/permissions";
+import {requirePrivilegedMfaForSuperAdminActor} from "@/server/admin/privileged-actor-mfa";
 import {getPrisma} from "@/server/db/prisma";
 
 type Tx=Prisma.TransactionClient;
@@ -49,6 +50,10 @@ export async function financeActor(){
  const ctx=await requireActor("OPERATIONS");
  if(!hasPermission(ctx.account.role,"operations.requests.review"))
   throw new PublicError(403,"Operations payment review access is required.");
+ // Finance reviewers with a Super Admin identity must not bypass the
+ // privileged MFA gate by entering through a specialized payment service.
+ // Operations staff keep their existing policy until phased MFA is approved.
+ if(ctx.account.role==="SUPER_ADMIN")await requirePrivilegedMfaForSuperAdminActor(ctx);
  return ctx;
 }
 export async function ensureFinanceScope(tx:Tx,orderId:string,account:{id:string;role:string}){
