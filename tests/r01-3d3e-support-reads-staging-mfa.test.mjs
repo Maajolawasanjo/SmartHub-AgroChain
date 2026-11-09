@@ -111,6 +111,8 @@ const stageEnv = () => ({
   PAYMENTS_ENABLED:"false",SUPPLIER_PAYOUTS_ENABLED:"false",
   STAGING_MFA_AAL1_ACCESS_TOKEN:"a".repeat(80),
   STAGING_MFA_AAL2_ACCESS_TOKEN:"b".repeat(80),
+  STAGING_MFA_AAL1_EXPECTED_USER_ID:"00000000-0000-4000-8000-000000000001",
+  STAGING_MFA_AAL2_EXPECTED_USER_ID:"00000000-0000-4000-8000-000000000002",
 });
 
 test("MFA stage harness rejects production host, shared ref, missing isolated approval and enabled payments",()=>{
@@ -126,6 +128,8 @@ test("MFA stage harness rejects production host, shared ref, missing isolated ap
     {SUPPLIER_PAYOUTS_ENABLED:"true"},
     {STAGING_MFA_AAL2_ACCESS_TOKEN:"a".repeat(80)},
     {STAGING_MFA_AAL1_ACCESS_TOKEN:""},
+    {STAGING_MFA_AAL1_EXPECTED_USER_ID:""},
+    {STAGING_MFA_AAL2_EXPECTED_USER_ID:stageEnv().STAGING_MFA_AAL1_EXPECTED_USER_ID},
   ]) assert.throws(()=>staging.assertIsolatedMfaStage({...stageEnv(),...changed}));
 });
 
@@ -135,16 +139,26 @@ test("provider-backed staging acceptance requires two distinct validated user se
   const factory=()=>({auth:{
     getUser:async token=>{
       observed.push("provider:get-user");
-      return {data:{user:{id:token===cfg.aal1?"disposable-one":"disposable-two"}},error:null};
+      return {data:{user:{
+        id:token===cfg.aal1?cfg.expectedAal1UserId:cfg.expectedAal2UserId,
+        email_confirmed_at:"2026-11-09T12:00:00Z",
+        factors:[{factor_type:"totp",status:"verified"}]
+      }},error:null};
     },
     mfa:{getAuthenticatorAssuranceLevel:async token=>{
       observed.push("provider:get-assurance");
-      return {data:{currentLevel:token===cfg.aal1?"aal1":"aal2"},error:null};
+      return {data:{
+        currentLevel:token===cfg.aal1?"aal1":"aal2",
+        nextLevel:"aal2",
+        currentAuthenticationMethods:token===cfg.aal1?[{method:"password",timestamp:1}]:
+          [{method:"mfa/totp",timestamp:2},{method:"password",timestamp:1}]
+      },error:null};
     }}
   }});
   const res=await staging.inspectIsolatedMfaSessions(cfg,factory);
   assert.deepEqual(res,{
     status:"READ_ONLY_STAGING_MFA_OBSERVED",aal1:true,aal2:true,userCount:2,
+    totpFactorAndChallengeVerified:true,
     liveRecoveryExercised:false,fullRoleAndRouteCoverageAccepted:false
   });
   assert.deepEqual(observed,[
@@ -152,15 +166,23 @@ test("provider-backed staging acceptance requires two distinct validated user se
     "provider:get-user","provider:get-assurance"
   ]);
   await assert.rejects(staging.inspectIsolatedMfaSessions(cfg,()=>({auth:{
-    getUser:async()=>({data:{user:{id:"same-person"}},error:null}),
+    getUser:async()=>({data:{user:{
+      id:cfg.expectedAal1UserId,email_confirmed_at:"2026-11-09",
+      factors:[{factor_type:"totp",status:"verified"}]}},error:null}),
     mfa:{getAuthenticatorAssuranceLevel:async token=>({
-      data:{currentLevel:token===cfg.aal1?"aal1":"aal2"},error:null
+      data:{currentLevel:token===cfg.aal1?"aal1":"aal2",nextLevel:"aal2",
+        currentAuthenticationMethods:token===cfg.aal1?["password"]:["totp"]},error:null
     })}
-  }})),/two distinct test identities/);
+  }})),/session does not belong to its reviewed test identity/);
   await assert.rejects(staging.inspectIsolatedMfaSessions(cfg,()=>({auth:{
-    getUser:async token=>({data:{user:{id:token}},error:null}),
-    mfa:{getAuthenticatorAssuranceLevel:async()=>({data:{currentLevel:"aal1"},error:null})}
-  }})),/expected assurance level/);
+    getUser:async token=>({data:{user:{
+      id:token===cfg.aal1?cfg.expectedAal1UserId:cfg.expectedAal2UserId,
+      email_confirmed_at:"2026-11-09",
+      factors:[{factor_type:"totp",status:"verified"}]}},error:null}),
+    mfa:{getAuthenticatorAssuranceLevel:async()=>({data:{
+      currentLevel:"aal1",nextLevel:"aal2",
+      currentAuthenticationMethods:["password"]},error:null})}
+  }})),/current and next assurance levels/);
 });
 
 test("manual staging workflow cannot run MFA tests in production or mutate provider users",()=>{
@@ -169,6 +191,8 @@ test("manual staging workflow cannot run MFA tests in production or mutate provi
   assert.match(workflowSource,/isolated_staging_confirmed/);
   assert.match(workflowSource,/STAGING_MFA_AAL1_ACCESS_TOKEN:/);
   assert.match(workflowSource,/STAGING_MFA_AAL2_ACCESS_TOKEN:/);
+  assert.match(workflowSource,/STAGING_MFA_AAL1_EXPECTED_USER_ID:/);
+  assert.match(workflowSource,/STAGING_MFA_AAL2_EXPECTED_USER_ID:/);
   assert.match(workflowSource,/PAYMENTS_ENABLED: "false"/);
   assert.match(workflowSource,/SUPPLIER_PAYOUTS_ENABLED: "false"/);
   assert.match(workflowSource,/node scripts\/release\/check-stage-mfa-readonly\.mjs/);
