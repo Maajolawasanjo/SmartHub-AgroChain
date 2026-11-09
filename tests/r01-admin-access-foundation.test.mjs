@@ -73,7 +73,13 @@ const delegated={
  "src/app/api/admin/settlements/[id]/approve/route.ts":["approveSupplierObligation","src/server/settlements/approval.ts","superAdminActor()"],
  "src/app/api/admin/settlements/attempts/[id]/reconcile/route.ts":["adminReconcileTransfer","src/server/settlements/reconciliation.ts","superAdminActor()"]
 };
-const expected=new Set([...directGuardPaths,...Object.keys(delegated)]);
+// R01.3D.2: separately reviewed, server-owned TOTP pilot. It does not use
+// requireAdminApi("staff.manage") because personal MFA enrollment is not a
+// staff-management grant and must not silently expand administrative powers.
+const mfaPilotPaths=[
+ "src/app/api/admin/security/mfa/[action]/route.ts"
+];
+const expected=new Set([...directGuardPaths,...Object.keys(delegated),...mfaPilotPaths]);
 
 test("every Admin API route has an explicit documented guard or audited service delegation",()=>{
  const actual=sourceFiles("src/app/api/admin","/route.ts");
@@ -87,6 +93,19 @@ test("every Admin API route has an explicit documented guard or audited service 
    assert.match(src,/ctx\.account\.status!=="ACTIVE"/,path);
    assert.match(src,/!ctx\.user\.email_confirmed_at/,path);
   }else assert.match(src,/requireAdminApi\(/,path);
+ }
+ for(const path of mfaPilotPaths){
+  assert.ok(existsSync(path),path);
+  const route=read(path);
+  assert.match(route,/getAccountContext\(\)/,path);
+  assert.match(route,/ctx\.account\.role !== "SUPER_ADMIN"/,path);
+  assert.match(route,/ctx\.account\.status !== "ACTIVE"/,path);
+  assert.match(route,/!ctx\.user\.email_confirmed_at/,path);
+  assert.match(route,/privilegedMfaPilotEnabled\(\)/,path);
+  assert.match(route,/assertSameOrigin\(request\)/,path);
+  assert.match(route,/verifyCurrentPassword\(/,path);
+  assert.match(route,/ownTotpFactor\(/,path);
+  assert.doesNotMatch(route,/createSupabaseAdminClient|SUPABASE_SECRET_KEY|PAYSTACK_SECRET_KEY/);
  }
  for(const [path,[action,service,check]] of Object.entries(delegated)){
   assert.ok(existsSync(service),service);
