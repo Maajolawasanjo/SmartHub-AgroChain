@@ -115,7 +115,7 @@ test("pilot page is Super Admin only, disabled before MFA provider calls and sec
   assert.match(ui,/credentials: "same-origin"/);
   assert.match(ui,/cache: "no-store"/);
   assert.match(ui,/window\.location\.reload\(\)/);
-  assert.match(ui,/setPassword\(""""?\)/.source ? /setPassword\(""""?\)/ : /setPassword\(""""?\)/);
+  assert.ok(ui.includes('setPassword("")'), "Password must clear after successful MFA actions");
   assert.doesNotMatch(ui,/localStorage|sessionStorage|document\.cookie|console\.log|navigator\.sendBeacon/);
 });
 
