@@ -3,8 +3,8 @@ import { createClient } from "@supabase/supabase-js";
 
 /**
  * R01.3D.3E: read-only, opt-in real Supabase MFA acceptance probe.
- * Requires TWO independently managed, disposable staging identities: one at
- * AAL1, one at AAL2. No enrollment, factor deletion, token refresh, database,
+ * Requires TWO independently managed, disposable staging identities with
+ * verified TOTP: one at AAL1 (awaiting challenge), one at AAL2 (challenged). No enrollment, factor deletion, token refresh, database,
  * admin client, permission update, or payment provider call.
  *
  * NEVER run against a production project. The project host and reference must
@@ -36,8 +36,18 @@ export function assertIsolatedMfaStage(env = process.env) {
       "Two distinct, disposable isolated staging MFA session tokens are required.");
   assert.notEqual(env.STAGING_MFA_AAL1_ACCESS_TOKEN,env.STAGING_MFA_AAL2_ACCESS_TOKEN,
     "AAL1 and AAL2 test sessions cannot reuse one token.");
+  // Test identities must be separately reviewed, never inferred from a
+  // client-submitted claim or from whichever JWT happens to be provided.
+  const idPattern=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const expectedAal1=env.STAGING_MFA_AAL1_EXPECTED_USER_ID??"";
+  const expectedAal2=env.STAGING_MFA_AAL2_EXPECTED_USER_ID??"";
+  assert.match(expectedAal1,idPattern,"Reviewed disposable AAL1 user ID is required.");
+  assert.match(expectedAal2,idPattern,"Reviewed disposable AAL2 user ID is required.");
+  assert.notEqual(expectedAal1.toLowerCase(),expectedAal2.toLowerCase(),
+    "MFA acceptance requires two distinct reviewed identities.");
   return { url:url.origin, key:env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
-    aal1:env.STAGING_MFA_AAL1_ACCESS_TOKEN,aal2:env.STAGING_MFA_AAL2_ACCESS_TOKEN };
+    aal1:env.STAGING_MFA_AAL1_ACCESS_TOKEN,aal2:env.STAGING_MFA_AAL2_ACCESS_TOKEN,
+    expectedAal1UserId:expectedAal1,expectedAal2UserId:expectedAal2 };
 }
 
 export async function inspectIsolatedMfaSessions(cfg, clientFactory=createClient) {
@@ -45,24 +55,51 @@ export async function inspectIsolatedMfaSessions(cfg, clientFactory=createClient
     auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}
   });
   const observed=new Set();
-  for(const [token,expectedLevel] of [[cfg.aal1,"aal1"],[cfg.aal2,"aal2"]]){
-    // getUser(token) checks with the staging Auth server, not merely decoding
-    // an unverified JWT. Do not rely on caller-declared claims.
+  for(const [token,expectedLevel,expectedUserId] of [
+    [cfg.aal1,"aal1",cfg.expectedAal1UserId],
+    [cfg.aal2,"aal2",cfg.expectedAal2UserId]
+  ]){
+    // getUser(token) checks with the exact staging Auth server; do not trust
+    // local JWT decoding, role metadata or an arbitrary test-token owner.
     const identity=await client.auth.getUser(token);
-    if(identity.error||!identity.data.user)
+    if(identity.error||!identity.data?.user)
       throw new Error("Staging MFA acceptance failed: Auth session could not be validated.");
-    if(observed.has(identity.data.user.id))
+    const user=identity.data.user;
+    if(user.id!==expectedUserId)
+      throw new Error("Staging MFA acceptance failed: session does not belong to its reviewed test identity.");
+    if(user.is_anonymous===true||!user.email_confirmed_at)
+      throw new Error("Staging MFA acceptance failed: test identity is not a confirmed non-anonymous user.");
+    if(observed.has(user.id))
       throw new Error("Staging MFA acceptance requires two distinct test identities.");
-    observed.add(identity.data.user.id);
+    observed.add(user.id);
+    // Supabase Auth's user response (not user_metadata) must include an
+    // independently verified TOTP factor for the *same* authenticated user.
+    if(!Array.isArray(user.factors)||
+       !user.factors.some(f=>f.factor_type==="totp"&&f.status==="verified"))
+      throw new Error("Staging MFA acceptance failed: a verified TOTP factor was not observed.");
 
-    // Passing the JWT asks GoTrue to validate current assurance server-side.
+    // Passing a JWT makes GoTrue validate the token and factor state.
+    // Requiring nextLevel=aal2 detects stale AAL2 tokens after a factor was
+    // removed. AMR must show the actual TOTP challenge only for the AAL2
+    // identity, rather than equating any AAL2 factor with TOTP.
     const assurance=await client.auth.mfa.getAuthenticatorAssuranceLevel(token);
-    if(assurance.error||!assurance.data||assurance.data.currentLevel!==expectedLevel)
-      throw new Error("Staging MFA acceptance failed: expected assurance level not observed.");
+    if(assurance.error||!assurance.data||
+       assurance.data.currentLevel!==expectedLevel||
+       assurance.data.nextLevel!=="aal2")
+      throw new Error("Staging MFA acceptance failed: current and next assurance levels do not match the reviewed case.");
+    const methods=assurance.data.currentAuthenticationMethods;
+    if(!Array.isArray(methods))
+      throw new Error("Staging MFA acceptance failed: authentication method evidence is missing.");
+    const usedTotp=methods.some(method=>{
+      const name=typeof method==="string"?method:method?.method;
+      return name==="totp"||name==="mfa/totp";
+    });
+    if((expectedLevel==="aal2")!==usedTotp)
+      throw new Error("Staging MFA acceptance failed: TOTP challenge evidence is inconsistent with the expected session.");
   }
   return {status:"READ_ONLY_STAGING_MFA_OBSERVED",aal1:true,aal2:true,
-    userCount:observed.size,liveRecoveryExercised:false,
-    fullRoleAndRouteCoverageAccepted:false};
+    userCount:observed.size,totpFactorAndChallengeVerified:true,
+    liveRecoveryExercised:false,fullRoleAndRouteCoverageAccepted:false};
 }
 
 if(process.argv[1]&&import.meta.url===new URL("file://"+process.argv[1]).href) {
