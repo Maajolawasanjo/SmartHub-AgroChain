@@ -1,5 +1,6 @@
 import {readFileSync} from "node:fs";
 import {fileURLToPath} from "node:url";
+import {resolve} from "node:path";
 
 /**
  * Non-authorizing operational readiness report. NEVER turns on an MFA flag,
@@ -59,7 +60,7 @@ export function assessMfaOperationalEvidence(ledger,manifest) {
 function source(relativePath){
   return JSON.parse(readFileSync(new URL(relativePath,import.meta.url),"utf8"));
 }
-if(process.argv[1] && fileURLToPath(import.meta.url)===fileURLToPath(new URL("file://"+process.argv[1]))) {
+if(process.argv[1] && fileURLToPath(import.meta.url)===resolve(process.argv[1])) {
   const result=assessMfaOperationalEvidence(
     source("../../docs/implementation/r00-gates.json"),
     source("../../docs/implementation/r01-3d3g-mfa-acceptance-manifest.json")
