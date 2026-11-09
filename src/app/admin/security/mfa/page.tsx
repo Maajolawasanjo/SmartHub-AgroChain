@@ -36,6 +36,7 @@ export default async function SuperAdminMfaPilotPage() {
     <div className="staff-page-links">
       <Link href="/admin/settings">← Platform settings</Link>
       <Link href="/admin/account">Account security</Link>
+      <Link href="/admin/security/mfa/recovery">Recovery governance</Link>
     </div>
     {!enabled
       ? <section className="agro-panel">
