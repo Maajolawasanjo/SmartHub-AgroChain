@@ -113,8 +113,9 @@ test("staff invitation cannot reserve or dispatch invitation before the MFA chec
   assert.match(invite,/!ctx\.user\.email_confirmed_at/);
   assert.match(invite,/await requirePrivilegedMfaForSuperAdminActor\(ctx\)/);
   const position=invite.indexOf("await requirePrivilegedMfaForSuperAdminActor(ctx)");
-  for(const forbidden of ["db.staffInvitation.create","inviteUserByEmail","db.account.findUnique"]) {
-    assert.ok(position < invite.indexOf(forbidden), "MFA must precede "+forbidden);
+  for(const forbidden of ["tx.staffInvitation.create","inviteUserByEmail","db.account.findUnique"]) {
+    const target = invite.indexOf(forbidden);
+    assert.ok(target >= 0 && position < target, "MFA must precede "+forbidden);
   }
   assert.match(invite,/verifyCurrentPassword\(ctx\.user\.email,currentPassword,ctx\.user\.id\)/);
   assert.match(invite,/z\.enum\(STAFF_ROLES\)/);
