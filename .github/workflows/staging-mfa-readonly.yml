@@ -1,0 +1,49 @@
+name: Isolated staging MFA read-only acceptance
+
+on:
+  workflow_dispatch:
+    inputs:
+      isolated_staging_confirmed:
+        description: "I verified both MFA test accounts and project are disposable isolated STAGING, never production"
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: smarthub-isolated-stage-mfa
+  cancel-in-progress: false
+
+jobs:
+  provider-readonly:
+    name: Observe current AAL1 and AAL2 on two isolated staging identities
+    if: ${{ inputs.isolated_staging_confirmed }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: staging
+    env:
+      RELEASE_STAGE_CONFIRM: I_ACKNOWLEDGE_STAGING_ONLY
+      STAGING_MFA_TEST_ISOLATED: "true"
+      SMART_HUB_STAGE_SUPABASE_REF: ${{ vars.SMART_HUB_STAGE_SUPABASE_REF }}
+      SMART_HUB_PRODUCTION_SUPABASE_REF: ${{ vars.SMART_HUB_PRODUCTION_SUPABASE_REF }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ vars.SMART_HUB_STAGING_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SMART_HUB_STAGING_SUPABASE_PUBLISHABLE_KEY }}
+      STAGING_MFA_AAL1_ACCESS_TOKEN: ${{ secrets.STAGING_MFA_AAL1_ACCESS_TOKEN }}
+      STAGING_MFA_AAL2_ACCESS_TOKEN: ${{ secrets.STAGING_MFA_AAL2_ACCESS_TOKEN }}
+      PAYMENTS_ENABLED: "false"
+      SUPPLIER_PAYOUTS_ENABLED: "false"
+      PUBLIC_SIGNUP_ENABLED: "false"
+      ADMIN_MFA_ENFORCEMENT_ENABLED: "false"
+      OPERATIONS_MFA_ENFORCEMENT_ENABLED: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install pinned Supabase SDK dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Observe two staging sessions without changing factors
+        run: node scripts/release/check-stage-mfa-readonly.mjs
