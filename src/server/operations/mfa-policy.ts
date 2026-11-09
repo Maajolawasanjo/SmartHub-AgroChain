@@ -32,6 +32,9 @@ export function operationsMfaPilotEnabled(): boolean {
  */
 export function operationsMfaEnforcementEnabled(): boolean {
   return operationsMfaPilotEnabled() &&
+    // Independent finance authority must be approved even if the parent
+    // privileged enforcement policy is later refactored.
+    approved("R00-D09") &&
     privilegedMfaEnforcementEnabled() &&
     process.env.OPERATIONS_MFA_ENFORCEMENT_ENABLED === "true" &&
     process.env.OPERATIONS_MFA_ALL_ENTRYPOINTS_SIGNOFF === "true" &&
