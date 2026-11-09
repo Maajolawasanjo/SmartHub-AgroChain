@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import {assertReviewedStagingProjectRefs} from "./reviewed-environment-boundary.mjs";
 import { createClient } from "@supabase/supabase-js";
 
 /**
@@ -20,7 +21,7 @@ export function assertIsolatedMfaStage(env = process.env) {
   const production=env.SMART_HUB_PRODUCTION_SUPABASE_REF??"";
   assert.match(ref,/^[a-z0-9]{20}$/,"Valid reviewed staging Supabase project ref required.");
   assert.match(production,/^[a-z0-9]{20}$/,"Valid reviewed production project ref required.");
-  assert.notEqual(ref,production,"Staging and production project references cannot match.");
+  assertReviewedStagingProjectRefs(ref,production);
   const url=new URL(env.NEXT_PUBLIC_SUPABASE_URL??"http://invalid");
   assert.equal(url.protocol,"https:","Staging must use HTTPS.");
   assert.equal(url.hostname,ref+".supabase.co","Refusing a Supabase host other than reviewed staging.");
