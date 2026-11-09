@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "milestone": "R01.3D.3G",
+  "createdAt": "2026-11-09",
+  "sourceCommit": "4271fe55fb80ed26cf24b1e6d7889707c694b0cd",
+  "releaseAuthority": "NEVER_BY_MANIFEST",
+  "status": "NOT_ACCEPTED",
+  "confidentialEvidencePolicy": "Do not store raw access tokens, factor IDs, passwords, TOTP secrets, recovery codes, email or full provider responses.",
+  "controls": [
+    {
+      "id": "REAL_STAGING_AAL1_AAL2_TOTP",
+      "description": "Two pre-reviewed disposable staging identities, verified TOTP ownership, AAL1 vs AAL2 and AMR",
+      "state": "NOT_VERIFIED",
+      "evidenceReference": null,
+      "independentReviewer": null,
+      "reviewedAt": null
+    },
+    {
+      "id": "CROSS_ROLE_SUPPORT_HTTP",
+      "description": "Authenticated negative cross-user and internal-notes support cases under enabled staging policy",
+      "state": "NOT_VERIFIED",
+      "evidenceReference": null,
+      "independentReviewer": null,
+      "reviewedAt": null
+    },
+    {
+      "id": "PRIVILEGED_API_ROUTE_ACCEPTANCE",
+      "description": "Authenticated admin/operations/finance and cross-portal API denial matrix, including provider outage",
+      "state": "NOT_VERIFIED",
+      "evidenceReference": null,
+      "independentReviewer": null,
+      "reviewedAt": null
+    },
+    {
+      "id": "RECOVERY_DUAL_OFFICER_EXERCISE",
+      "description": "Two independent designated officers, version lock, nonce replay and identity re-verification in staging",
+      "state": "NOT_VERIFIED",
+      "evidenceReference": null,
+      "independentReviewer": null,
+      "reviewedAt": null
+    },
+    {
+      "id": "REVOCATION_AND_EXPIRY_PROOF",
+      "description": "Provider refresh-session revocation and remaining access-JWT lifetime recorded",
+      "state": "NOT_VERIFIED",
+      "evidenceReference": null,
+      "independentReviewer": null,
+      "reviewedAt": null
+    },
+    {
+      "id": "PRIVATE_LEDGER_AND_AUDIT_REVIEW",
+      "description": "Approved private schema, immutable audit strategy, failure reconciliation and independent reviewer",
+      "state": "NOT_VERIFIED",
+      "evidenceReference": null,
+      "independentReviewer": null,
+      "reviewedAt": null
+    },
+    {
+      "id": "DEPLOYMENT_PRODUCTION_SHA",
+      "description": "Deployed production commit, environment acceptance and approval to enable MFA validated independently",
+      "state": "NOT_VERIFIED",
+      "evidenceReference": null,
+      "independentReviewer": null,
+      "reviewedAt": null
+    }
+  ],
+  "notes": [
+    "This manifest is a non-authorizing evidence index. Even all PASS fields cannot activate MFA.",
+    "The 2.118.0 Supabase JavaScript SDK exposes experimental recovery-code methods; they are disabled in SmartHub and require separate owner/security review.",
+    "No live staging Auth test has been executed and no approved recovery ledger migration exists.",
+    "Do not activate ADMIN_MFA_ENFORCEMENT_ENABLED or OPERATIONS_MFA_ENFORCEMENT_ENABLED based on this file."
+  ]
+}
