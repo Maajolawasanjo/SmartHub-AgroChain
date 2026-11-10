@@ -18,7 +18,8 @@
     "verify:public-runtime": "node scripts/check-public-runtime.mjs",
     "verify:integration-config": "node scripts/release/audit-integration-config.mjs",
     "verify:deployment-env": "node scripts/release/check-environment.mjs",
-    "db:inspect:production": "node scripts/release/check-production-preflight.mjs"
+    "db:inspect:production": "node scripts/release/check-production-preflight.mjs",
+    "verify:v2-deployment": "node scripts/release/verify-v2-deployment.mjs"
   },
   "dependencies": {
     "next": "16.4.3",
