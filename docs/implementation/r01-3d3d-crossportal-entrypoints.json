@@ -13,7 +13,8 @@
     "Support staff mutations and shipment staff evidence have additional dormant server-side MFA checks; support read paths still need access review.",
     "Provider webhooks must retain signature validation and MUST NOT be gated on an end-user MFA session.",
     "Public signup, account recovery and staff acceptance require distinct controls and do not inherit privileged MFA checks.",
-    "Cross-domain server actions, DB RPC, service identities, signed URLs, and middleware remain separate audit scope."
+    "Cross-domain server actions, DB RPC, service identities, signed URLs, and middleware remain separate audit scope.",
+    "Public /api/release/identity is GET-only, non-sensitive metadata for read-only deployment provenance; it does not authenticate a user, query business data or certify production readiness."
   ],
   "counts": {
     "ACCOUNT_NOTIFICATION_SCOPE": 3,
@@ -28,6 +29,7 @@
     "OPERATIONS_PARTIAL_MFA_INVENTORY": 27,
     "PROVIDER_SIGNATURE_NOT_USER_MFA": 1,
     "PUBLIC_INTAKE_NO_USER_MFA": 1,
+    "PUBLIC_READONLY_RELEASE_METADATA": 1,
     "SHIPMENT_STAFF_MFA_SCOPE_SEPARATE": 2,
     "SUPPORT_PARTIAL_STAFF_MFA": 3
   },
@@ -569,6 +571,12 @@
     {
       "path": "src/app/api/public/enquiries/route.ts",
       "reviewClass": "PUBLIC_INTAKE_NO_USER_MFA",
+      "liveSessionMfaVerified": false,
+      "individualRouteAccepted": false
+    },
+    {
+      "path": "src/app/api/release/identity/route.ts",
+      "reviewClass": "PUBLIC_READONLY_RELEASE_METADATA",
       "liveSessionMfaVerified": false,
       "individualRouteAccepted": false
     },
