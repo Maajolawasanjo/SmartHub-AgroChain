@@ -21,8 +21,13 @@ export function assertRuntimeDatabaseTarget(connectionString:string,env:RuntimeD
  const prod=env.SMART_HUB_PRODUCTION_SUPABASE_REF;
  const stage=env.SMART_HUB_STAGE_SUPABASE_REF;
  if(prod&&stage&&prod===stage)throw new Error("Production and staging Supabase projects must differ.");
- if(env.VERCEL_ENV==="production"&&(!prod||prod!==publicRef))
-  throw new Error("Production database reference does not match the reviewed production project.");
+ // Pin the independently reviewed SmartHub AgroChain V2 project. An arbitrary
+ // self-consistent pair of public URL and production ref must not redirect this
+ // application to another tenant/project (including the separate Agronexus app).
+ // A future production project migration requires reviewed source and release changes.
+ if(env.VERCEL_ENV==="production"&&
+   (!prod||prod!==publicRef||prod!=="ematieqwxoiwoovmqdba"))
+  throw new Error("Production database reference does not match the reviewed SmartHub AgroChain V2 project.");
  if(env.VERCEL_ENV==="preview"&&(!stage||stage!==publicRef||stage===prod))
   throw new Error("Preview deployment must use the separate reviewed staging database.");
  return publicRef;
