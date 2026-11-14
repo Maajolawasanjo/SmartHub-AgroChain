@@ -67,3 +67,36 @@ jobs:
           if-no-files-found: ignore
       - name: Confirm reviewed lockfile and foundation configuration
         run: npm run verify:foundation -- --require-lock
+
+  isolated_postgres:
+    name: Ephemeral PostgreSQL migrations and direct-role denial checks
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: ci_only_ephemeral_password
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    # These literal test-only values are never read from repository secrets.
+    # The runner destroys this container after each job.
+    env:
+      SMART_HUB_CI_POSTGRES_ONLY: I_ACKNOWLEDGE_EPHEMERAL_POSTGRES
+      DIRECT_URL: postgresql://postgres:ci_only_ephemeral_password@127.0.0.1:5432/postgres?sslmode=disable
+      DATABASE_URL: postgresql://postgres:ci_only_ephemeral_password@127.0.0.1:5432/postgres?sslmode=disable
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install exact committed dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Apply and verify real Prisma migrations on disposable PostgreSQL
+        run: node scripts/release/ci-postgres-integration.mjs
