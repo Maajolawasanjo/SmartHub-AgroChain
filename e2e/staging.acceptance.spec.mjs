@@ -1,5 +1,6 @@
 import {test,expect} from "@playwright/test";
 import {assertStageTarget} from "../scripts/release/stage-target.mjs";
+import {assessBrowserDenial} from "../scripts/release/staging-access-denial.mjs";
 
 const {baseUrl}=assertStageTarget();
 const roles={
@@ -51,24 +52,26 @@ for(const [role,{home}] of Object.entries(roles)){
   }finally{await context.close();}
  });
 }
-test("Buyer cannot navigate to restricted Super Admin or Operations home",async({browser})=>{
- const {context,page}=await rolePage(browser,"BUYER_A");
- try{
-  for(const path of ["/admin","/operations","/field-agent","/farmer"]){
-   const response=await page.goto(path);
-   expect(response?.status()!==200||new URL(page.url()).pathname!==path,"Blocked: "+path).toBeTruthy();
-  }
- }finally{await context.close();}
-});
-test("Operations cannot open Super Admin governance or financial reporting",async({browser})=>{
- const {context,page}=await rolePage(browser,"OPERATIONS");
- try{
-  for(const path of ["/admin/governance","/admin/reports","/admin/users"]){
-   const response=await page.goto(path);
-   expect(response?.status()!==200||new URL(page.url()).pathname!==path).toBeTruthy();
-  }
- }finally{await context.close();}
-});
+// The review matrix matches the server-owned role boundary: Super Admin may
+// enter Operations, but no other cross-role workspace access is permitted.
+for(const [role] of Object.entries(roles)){
+ test(role+" respects the real cross-role workspace access matrix",async({browser})=>{
+  const {context,page}=await rolePage(browser,role);
+  try{
+   for(const [target,{home}] of Object.entries(roles)){
+    if(role===target)continue;
+    const response=await page.goto(home);
+    if(role==="SUPER_ADMIN"&&target==="OPERATIONS"){
+     expect(response?.status(),"Super Admin should be authorized in Operations").toBe(200);
+     expect(new URL(page.url()).pathname).toBe(home);
+     continue;
+    }
+    const denial=assessBrowserDenial(response?.status(),page.url(),home,baseUrl);
+    expect(denial.ok,role+" must not access "+target+": "+denial.reason).toBe(true);
+   }
+  }finally{await context.close();}
+ });
+}
 test("Buyer B cannot inspect Buyer A's physical shipment or private support conversation",async({browser})=>{
  const ids=[
   {id:process.env.STAGING_BUYER_A_SHIPMENT_ID,path:"/dashboard/shipments/"},
@@ -82,8 +85,8 @@ test("Buyer B cannot inspect Buyer A's physical shipment or private support conv
    const path=item.path+item.id;
    const ownResponse=await owner.goto(path),otherResponse=await other.goto(path);
    expect(ownResponse?.status(),"The selected record must belong to Buyer A").toBe(200);
-   expect(otherResponse?.status()!==200||new URL(other.url()).pathname!==path,
-    "Buyer B must not see Buyer A's private record").toBeTruthy();
+   const denial=assessBrowserDenial(otherResponse?.status(),other.url(),path,baseUrl);
+   expect(denial.ok,"Buyer B must not see Buyer A's private record: "+denial.reason).toBe(true);
   }
  }finally{await ownerContext.close();await otherContext.close();}
 });

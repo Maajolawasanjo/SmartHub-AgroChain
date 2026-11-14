@@ -36,11 +36,17 @@ for(const [role,path] of Object.entries(home)){
  const res=await get(path,role);
  add(role+" role authenticates to "+path,res.status,s=>s===200);
 }
-// All actors must be unable to view the other roles' workspace entrypoint.
+// The authoritative Operations portal accepts both OPERATIONS and SUPER_ADMIN.
+// Treating Super Admin's legitimate delegated access as a denial would make
+// real staging acceptance fail even when the server is correctly configured.
 for(const role of roles){
  for(const [target,path] of Object.entries(home)){
   if(target===role)continue;
   const res=await get(path,role);
+  if(role==="SUPER_ADMIN"&&target==="OPERATIONS"){
+   add("Super Admin is authorized to use Operations workspace",res.status,s=>s===200);
+   continue;
+  }
   const denial=assessAccessDenial(res,cfg.baseUrl);
   if(!denial.ok)errors.push(role+" must NOT access "+target+" workspace "+path+": "+denial.reason+" (HTTP "+res.status+")");
  }
@@ -89,6 +95,6 @@ if(errors.length){
  console.error("FAIL: cross-role HTTP acceptance:",errors.join(" | "));
  process.exitCode=1;
 }else{
- console.log("PASS: authenticated role entrypoints, cross-role denies, anonymous denies, CSV RBAC, buyer A/B row isolation.");
+ console.log("PASS: authenticated role entrypoints, reviewed Super Admin Operations access, unauthorized cross-role denies, anonymous denies, CSV RBAC, buyer A/B row isolation.");
  console.log("All checks were read-only GET requests; no payment, transfer, or business transitions were performed.");
 }
