@@ -95,6 +95,6 @@ if(errors.length){
  console.error("FAIL: cross-role HTTP acceptance:",errors.join(" | "));
  process.exitCode=1;
 }else{
- console.log("PASS: authenticated role entrypoints, cross-role denies, anonymous denies, CSV RBAC, buyer A/B row isolation.");
+ console.log("PASS: authenticated role entrypoints, reviewed Super Admin Operations access, unauthorized cross-role denies, anonymous denies, CSV RBAC, buyer A/B row isolation.");
  console.log("All checks were read-only GET requests; no payment, transfer, or business transitions were performed.");
 }
