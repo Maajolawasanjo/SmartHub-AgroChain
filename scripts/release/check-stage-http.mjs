@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import {ensureStageScriptEnvironment} from "./stage-target.mjs";
+import {assessAccessDenial} from "./staging-access-denial.mjs";
 
 const cfg=ensureStageScriptEnvironment();
 if(!cfg)process.exit(1);
@@ -40,12 +41,14 @@ for(const role of roles){
  for(const [target,path] of Object.entries(home)){
   if(target===role)continue;
   const res=await get(path,role);
-  add(role+" must NOT access "+target+" workspace "+path,res.status,s=>s!==200);
+  const denial=assessAccessDenial(res,cfg.baseUrl);
+  if(!denial.ok)errors.push(role+" must NOT access "+target+" workspace "+path+": "+denial.reason+" (HTTP "+res.status+")");
  }
 }
 for(const path of ["/dashboard","/farmer","/field-agent","/operations","/admin","/inbox","/support"]){
  const res=await get(path);
- add("Anonymous must NOT access "+path,res.status,s=>s!==200);
+ const denial=assessAccessDenial(res,cfg.baseUrl);
+ if(!denial.ok)errors.push("Anonymous must NOT access "+path+": "+denial.reason+" (HTTP "+res.status+")");
 }
 const b=await get("/dashboard","BUYER_B");
 add("Buyer B must have a working independent organization workspace",b.status,s=>s===200);
@@ -59,9 +62,15 @@ if(adminExport.status===200){
   errors.push("Unexpected identifier/secret column in aggregate CSV response.");
 }
 const opsExport=await get("/api/admin/reports/export?days=7","OPERATIONS");
-add("Operations must not access Super Admin CSV",opsExport.status,s=>s!==200);
+{
+ const denial=assessAccessDenial(opsExport,cfg.baseUrl);
+ if(!denial.ok)errors.push("Operations must not access Super Admin CSV: "+denial.reason+" (HTTP "+opsExport.status+")");
+}
 const anonExport=await get("/api/admin/reports/export?days=7");
-add("Anonymous must not access CSV",anonExport.status,s=>s!==200);
+{
+ const denial=assessAccessDenial(anonExport,cfg.baseUrl);
+ if(!denial.ok)errors.push("Anonymous must not access CSV: "+denial.reason+" (HTTP "+anonExport.status+")");
+}
 // Independently provisioned buyer A and B MUST belong to different organizations.
 // The following records must exist in A's organization; B is never permitted to view them.
 for(const [envName,prefix] of [
@@ -73,7 +82,8 @@ for(const [envName,prefix] of [
  const url=prefix+recordId;
  const owner=await get(url,"BUYER_A"),other=await get(url,"BUYER_B");
  add("Buyer A can view own verified "+envName,owner.status,s=>s===200);
- add("Buyer B cannot view Buyer A "+envName,other.status,s=>s!==200);
+ const denial=assessAccessDenial(other,cfg.baseUrl);
+ if(!denial.ok)errors.push("Buyer B cannot view Buyer A "+envName+": "+denial.reason+" (HTTP "+other.status+")");
 }
 if(errors.length){
  console.error("FAIL: cross-role HTTP acceptance:",errors.join(" | "));
