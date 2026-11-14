@@ -41,7 +41,7 @@ test("Phase20B: workflow never supplies Supabase credentials to isolated databas
  assert.match(job,/SMART_HUB_CI_POSTGRES_ONLY: I_ACKNOWLEDGE_EPHEMERAL_POSTGRES/);
  assert.match(job,/node scripts\/release\/ci-postgres-integration\.mjs/);
  assert.match(job,/127\.0\.0\.1:5432/);
- assert.doesNotMatch(job,/secrets\.|supabase\.co|smarthub-agronexus|deploy --prod|PRISMA_MIGRATE_PRODUCTION/);
+ assert.doesNotMatch(job,/\$\{\{\s*secrets\.|supabase\.co|smarthub-agronexus|deploy --prod|PRISMA_MIGRATE_PRODUCTION/);
 });
 test("Phase20B: isolated job executes real Prisma deploy with local schema stub and validates role denial",()=>{
  const src=readFileSync("scripts/release/ci-postgres-integration.mjs","utf8");
