@@ -35,3 +35,12 @@ Those observations do NOT prove end-to-end Auth, SMS, live SMTP, browser session
 5. Record actual executed run IDs, deployed SHA, real provider results, migration and authorization evidence. Do not mark this phase complete based solely on green CI, successful Vercel build or static simulation.
 
 **No schema changes, Auth user creation, credential reads, migrations, database writes, live payment activation, or Agronexus modifications are part of this source milestone.**
+
+
+## Phase 20B read-only access-denial checker hardening (14 November)
+
+The protected `scripts/release/check-stage-http.mjs` previously treated **every HTTP status other than 200** as proof that another role, an anonymous visitor, or a different buyer was blocked. This generated a dangerous false positive: HTTP 500/503, rate limits or redirects to unrelated pages could all make a broken application appear to pass role isolation.
+
+The checker now uses `scripts/release/staging-access-denial.mjs` for all five categories of denied access: cross-role workspaces, anonymous workspaces, Operations attempting Super Admin CSV, anonymous CSV export, and Buyer B attempting Buyer A's private shipment/support case. Only explicit `401`, `403`, `404` or a manual **same-origin** redirect to a known login/verification/forbidden destination count as denial. A missing Location, cross-origin redirect, unexpected destination, 5xx, 429 or another status **fails** staging acceptance.
+
+New `tests/phase20b-staging-denial.test.mjs` exercises status and redirect allowlists and proves the five actual staging checks use the strict helper. The live stage HTTP workflow remains manually dispatched, read-only `GET` only, and requires the independent V2-only staged database and cookies. Nothing in this change activates a real account or authorizes a production rollout.
