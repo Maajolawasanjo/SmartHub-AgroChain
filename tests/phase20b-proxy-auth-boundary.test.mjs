@@ -2,14 +2,15 @@ import {test} from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import vm from "node:vm";
+import {stripTypeScriptTypes} from "node:module";
 
 // Exercise the actual Next.js proxy body with lightweight substitutes for its
 // framework dependencies; never contact Supabase or an existing live tenant.
 const source=readFileSync("src/proxy.ts","utf8");
-const runnable=source
+const runnable=stripTypeScriptTypes(source
  .replace(/^import [^\n]+;\n/gm,"")
- .replace("export async function proxy(request:NextRequest)","async function proxy(request)")
- .replace("export const config=","const config=");
+ .replace("export async function proxy","async function proxy")
+ .replace("export const config=","const config="),{mode:"strip"});
 function harness({ready=true,getClaimsThrows=false}={}){
  const calls={client:0,claims:0,requestCookies:[],responseCookies:[]};
  const request={cookies:{
