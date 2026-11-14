@@ -44,3 +44,12 @@ The protected `scripts/release/check-stage-http.mjs` previously treated **every 
 The checker now uses `scripts/release/staging-access-denial.mjs` for all five categories of denied access: cross-role workspaces, anonymous workspaces, Operations attempting Super Admin CSV, anonymous CSV export, and Buyer B attempting Buyer A's private shipment/support case. Only explicit `401`, `403`, `404` or a manual **same-origin** redirect to a known login/verification/forbidden destination count as denial. A missing Location, cross-origin redirect, unexpected destination, 5xx, 429 or another status **fails** staging acceptance.
 
 New `tests/phase20b-staging-denial.test.mjs` exercises status and redirect allowlists and proves the five actual staging checks use the strict helper. The live stage HTTP workflow remains manually dispatched, read-only `GET` only, and requires the independent V2-only staged database and cookies. Nothing in this change activates a real account or authorizes a production rollout.
+
+
+## Phase 20B stage/browser access-policy reconciliation
+
+A second acceptance discrepancy was identified: the application's authoritative `mayAccess`, Operations layout and `requirePortal("OPERATIONS")` all permit **SUPER_ADMIN** to access the Operations workspace, but the original five-role staging HTTP suite expected every role to be denied all other portal workspaces, including this intentional permission. The suite now asserts **HTTP 200 for Super Admin → Operations**, while preserving denials for every unauthorized cross-role pairing.
+
+The Playwright staging suite has been upgraded from a Buyer-only/Ops-only negative check to a full five-role cross-workspace matrix with the same Super Admin exception. Browser tests previously considered `500`, `503`, or any arbitrary redirect to be authorization denial because they merely compared status or final pathname. The shared `assessBrowserDenial` classifier now accepts only explicit 401/403/404 or an actual successful redirect to an allowlisted **same-origin** authentication/verification/forbidden page. The Buyer A / Buyer B private-shipment and support-case browser checks use the same classifier.
+
+These improvements require genuine isolated staging accounts and are **not** evidence those live checks have been executed. No production user, domain, database, financial or Auth-provider configuration was changed.
