@@ -53,3 +53,18 @@ A second acceptance discrepancy was identified: the application's authoritative 
 The Playwright staging suite has been upgraded from a Buyer-only/Ops-only negative check to a full five-role cross-workspace matrix with the same Super Admin exception. Browser tests previously considered `500`, `503`, or any arbitrary redirect to be authorization denial because they merely compared status or final pathname. The shared `assessBrowserDenial` classifier now accepts only explicit 401/403/404 or an actual successful redirect to an allowlisted **same-origin** authentication/verification/forbidden page. The Buyer A / Buyer B private-shipment and support-case browser checks use the same classifier.
 
 These improvements require genuine isolated staging accounts and are **not** evidence those live checks have been executed. No production user, domain, database, financial or Auth-provider configuration was changed.
+
+
+## Phase 20B — OTP callback origin and token privacy, 14 November 2026
+
+A review of `src/app/auth/callback/route.ts` found that when `authConfigReady()` was false, the callback used `request.nextUrl.origin` (the incoming request's origin) to choose the error redirect. Because the request Host is not an independently trusted site identity, a misconfigured V2 build could produce an attacker-origin redirect. The callback also did not specify a no-referrer policy for its token-bearing verification/recovery links.
+
+The callback now **returns a no-store HTTP 503** if the reviewed Auth/Prisma configuration is missing, without contacting Supabase, examining or reflecting any token, or constructing a redirect from a request-controlled host. When configured correctly, every OTP failure/success redirect is derived from the validated `siteUrl()`, with `Cache-Control: private, no-store`, `Referrer-Policy: no-referrer` and `X-Robots-Tag: noindex, nofollow`. Unrecognised callback types and token hashes over 512 characters fail before provider contact. Supported email/signup/email_change verification, staff invitations, and recovery ticket routing remain intact.
+
+`tests/phase20b-auth-callback-origin.test.mjs` runs the actual callback function in a controlled local Node VM with mocked provider and response services. It confirms that bad configuration and fake request hosts never authorize external redirects, invalid inputs never reach Auth, provider errors stay on V2, and real callback branch logic selects correct V2-only destinations.
+
+### Staging setup requires consent
+
+A `create_branch` attempt against the designated AgroChain Supabase project was **rejected before any resource was created**: Supabase requires a cost estimate and an explicit confirmation ID. No branch, extra billable project, Auth account, migration or live database modification was created. User approval of the actual hourly price and the owning Supabase organization is needed before a staging branch can be provisioned.
+
+The connected Vercel identity also cannot access the Ma'ajo team, so the V2 environment and authenticated runtime have not been independently inspected. This source protection is **not real-user staging acceptance**; issue #68 remains open.
