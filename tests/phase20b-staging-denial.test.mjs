@@ -1,7 +1,7 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
-import {assessAccessDenial} from "../scripts/release/staging-access-denial.mjs";
+import {assessAccessDenial,assessBrowserDenial} from "../scripts/release/staging-access-denial.mjs";
 
 const origin="https://preview-smarthub-agrochain-v2.example.test";
 const response=(status,location)=>({
@@ -47,4 +47,40 @@ test("Phase 20B: staging role and tenant checks ALL use strict denial validation
  assert.match(src,/STAGING_BUYER_A_SUPPORT_CASE_ID/);
  assert.match(src,/method:"GET",redirect:"manual"/);
  assert.doesNotMatch(src,/method:"POST"|method:"PATCH"|method:"DELETE"|method:"PUT"/);
+});
+
+
+test("Phase 20B: browser denial requires explicit 401/403/404 or completed approved redirect",()=>{
+ const url=origin+"/admin";
+ for(const status of [401,403,404])
+  assert.equal(assessBrowserDenial(status,url,"/admin",origin).ok,true);
+ for(const route of ["/login","/forbidden","/unauthorized","/verify-email","/verify-phone","/account/status","/account/security/mfa"]){
+  assert.equal(assessBrowserDenial(200,origin+route,"/admin",origin).ok,true,route);
+ }
+ for(const status of [200,201,302,400,429,500,502,503,504])
+  assert.equal(assessBrowserDenial(status,origin+"/admin","/admin",origin).ok,false,status);
+ for(const status of [500,503,429,302,304])
+  assert.equal(assessBrowserDenial(status,origin+"/login","/admin",origin).ok,false,status);
+ for(const destination of [origin+"/dashboard",origin+"/unrelated",origin+"/admin", "https://attacker.invalid/login","https://preview-smarthub-agrochain-v2.example.test.attacker.invalid/login"]){
+  assert.equal(assessBrowserDenial(200,destination,"/admin",origin).ok,false,destination);
+ }
+ assert.equal(assessBrowserDenial(200,origin+"/login","/login",origin).ok,false,
+  "The original protected URL cannot itself count as a redirect");
+});
+
+test("Phase 20B: staging role matrix matches server-authoritative Super Admin Operations access",()=>{
+ const http=readFileSync("scripts/release/check-stage-http.mjs","utf8");
+ const browser=readFileSync("e2e/staging.acceptance.spec.mjs","utf8");
+ const context=readFileSync("src/server/auth/context.ts","utf8");
+ const layout=readFileSync("src/app/operations/layout.tsx","utf8");
+ const portal=readFileSync("src/components/agriculture/portal-frame.tsx","utf8");
+ assert.match(context,/\["OPERATIONS","SUPER_ADMIN"\]\.includes\(ctx\.account\.role\)/);
+ assert.match(layout,/\["OPERATIONS","SUPER_ADMIN"\]\.includes\(ctx\.account\.role\)/);
+ assert.match(portal,/\["OPERATIONS","SUPER_ADMIN"\]\.includes\(ctx\.account\.role\)/);
+ assert.match(http,/role==="SUPER_ADMIN"&&target==="OPERATIONS"/);
+ assert.match(http,/Super Admin is authorized to use Operations workspace/);
+ assert.match(browser,/role==="SUPER_ADMIN"&&target==="OPERATIONS"/);
+ assert.match(browser,/assessBrowserDenial\(response\?\.status\(\),page\.url\(\),home,baseUrl\)/);
+ assert.match(browser,/assessBrowserDenial\(otherResponse\?\.status\(\),other\.url\(\),path,baseUrl\)/);
+ assert.doesNotMatch(browser,/response\?\.status\(\)!==200\|\|/);
 });
