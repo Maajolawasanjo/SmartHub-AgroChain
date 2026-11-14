@@ -27,3 +27,26 @@ export function assessAccessDenial(response,reviewedOrigin){
   return {ok:false,reason:"redirect is not an expected access-denial destination"};
  return {ok:true,reason:"redirected to an expected access-denial destination"};
 }
+
+
+// Playwright page.goto() follows redirects: the HTTP result is from the FINAL
+// document, unlike the manual-redirect read-only HTTP script above. A 200 on a
+// known login/verification page is a valid auth redirect; 5xx or a random 200
+// on a different page must never count as access protection.
+export function assessBrowserDenial(status,finalUrl,requestedPath,reviewedOrigin){
+ let origin,finalPage,requestedPage;
+ try{
+  origin=new URL(reviewedOrigin);
+  finalPage=new URL(finalUrl);
+  requestedPage=new URL(requestedPath,origin);
+ }catch{return {ok:false,reason:"invalid browser navigation URL"};}
+ if(origin.protocol!=="https:"||finalPage.origin!==origin.origin||
+    requestedPage.origin!==origin.origin||finalPage.username||finalPage.password)
+  return {ok:false,reason:"browser navigation escaped the reviewed staging origin"};
+ const sameRoute=finalPage.pathname===requestedPage.pathname;
+ if(denialCodes.has(status) && (sameRoute||permittedPaths.has(finalPage.pathname)))
+  return {ok:true,reason:"explicit forbidden or not-found browser response"};
+ if(status===200&&!sameRoute&&permittedPaths.has(finalPage.pathname))
+  return {ok:true,reason:"browser redirected to an approved authentication/access-denied page"};
+ return {ok:false,reason:"unexpected browser response or destination; not a verified access denial"};
+}
