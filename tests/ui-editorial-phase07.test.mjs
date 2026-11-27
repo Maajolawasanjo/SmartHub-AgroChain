@@ -7,7 +7,7 @@ test("account shell has its own editorial design and preserves existing access c
  assert.match(read("src/app/globals.css"),/auth-editorial\.css/);
  const css=read("src/styles/auth-editorial.css");
  assert.match(css,/\.auth-editorial \.auth-heading h1/);
- assert.match(css,/font-weight: var\(--font-weight-regular\)/);
+ assert.match(css,/font-weight: var\(--font-weight-bold\)/);
  assert.match(css,/aria-invalid="true"/);
  assert.match(css,/focus-visible/);
  assert.match(read("src/features/auth/components/auth-experience.tsx"),/ACCOUNT SERVICES NOT ENABLED/);

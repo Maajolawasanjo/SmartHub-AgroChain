@@ -14,8 +14,8 @@ test("public editorial styles are loaded and scoped to PublicShell",()=>{
 });
 test("editorial tokens are restrained, responsive and use existing brand values",()=>{
   assert.match(css,/--public-content-max: 77\.5rem;/);
-  assert.match(css,/--public-display-weight: var\(--font-weight-regular\);/);
-  assert.match(css,/--public-emphasis-weight: var\(--font-weight-light\);/);
+  assert.match(css,/--public-display-weight: var\(--font-weight-bold\);/);
+  assert.match(css,/--public-emphasis-weight: var\(--font-weight-bold\);/);
   assert.match(css,/font-style: normal;/);
   assert.match(css,/--public-radius-image: 0px;/);
   assert.match(css,/@media \(max-width: 640px\)/);

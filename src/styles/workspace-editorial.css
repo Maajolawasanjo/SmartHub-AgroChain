@@ -13,7 +13,7 @@
 .workspace-layout .workspace-brand-mark { font-weight: var(--font-weight-medium); }
 .workspace-layout .workspace-role-summary { background: transparent; border: 0; border-bottom: 1px solid color-mix(in srgb,var(--brand-sage) 24%,transparent); border-radius: 0; padding: 1rem .5rem; }
 .workspace-layout .workspace-role-summary strong { font-weight: var(--font-weight-medium); }
-.workspace-layout .workspace-menu-section h2 { font-weight: var(--font-weight-medium); letter-spacing: .14em; }
+.workspace-layout .workspace-menu-section h2 { font-weight: var(--font-weight-bold); letter-spacing: .14em; }
 .workspace-layout .workspace-nav-item { border-radius: var(--dashboard-control-radius); }
 .workspace-layout .workspace-nav-item.is-active { box-shadow: none; font-weight: var(--font-weight-medium); }
 .workspace-layout .workspace-signout { border-radius: var(--dashboard-control-radius); font-weight: var(--font-weight-medium); background: transparent; }
@@ -25,13 +25,13 @@
 .workspace-layout .workspace-mobile-menu { min-width: 44px; min-height: 44px; }
 .workspace-layout .workspace-content { padding-inline: var(--dashboard-gutter); min-width: 0; }
 .workspace-layout .workspace-breadcrumb { flex-wrap: wrap; overflow-wrap: anywhere; }
-.workspace-layout .workspace-page-heading h1 { font-weight: var(--font-weight-medium); font-size: clamp(1.75rem,3vw,2.75rem); overflow-wrap: anywhere; }
+.workspace-layout .workspace-page-heading h1 { font-weight: var(--font-weight-bold); font-size: clamp(2rem,3.5vw,3.25rem); overflow-wrap: anywhere; }
 .workspace-layout .workspace-eyebrow { font-weight: var(--font-weight-medium); }
 .workspace-layout .workspace-welcome { background: var(--brand-forest-deep); border-radius: var(--dashboard-radius); }
 .workspace-layout .workspace-welcome::after { content: none; }
-.workspace-layout .workspace-welcome h2 { font-weight: var(--font-weight-regular); }
+.workspace-layout .workspace-welcome h2 { font-weight: var(--font-weight-bold); }
 .workspace-layout :is(.workspace-card,.agro-panel,.staff-form,.staff-profile-card,.staff-filter-form) { border-radius: var(--dashboard-radius); box-shadow: none; min-width: 0; }
-.workspace-layout :is(.workspace-card h2,.agro-panel h2,.staff-profile-card h2) { font-weight: var(--font-weight-medium); }
+.workspace-layout :is(.workspace-card h2,.agro-panel h2,.staff-profile-card h2) { font-weight: var(--font-weight-bold); }
 .workspace-layout :is(.workspace-cta,.action,.agro-button,.staff-primary-button,.staff-secondary-button,.staff-danger-button,.sh-button) { border-radius: var(--dashboard-control-radius); font-weight: var(--font-weight-medium); min-height: 44px; }
 .workspace-layout :is(.agro-field,.staff-field) :is(input,select,textarea),
 .workspace-layout :is(.sh-input,.sh-select,.sh-textarea) { border-radius: var(--dashboard-control-radius); border-color: var(--brand-forest-muted); min-width: 0; }
@@ -43,7 +43,7 @@
 .workspace-layout .workspace-empty { border-radius: var(--dashboard-radius); background: transparent; }
 .workspace-layout .workspace-card .workspace-empty { border: 0; margin-bottom: 0; padding-inline: .5rem; }
 .workspace-layout .workspace-empty-symbol { border-radius: var(--dashboard-radius); }
-.workspace-layout .workspace-empty h2 { font-weight: var(--font-weight-medium); }
+.workspace-layout .workspace-empty h2 { font-weight: var(--font-weight-bold); }
 .workspace-layout :is(.staff-metric,.agro-number) { font-weight: var(--font-weight-regular); font-size: clamp(2rem,3vw,2.75rem); }
 .workspace-layout .agro-record { border-radius: var(--dashboard-radius); }
 .workspace-layout :is(.workspace-content,.workspace-topbar) :is(a,button,input,select,textarea,[tabindex="0"]):focus-visible { outline: 3px solid var(--dashboard-focus); outline-offset: 3px; }
@@ -69,7 +69,7 @@
 .workspace-layout[data-workspace-role="FARMER"] .agro-data-list { gap: .875rem; }
 .workspace-layout[data-workspace-role="FARMER"] .agro-record { background: transparent; border: 0; border-top: 1px solid var(--dashboard-border); border-radius: 0; padding: 1rem 0; }
 .workspace-layout[data-workspace-role="FARMER"] .agro-record>div { flex: 1 1 12rem; min-width: 0; overflow-wrap: anywhere; }
-.workspace-layout[data-workspace-role="FARMER"] .agro-record h3 { font-weight: var(--font-weight-medium); }
+.workspace-layout[data-workspace-role="FARMER"] .agro-record h3 { font-weight: var(--font-weight-bold); }
 .workspace-layout[data-workspace-role="FARMER"] .agro-panel .action { min-height: 44px; white-space: normal; }
 .workspace-layout[data-workspace-role="FARMER"] .agro-field label { font-weight: var(--font-weight-medium); }
 .workspace-layout[data-workspace-role="FARMER"] :is(.agro-alert,.agro-error,.agro-success) { border-radius: var(--dashboard-control-radius); }
@@ -95,12 +95,12 @@
 .workspace-layout[data-workspace-role="FIELD_AGENT"] .staff-table-link { color: var(--dashboard-accent); font-weight: var(--font-weight-medium); display: inline-flex; align-items: center; min-height: 44px; }
 .workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-detail-heading { flex-wrap: wrap; }
 .workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-detail-heading>div { min-width: 0; overflow-wrap: anywhere; }
-.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-detail-heading h2 { font-weight: var(--font-weight-medium); font-size: clamp(1.25rem,2.5vw,1.75rem); }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-detail-heading h2 { font-weight: var(--font-weight-bold); font-size: clamp(1.5rem,2.8vw,2rem); }
 .workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-detail-grid { gap: 0 1.5rem; grid-template-columns: repeat(2,minmax(0,1fr)); }
 .workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-detail-grid>div { border: 0; border-top: 1px solid var(--dashboard-border); border-radius: 0; background: transparent; padding: 1rem 0; }
 .workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-detail-grid dt { font-weight: var(--font-weight-medium); }
 .workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-detail-grid dd { font-size: .875rem; }
-.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-section-head h2 { font-weight: var(--font-weight-medium); }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-section-head h2 { font-weight: var(--font-weight-bold); }
 .workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-section-head p { font-size: .875rem; }
 .workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-static { border-radius: var(--dashboard-control-radius); font-weight: var(--font-weight-medium); overflow-wrap: anywhere; }
 .workspace-layout[data-workspace-role="FIELD_AGENT"] .agro-field label { font-weight: var(--font-weight-medium); }
@@ -135,7 +135,7 @@
 .workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) .agro-panel>h2 { font-size: 1.125rem; margin-bottom: .875rem; }
 .workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) .agro-record { background: transparent; border: 0; border-top: 1px solid var(--dashboard-border); border-radius: 0; padding: 1rem 0; align-items: flex-start; }
 .workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) .agro-record>div { min-width: 0; overflow-wrap: anywhere; flex: 1 1 14rem; }
-.workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) .agro-record :is(h3,strong) { font-weight: var(--font-weight-medium); }
+.workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) .agro-record :is(h3,strong) { font-weight: var(--font-weight-bold); }
 .workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) .agro-record p { font-size: .875rem; }
 .workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) .agro-data-list { gap: 0; }
 .workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) .agro-record a { font-weight: var(--font-weight-medium); color: var(--dashboard-accent); }
@@ -154,14 +154,14 @@
 .workspace-layout[data-workspace-role="OPERATIONS"] .operations-overview-metrics .action { margin-top: auto; white-space: normal; }
 .workspace-layout[data-workspace-role="OPERATIONS"] .operations-overview-actions { padding-block: 1rem; border-bottom: 1px solid var(--dashboard-border); }
 .workspace-layout[data-workspace-role="SUPER_ADMIN"] .admin-overview-section { margin-bottom: 2rem; }
-.workspace-layout[data-workspace-role="SUPER_ADMIN"] .admin-overview-section>h2 { font-weight: var(--font-weight-medium); font-size: 1.125rem; margin-bottom: 1rem; }
+.workspace-layout[data-workspace-role="SUPER_ADMIN"] .admin-overview-section>h2 { font-weight: var(--font-weight-bold); font-size: 1.125rem; margin-bottom: 1rem; }
 .workspace-layout[data-workspace-role="SUPER_ADMIN"] .admin-overview-grid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 1rem; }
 .workspace-layout[data-workspace-role="SUPER_ADMIN"] .admin-overview-grid .workspace-card { min-height: 0; padding: 1.25rem; }
 .workspace-layout[data-workspace-role="SUPER_ADMIN"] .admin-report-metrics { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 1rem; margin-block: 1rem; }
 .workspace-layout[data-workspace-role="SUPER_ADMIN"] .admin-report-metrics .agro-panel { margin: 0; }
 .workspace-layout[data-workspace-role="SUPER_ADMIN"] .admin-report-metrics .agro-number { font-size: clamp(1.35rem,2.5vw,2.25rem); overflow-wrap: anywhere; }
 .workspace-layout[data-workspace-role="SUPER_ADMIN"] .staff-access-blueprint { box-shadow: none; }
-.workspace-layout[data-workspace-role="SUPER_ADMIN"] :is(.staff-access-blueprint-heading h2,.staff-access-subheading,.staff-access-action strong,.staff-access-module strong) { font-weight: var(--font-weight-medium); }
+.workspace-layout[data-workspace-role="SUPER_ADMIN"] :is(.staff-access-blueprint-heading h2,.staff-access-subheading,.staff-access-action strong,.staff-access-module strong) { font-weight: var(--font-weight-bold); }
 .workspace-layout[data-workspace-role="SUPER_ADMIN"] :is(.staff-access-action,.staff-access-module,.staff-access-gate-list li) { border-radius: 0; border: 0; border-top: 1px solid var(--dashboard-border); background: transparent; padding: 1rem 0; min-width: 0; overflow-wrap: anywhere; }
 @media(max-width:1200px) {
  .workspace-layout[data-workspace-role="OPERATIONS"] .operations-overview-metrics,
@@ -185,3 +185,10 @@
  .workspace-layout .workspace-topbar { gap: .375rem; }
  .workspace-layout .workspace-topbar-identity span { display: none; }
 }
+
+.workspace-layout .workspace-content :is(h2,h3,h4,h5,h6) { font-weight: var(--font-weight-bold); overflow-wrap: anywhere; }
+.workspace-layout :is(.workspace-card h2,.agro-panel h2,.workspace-empty h2,.staff-profile-card h2) { font-size: 1.25rem; }
+.workspace-layout .workspace-content h3 { font-size: 1.125rem; }
+.workspace-layout[data-workspace-role="FARMER"] .farmer-overview-metrics .agro-panel h2,.workspace-layout[data-workspace-role="OPERATIONS"] .operations-overview-metrics h2 { font-size: 1rem; }
+.workspace-layout[data-workspace-role="SUPER_ADMIN"] .admin-overview-section>h2 { font-size: 1.5rem; }
+.workspace-layout .workspace-menu-section h2 { font-size: .75rem; }
