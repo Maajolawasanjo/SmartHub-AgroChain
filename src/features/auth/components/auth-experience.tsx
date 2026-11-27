@@ -78,7 +78,7 @@ export function AuthExperience({route,previewEnabled,authenticated=false}:{route
  const titleInfo = headline[route] ?? {eyebrow:scenarios[0]?.module??"Account journey",title:route.split("/").filter(Boolean).at(-1)?.replaceAll("-"," ")??"Account access",description:"This account lifecycle step needs authenticated, server-authorized state before it can change records."};
  const reviewPaths = related[route] ?? [{href:"/account/help",label:"Account help"},{href:"/login",label:"Sign in"}];
  const locked=(privateRoute(route)&&!authenticated || ["/invite/complete","/account/delete/complete"].includes(route))&&!previewEnabled;
- return <div className="auth-layout">
+ return <div className="auth-layout auth-editorial">
   <aside className="auth-aside">
    <Link href="/" className="auth-logo">SmartHub<span>AgroChain</span></Link>
    <div className="auth-aside-main"><p className="auth-aside-kicker">Where agriculture meets innovation</p><h2>One trusted connection.<br/><em>Many possibilities.</em></h2><p>Secure accounts for farmers, buyers and the teams coordinating verified agricultural supply.</p><div className="auth-step-list"><span>01 <b>Identity</b></span><span>02 <b>Verification</b></span><span>03 <b>Authorized access</b></span></div></div>

@@ -1,0 +1,87 @@
+/* Phase 07 — scoped account editorial design. */
+.auth-layout.auth-editorial {
+  --auth-editorial-radius: .25rem;
+  --auth-editorial-gutter: clamp(1.25rem,5vw,5rem);
+  grid-template-columns: minmax(17rem,40%) minmax(0,1fr);
+}
+.auth-editorial .auth-aside {
+  background: var(--brand-forest-deep);
+  padding: var(--auth-editorial-gutter);
+}
+.auth-editorial .auth-aside::before,
+.auth-editorial .auth-aside::after { content: none; }
+.auth-editorial .auth-logo { font-weight: var(--font-weight-medium); }
+.auth-editorial .auth-aside-kicker,
+.auth-editorial .auth-kicker { font-weight: var(--font-weight-medium); }
+.auth-editorial .auth-aside-main h2 {
+  font-weight: var(--font-weight-regular);
+  font-size: clamp(2.25rem,4.3vw,4.5rem);
+  line-height: 1.05;
+  letter-spacing: -.055em;
+}
+.auth-editorial .auth-aside-main h2 em { font-weight: var(--font-weight-light); }
+.auth-editorial .auth-step-list { display: grid; gap: 0; margin-top: 2rem; }
+.auth-editorial .auth-step-list span {
+  border: 0;
+  border-top: 1px solid color-mix(in srgb,var(--brand-sage) 30%,transparent);
+  border-radius: 0;
+  padding: .75rem 0;
+}
+.auth-editorial .auth-main { padding: 2rem var(--auth-editorial-gutter); }
+.auth-editorial .auth-content { width: min(100%,34rem); margin-block: clamp(2.5rem,6vw,5rem); }
+.auth-editorial .auth-heading h1 {
+  font-weight: var(--font-weight-regular);
+  font-size: clamp(2rem,4vw,3.5rem);
+  line-height: 1.08;
+  overflow-wrap: anywhere;
+}
+.auth-editorial .auth-card {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  padding: 0;
+}
+.auth-editorial .auth-tabs { background: transparent; padding: 0; border-radius: 0; border-bottom: 1px solid var(--brand-forest-muted); }
+.auth-editorial .auth-tab {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  font-weight: var(--font-weight-medium);
+}
+.auth-editorial .auth-tab.active { background: var(--brand-sage); border-bottom-color: var(--brand-forest); box-shadow: none; }
+.auth-editorial .auth-form { gap: 1.25rem; }
+.auth-editorial .auth-input {
+  border-radius: var(--auth-editorial-radius);
+  border-color: var(--brand-forest-muted);
+  min-height: 50px;
+  font-size: 1rem;
+}
+.auth-editorial .auth-input[aria-invalid="true"] { border-color: #bb4e4e; }
+.auth-editorial .auth-reveal {
+  background: transparent;
+  border-radius: var(--auth-editorial-radius);
+  top: 3px;
+  bottom: 3px;
+  font-weight: var(--font-weight-medium);
+}
+.auth-editorial .auth-submit { border-radius: var(--auth-editorial-radius); font-weight: var(--font-weight-medium); }
+.auth-editorial .auth-environment { border-radius: var(--auth-editorial-radius); font-weight: var(--font-weight-medium); }
+.auth-editorial .auth-notice { border-radius: var(--auth-editorial-radius); font-size: .8125rem; }
+.auth-editorial .auth-state-intro h2 { font-weight: var(--font-weight-medium); }
+.auth-editorial .auth-route-links a { background: transparent; border-radius: 0; padding: .75rem 0; margin-right: .75rem; text-decoration: underline; font-weight: var(--font-weight-medium); }
+.auth-editorial :is(a,button,input,select):focus-visible { outline: 2px solid var(--focus-accent); outline-offset: 3px; }
+.auth-editorial .auth-aside :is(a,button):focus-visible { outline-color: var(--focus-on-dark); }
+@media(max-width:880px) {
+  .auth-layout.auth-editorial { grid-template-columns: minmax(0,1fr); }
+  .auth-editorial .auth-aside { padding: 1.25rem var(--auth-editorial-gutter); }
+  .auth-editorial .auth-main { padding: 1.5rem var(--auth-editorial-gutter); }
+  .auth-editorial .auth-content { margin-block: 2rem; }
+}
+@media(max-width:430px) {
+  .auth-editorial .auth-card { padding: 0; }
+  .auth-editorial .auth-heading h1 { font-size: 2rem; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .auth-editorial :is(.auth-input,.auth-submit) { transition: none; }
+}

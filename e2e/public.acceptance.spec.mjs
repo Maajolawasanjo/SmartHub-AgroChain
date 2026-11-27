@@ -136,7 +136,7 @@ test("desktop and mobile inherit the canonical Satoshi brand and readable surfac
     family:getComputedStyle(node).fontFamily,weight:getComputedStyle(node).fontWeight
   }));
   expect(account.family).toContain("Satoshi");
-  expect(account.weight).toBe("900");
+  expect(account.weight).toBe("400");
   await page.screenshot({path:"playwright-artifacts/brand-phase06-login-"+width+".png",fullPage:true,animations:"disabled"});
  }
 });
@@ -197,6 +197,19 @@ test("remaining public pages preserve assistance and policy flows at desktop and
    }
    if(route==="/contact")await expect(page.getByRole("button",{name:"Send Message"})).toBeDisabled();
    if(["/contact","/faq","/help","/insights"].includes(route))await page.screenshot({path:"playwright-artifacts/service-"+route.slice(1)+"-"+width+".png",fullPage:true,animations:"disabled"});
+  }
+ }
+});
+
+test("account editorial shell preserves disconnected security and responsive layout",async({page})=>{
+ for(const width of [390,1440]){
+  await page.setViewportSize({width,height:900});
+  for(const path of ["/login","/signup","/forgot-password","/verify-email","/reset-password"]){
+   await page.goto(path,{waitUntil:"domcontentloaded"});
+   await expect(page.locator(".auth-layout.auth-editorial")).toBeVisible();
+   await expect(page.locator(".auth-heading h1")).toBeVisible();
+   await expect(page.getByText("ACCOUNT SERVICES NOT ENABLED",{exact:true})).toBeVisible();
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth)).toBeLessThanOrEqual(3);
   }
  }
 });

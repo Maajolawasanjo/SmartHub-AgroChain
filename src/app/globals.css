@@ -6,6 +6,7 @@
 @import "../styles/dashboard-tokens.css";
 @import "../styles/admin-access-blueprint.css";
 @import "../styles/public-editorial.css";
+@import "../styles/auth-editorial.css";
 
 :root { color-scheme: light; }
 * { box-sizing: border-box; }
