@@ -76,3 +76,56 @@
 .workspace-layout[data-workspace-role="FARMER"] .farmer-support { background: transparent; border: 0; border-top: 1px solid var(--dashboard-border); border-radius: 0; padding-inline: 0; }
 @media(max-width:1200px){.workspace-layout[data-workspace-role="FARMER"] .farmer-overview-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }}
 @media(max-width:580px){.workspace-layout[data-workspace-role="FARMER"] :is(.agro-grid,.agro-form-grid,.farmer-overview-metrics) { grid-template-columns: minmax(0,1fr); }}
+
+/* Phase 10 — Field Agent: mobile-first visit and evidence workspace. */
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-scope-note {
+  background: var(--dashboard-surface-soft);
+  border: 0;
+  border-left: 3px solid var(--brand-forest);
+  border-radius: var(--dashboard-control-radius);
+  padding: 1.25rem;
+}
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-scope-note :is(strong,span) { font-weight: var(--font-weight-medium); overflow-wrap: anywhere; }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-overview-metrics { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 1rem; }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-overview-metrics .workspace-card { padding: 1.25rem; }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .staff-text-link { color: var(--dashboard-accent); font-weight: var(--font-weight-medium); min-height: 44px; }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-overview-actions { padding-block: 1rem; border-top: 1px solid var(--dashboard-border); }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-page-links a { color: var(--dashboard-accent); font-weight: var(--font-weight-medium); display: inline-flex; align-items: center; min-height: 44px; }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .staff-filter-tabs a { border-radius: var(--dashboard-control-radius); display: inline-flex; align-items: center; min-height: 44px; font-weight: var(--font-weight-medium); }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .staff-table-link { color: var(--dashboard-accent); font-weight: var(--font-weight-medium); display: inline-flex; align-items: center; min-height: 44px; }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-detail-heading { flex-wrap: wrap; }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-detail-heading>div { min-width: 0; overflow-wrap: anywhere; }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-detail-heading h2 { font-weight: var(--font-weight-medium); font-size: clamp(1.25rem,2.5vw,1.75rem); }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-detail-grid { gap: 0 1.5rem; grid-template-columns: repeat(2,minmax(0,1fr)); }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-detail-grid>div { border: 0; border-top: 1px solid var(--dashboard-border); border-radius: 0; background: transparent; padding: 1rem 0; }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-detail-grid dt { font-weight: var(--font-weight-medium); }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-detail-grid dd { font-size: .875rem; }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-section-head h2 { font-weight: var(--font-weight-medium); }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-section-head p { font-size: .875rem; }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-static { border-radius: var(--dashboard-control-radius); font-weight: var(--font-weight-medium); overflow-wrap: anywhere; }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .agro-field label { font-weight: var(--font-weight-medium); }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .agro-field :is(input,select,textarea) { font-size: 1rem; min-width: 0; }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-report-panel .agro-form { max-width: none; }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-action-row { padding-top: 1rem; border-top: 1px solid var(--dashboard-border); }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-action-row>.agro-button { justify-self: start; }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-cancel-row input { min-width: min(100%,13rem); border-radius: var(--dashboard-control-radius); font-size: 1rem; }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-count { font-weight: var(--font-weight-medium); }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-evidence-list { gap: 0; }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-evidence { border: 0; border-top: 1px solid var(--dashboard-border); border-radius: 0; background: transparent; padding: 1rem 0; flex-wrap: wrap; }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-evidence>div { flex: 1 1 13rem; }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-evidence strong { font-size: .875rem; font-weight: var(--font-weight-medium); }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-evidence p { font-size: .8125rem; }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-upload-form { grid-template-columns: minmax(0,1fr) minmax(0,1fr) auto; }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-upload-form input[type=file] { width: 100%; min-width: 0; font-size: .875rem; }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-history article>div { min-width: 0; overflow-wrap: anywhere; }
+.workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-history p { font-size: .8125rem; }
+@media(max-width:1100px) {
+  .workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-upload-form { grid-template-columns: minmax(0,1fr); }
+  .workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-overview-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:760px) {
+  .workspace-layout[data-workspace-role="FIELD_AGENT"] :is(.field-agent-search,.field-agent-detail-grid,.field-agent-overview-metrics,.agro-form-grid) { grid-template-columns: minmax(0,1fr); }
+  .workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-action-row>.agro-button { justify-self: stretch; }
+  .workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-cancel-row input { flex-basis: 100%; }
+  .workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-evidence .action { min-height: 44px; white-space: normal; }
+}

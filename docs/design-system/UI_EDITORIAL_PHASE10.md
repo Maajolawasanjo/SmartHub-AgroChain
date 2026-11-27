@@ -1,0 +1,2 @@
+# Phase 10 — Field Agent portal
+Source implementation. Scoped Field Agent overview, assignment scope, search and filter controls, detail information, report forms, private evidence list/upload and visit history. Prioritizes narrow screens and 44px action targets. Existing assignment checks, read scopes, file limits, API calls, evidence status and independent Operations review preserved. No offline mode or camera-only workflow introduced. Source tests added; authenticated browser review and CI remain pending. No production or old-project changes.
