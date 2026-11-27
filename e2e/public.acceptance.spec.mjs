@@ -111,6 +111,8 @@ test("desktop and mobile inherit the canonical Satoshi brand and readable surfac
     agricultural:r.getPropertyValue("--brand-agricultural").trim().toLowerCase(),
     bodyFont:body.fontFamily,heroFont:hero.fontFamily,heroWeight:hero.fontWeight,
     footerBackground:footer.backgroundColor,
+    expectedFooter:(()=>{const probe=document.createElement("div");probe.style.backgroundColor="var(--brand-forest-deep)";document.body.append(probe);const color=getComputedStyle(probe).backgroundColor;probe.remove();return color;})(),
+    emphasisWeight:getComputedStyle(document.querySelector(".editorial-hero h1 em")).fontWeight,
     focusLight:r.getPropertyValue("--focus-accent").trim(),
     focusDark:r.getPropertyValue("--focus-on-dark").trim()
    };
@@ -122,8 +124,9 @@ test("desktop and mobile inherit the canonical Satoshi brand and readable surfac
   expect(branding.agricultural).toBe("#398453");
   expect(branding.bodyFont).toContain("Satoshi");
   expect(branding.heroFont).toContain("Satoshi");
-  expect(branding.heroWeight).toBe("900");
-  expect(branding.footerBackground).toBe("rgb(23, 76, 53)");
+  expect(branding.heroWeight).toBe("400");
+  expect(branding.emphasisWeight).toBe("300");
+  expect(branding.footerBackground).toBe(branding.expectedFooter);
   expect(branding.focusLight.toLowerCase()).toBe("#174c35");
   expect(branding.focusDark.toLowerCase()).toBe("#d5a649");
   await page.screenshot({path:"playwright-artifacts/brand-phase06-home-"+width+".png",fullPage:true,animations:"disabled"});
@@ -133,7 +136,96 @@ test("desktop and mobile inherit the canonical Satoshi brand and readable surfac
     family:getComputedStyle(node).fontFamily,weight:getComputedStyle(node).fontWeight
   }));
   expect(account.family).toContain("Satoshi");
-  expect(account.weight).toBe("900");
+  expect(account.weight).toBe("400");
   await page.screenshot({path:"playwright-artifacts/brand-phase06-login-"+width+".png",fullPage:true,animations:"disabled"});
+ }
+});
+
+test("catalogue search and unavailable detail remain honest and responsive",async({page})=>{
+ await mkdir("playwright-artifacts",{recursive:true});
+ for(const width of [390,1440]){
+  await page.setViewportSize({width,height:900});
+  await page.goto("/products");
+  await expect(page.locator(".editorial-catalog main,main .editorial-catalog")).toBeVisible();
+  await expect(page.getByText("Published catalogue is not connected yet")).toBeVisible();
+  await expect(page.locator(".public-product-card")).toHaveCount(0);
+  await page.locator("#catalog-search").fill("maize");
+  await page.getByRole("button",{name:"Search products"}).click();
+  await expect(page).toHaveURL(/q=maize/);
+  await expect(page.locator("#catalog-search")).toHaveValue("maize");
+  await page.getByRole("link",{name:"Clear filters"}).click();
+  await expect(page).toHaveURL(/\/products$/);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth)).toBeLessThanOrEqual(3);
+  await page.screenshot({path:"playwright-artifacts/catalogue-"+width+".png",fullPage:true,animations:"disabled"});
+  await page.goto("/products/maize");
+  await expect(page.getByRole("heading",{name:"Product details are unavailable"})).toBeVisible();
+  await expect(page.getByRole("link",{name:"Back to products"})).toHaveAttribute("href","/products");
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth)).toBeLessThanOrEqual(3);
+ }
+});
+
+test("informational pages retain editorial layouts and fit mobile and desktop",async({page})=>{
+ test.setTimeout(120000);
+ await mkdir("playwright-artifacts",{recursive:true});
+ for(const width of [390,1440]){
+  await page.setViewportSize({width,height:900});
+  for(const route of ["/product","/about","/how-it-works","/for-buyers","/for-farmers","/partnerships"]){
+   await page.goto(route,{waitUntil:"domcontentloaded"});
+   await expect(page.locator("main .editorial-information")).toBeVisible();
+   await expect(page.locator("main h1")).toBeVisible();
+   await expect(page.locator(".editorial-ending .editorial-button-primary")).toBeVisible();
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth),route).toBeLessThanOrEqual(3);
+   await page.screenshot({path:"playwright-artifacts/info-"+route.slice(1)+"-"+width+".png",fullPage:true,animations:"disabled"});
+  }
+ }
+});
+
+test("remaining public pages preserve assistance and policy flows at desktop and mobile widths",async({page})=>{
+ test.setTimeout(120000);
+ await mkdir("playwright-artifacts",{recursive:true});
+ for(const width of [390,1440]){
+  await page.setViewportSize({width,height:900});
+  for(const route of ["/contact","/faq","/help","/insights","/insights/unavailable","/privacy","/terms","/cookies","/accessibility"]){
+   await page.goto(route,{waitUntil:"domcontentloaded"});
+   await expect(page.locator("main .editorial-service")).toBeVisible();
+   await expect(page.locator("main h1")).toBeVisible();
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth),route).toBeLessThanOrEqual(3);
+   if(route==="/faq"){
+    const question=page.locator(".editorial-faq-preview summary").first();
+    await question.click();
+    await expect(question.locator("..")).toHaveAttribute("open","");
+   }
+   if(route==="/contact")await expect(page.getByRole("button",{name:"Send Message"})).toBeDisabled();
+   if(["/contact","/faq","/help","/insights"].includes(route))await page.screenshot({path:"playwright-artifacts/service-"+route.slice(1)+"-"+width+".png",fullPage:true,animations:"disabled"});
+  }
+ }
+});
+
+test("account editorial shell preserves disconnected security and responsive layout",async({page})=>{
+ for(const width of [390,1440]){
+  await page.setViewportSize({width,height:900});
+  for(const path of ["/login","/signup","/forgot-password","/verify-email","/reset-password"]){
+   await page.goto(path,{waitUntil:"domcontentloaded"});
+   await expect(page.locator(".auth-layout.auth-editorial")).toBeVisible();
+   await expect(page.locator(".auth-heading h1")).toBeVisible();
+   await expect(page.getByText("ACCOUNT SERVICES NOT ENABLED",{exact:true})).toBeVisible();
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth)).toBeLessThanOrEqual(3);
+  }
+ }
+});
+
+test("final public breakpoint and account outcome regression",async({page})=>{
+ test.setTimeout(150000);
+ for(const width of [320,768,1024,1280]){
+  await page.setViewportSize({width,height:900});
+  for(const route of ["/","/products","/contact","/faq","/login","/forgot-password/sent","/reset-password/success"]){
+   const response=await page.goto(route,{waitUntil:"domcontentloaded"});
+   expect(response?.status(),route).toBe(200);
+   await expect(page.locator("main h1")).toBeVisible();
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth),route+" at "+width).toBeLessThanOrEqual(3);
+   if(route==="/"){
+    await expect(page.locator(width<=1220?".public-mobile-menu summary":".public-desktop-nav")).toBeVisible();
+   }
+  }
  }
 });

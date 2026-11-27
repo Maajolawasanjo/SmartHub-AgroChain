@@ -24,13 +24,13 @@ const commodityGroups=[
  {title:"Roots & tubers",examples:"Cassava · Yam · Sweet potato",symbol:"R"}
 ];
 export default function Home(){
- return <PublicShell>
+ return <PublicShell><div className="editorial-home">
   <EditorialHero eyebrow="BUILDING A BETTER AGRICULTURAL SUPPLY CHAIN"
    title={<>Connecting Agricultural Supply With <em>Real Market Demand</em></>}
    description="SmartHub AgroChain is a Nigerian agricultural technology platform designed to connect farmers, buyers and agricultural businesses through better sourcing, market access and supply-chain coordination."
    primary={{label:"Start a Buyer Request",href:"/signup?role=buyer"}} secondary={{label:"Join as a Farmer",href:"/signup?role=farmer"}}
    note="Better information. Better connections. A more organised agricultural supply chain."
-   visual="land">
+   visual="land" theme="dark" cinematic>
    <span className="editorial-overlay-kicker">How it connects</span>
    <div className="editorial-overlay-chain"><span>Buyer requirement</span><span aria-hidden="true">→</span><span>SmartHub review</span><span aria-hidden="true">→</span><span>Suitable supply</span></div>
    <span className="editorial-overlay-meta">Illustrative process · No live order data</span>
@@ -47,7 +47,7 @@ export default function Home(){
     <Link className="editorial-inline-link" href="/about">Why we're building SmartHub <span aria-hidden="true">↗</span></Link>
    </div>
   </section>
-  <section className="editorial-tinted"><div className="container editorial-section">
+  <section className="editorial-tinted editorial-home-audiences"><div className="container editorial-section">
    <SectionLead eyebrow="THE AGRICULTURAL VALUE CHAIN" title="Connecting the People Who Move Agriculture Forward"
     description="SmartHub's relationships are managed through the platform and its operations team, rather than unrestricted direct buyer-to-farmer trading."/>
    <div className="editorial-audience-grid">{audiences.map((a,i)=><article className="editorial-audience-card" key={a.href}>
@@ -76,7 +76,7 @@ export default function Home(){
     <span>Illustrative workflow</span><strong>Request → Review → Quote → Deliver</strong><p>Actual states depend on authorized records. This is not a screenshot or a live transaction.</p>
    </div></div>
   </div></section>
-  <section className="container editorial-section"><SectionLead eyebrow="A practical approach to confidence"
+  <section className="container editorial-section editorial-home-assurances"><SectionLead eyebrow="A practical approach to confidence"
    title="Three principles behind every sourcing decision."
    description="The system is designed to show what is known, what still needs review and who is responsible for the next step."/>
    <div className="editorial-assurance-grid">{assurances.map(x=><article className="editorial-assurance" key={x.number}>
@@ -101,5 +101,5 @@ export default function Home(){
   <EditorialCTA eyebrow="Your next step" title="Ready to talk about what agriculture could move next?"
    description="Tell us about your sourcing requirements, farm participation or potential partnership. Our process begins with understanding what you actually need."
    primary={{label:"Talk to SmartHub",href:"/contact"}} secondary={{label:"Learn how it works",href:"/how-it-works"}}/>
- </PublicShell>;
+ </div></PublicShell>;
 }

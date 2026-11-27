@@ -14,11 +14,11 @@ export default async function Contact({searchParams}:{searchParams:Promise<{inte
   {title:"Farm participation",text:"Introduce your farm, crops, location and current or expected supply.",href:"/contact?interest=farmer#contact-form"},
   {title:"Partnerships",text:"Describe your business, service coverage and potential role in agricultural sourcing.",href:"/contact?interest=partner#contact-form"}
  ];
- return <PublicShell>
+ return <PublicShell><div className="editorial-service editorial-service-contact">
   <EditorialHero eyebrow="Get in touch with SmartHub" title={<>Let's start with <em>a real conversation.</em></>}
    description="Whether you need agricultural produce, grow it or help move it, the right next step begins with a clear introduction. Tell us what you need and what is relevant to your location."
    primary={{label:"See contact options",href:"#contact-options"}} secondary={{label:"How it works",href:"/how-it-works"}}
-   visual="produce" note="Responses, service coverage and participation depend on operational availability; no instant supply or response time is guaranteed.">
+   visual="produce" theme="dark" note="Responses, service coverage and participation depend on operational availability; no instant supply or response time is guaranteed.">
    <span className="editorial-overlay-kicker">A useful first message</span>
    <strong>Who you are · What you need · Where · When</strong><p className="editorial-overlay-meta">Avoid sharing passwords, OTPs or bank PINs.</p>
   </EditorialHero>
@@ -42,5 +42,5 @@ export default async function Contact({searchParams}:{searchParams:Promise<{inte
   <EditorialCTA eyebrow="Explore more" title="Understand the model before you commit."
    description="Learn how we approach sourcing, farmer participation and responsible agricultural supply coordination."
    primary={{label:"How SmartHub works",href:"/how-it-works"}} secondary={{label:"Explore the platform",href:"/product"}}/>
- </PublicShell>;
+ </div></PublicShell>;
 }

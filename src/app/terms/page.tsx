@@ -9,7 +9,7 @@ export const metadata:Metadata={
  robots:{index:false,follow:false}
 };
 export default function Terms(){
- return <PublicShell>
+ return <PublicShell><div className="editorial-service editorial-service-terms">
   <section className="editorial-hero"><div className="container editorial-section">
    <Eyebrow>Legal document · Pending approval</Eyebrow>
    <h1 className="public-legal-heading" style={{maxWidth:830}}>Clear commercial terms should come before commitments.</h1>
@@ -27,5 +27,5 @@ export default function Terms(){
     <p>Official terms, buyer acceptance, independent provider verification and delivery obligations require their respective approved processes, not implied consent from a marketing page.</p>
    </div>
   </section>
- </PublicShell>;
+ </div></PublicShell>;
 }

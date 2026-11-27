@@ -9,7 +9,7 @@ export const metadata:Metadata={
  robots:{index:false,follow:false}
 };
 export default function Privacy(){
- return <PublicShell>
+ return <PublicShell><div className="editorial-service editorial-service-privacy">
   <section className="editorial-hero"><div className="container editorial-section">
    <Eyebrow>Legal document · Pending approval</Eyebrow>
    <h1 className="public-legal-heading" style={{maxWidth:820}}>A clearer foundation starts with responsible data practices.</h1>
@@ -26,5 +26,5 @@ export default function Privacy(){
     <p>Live features that require a published privacy notice must remain gated until legal review is complete. SmartHub does not claim these terms are approved.</p>
    </div>
   </section>
- </PublicShell>;
+ </div></PublicShell>;
 }

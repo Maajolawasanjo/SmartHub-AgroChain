@@ -1,0 +1,23 @@
+import {test} from "node:test";
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+const read=p=>readFileSync(p,"utf8");
+test("shared workspace editorial system preserves the original navigation and semantic states",()=>{
+ const css=read("src/styles/workspace-editorial.css");
+ assert.match(read("src/app/globals.css"),/workspace-editorial\.css/);
+ assert.match(css,/\.workspace-layout \.workspace-sidebar/);
+ assert.match(css,/--dashboard-card-shadow: none/);
+ assert.match(css,/\.workspace-layout \.workspace-page-heading h1/);
+ assert.match(css,/overflow-x: auto/);
+ assert.match(css,/focus-visible/);
+ assert.match(css,/@media\(max-width:840px\)/);
+ assert.match(css,/prefers-reduced-motion:reduce/);
+ assert.doesNotMatch(css,/:root\s*\{/);
+ const chrome=read("src/components/dashboard/dashboard-chrome.tsx");
+ assert.match(chrome,/aria-current=\{active\?"page":undefined\}/);
+ assert.match(chrome,/item\.availability==="planned"/);
+ const ui=read("src/components/dashboard/dashboard-ui.tsx");
+ assert.match(ui,/FAILED:"negative"/);
+ assert.match(ui,/PENDING:"warning"/);
+ assert.match(ui,/PAID:"positive"/);
+});

@@ -18,7 +18,7 @@ test("live and design-preview auth flows use one shared Satoshi brand shell",()=
   for(const cls of ["auth-layout","auth-aside","auth-main","auth-heading","auth-card","auth-footer"])
    assert.ok(page.includes(cls),cls);
  }
- assert.match(auth,/\.auth-aside\{background:[^}]*var\(--brand-forest\)/);
+ assert.match(auth,/\.auth-aside\{background:var\(--brand-forest-deep\)/);
  assert.match(auth,/\.auth-aside-main h2\{font-family:var\(--font-satoshi\);font-weight:900/);
  assert.match(auth,/\.auth-heading h1\{font-family:var\(--font-satoshi\);[^}]*font-weight:900/);
  assert.match(auth,/\.auth-logo\{font-family:var\(--font-satoshi\)/);

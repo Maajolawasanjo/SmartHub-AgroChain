@@ -11,13 +11,14 @@ const photos:Record<VisualKey,{src:string;alt:string;credit:string}>={
  fields:{src:"https://images.unsplash.com/photo-1523741543316-beb7fc7023d8?auto=format&fit=crop&w=1600&q=82",alt:"Cultivated farmland extending across the landscape",credit:"Illustrative agricultural photograph"},
  operations:{src:"https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1400&q=82",alt:"Agricultural working landscape in a rural setting",credit:"Illustrative agricultural photograph"}
 };
-export function EditorialPhoto({visual,className="",priority=false,caption=false}:{
- visual:VisualKey;className?:string;priority?:boolean;caption?:boolean
+export function EditorialPhoto({visual,className="",priority=false,caption=false,fullBleed=false}:{
+ visual:VisualKey;className?:string;priority?:boolean;caption?:boolean;fullBleed?:boolean
 }){
  const item=photos[visual];
  return <figure className={"editorial-photo "+className}>
   <Image src={item.src} alt={item.alt} fill
     sizes="(max-width: 640px) 100vw, (max-width: 900px) 90vw, 50vw"
+    {...(fullBleed?{sizes:"100vw"}:{})}
     quality={75} priority={priority} referrerPolicy="no-referrer"/>
   {caption&&<figcaption>{item.credit} · Not a photograph of SmartHub operations</figcaption>}
  </figure>;
@@ -28,17 +29,18 @@ export function SectionLead({eyebrow,title,description,align="left"}:{eyebrow:st
   <Eyebrow>{eyebrow}</Eyebrow><h2>{title}</h2>{description&&<p>{description}</p>}
  </div>;
 }
-export function EditorialHero({eyebrow,title,description,primary,secondary,visual="land",note,theme="light",children}:{
+export function EditorialHero({eyebrow,title,description,primary,secondary,visual="land",note,theme="light",cinematic=false,children}:{
  eyebrow:string;title:ReactNode;description:string;primary:{label:string;href:string};
- secondary?:{label:string;href:string};visual?:VisualKey;note?:string;theme?:"light"|"dark";children?:ReactNode
+ secondary?:{label:string;href:string};visual?:VisualKey;note?:string;theme?:"light"|"dark";cinematic?:boolean;children?:ReactNode
 }){
- return <section className={"editorial-hero editorial-hero-"+theme}><div className="container editorial-hero-grid">
+ return <section className={"editorial-hero editorial-hero-"+theme+(cinematic?" editorial-hero-cinematic":"")}><div className="container editorial-hero-grid">
   <div className="editorial-hero-copy"><Eyebrow>{eyebrow}</Eyebrow><h1>{title}</h1><p>{description}</p>
    <div className="editorial-actions"><BrandLink variant="primary" className="editorial-button editorial-button-primary" href={primary.href}>{primary.label}<span aria-hidden="true">↗</span></BrandLink>
     {secondary&&<BrandLink variant="secondary" className="editorial-button editorial-button-secondary" href={secondary.href}>{secondary.label}</BrandLink>}</div>
    {note&&<p className="editorial-fineprint">{note}</p>}
-  </div><div className="editorial-hero-visual"><EditorialPhoto visual={visual} priority caption/>
-   {children&&<div className="editorial-overlay-card">{children}</div>}
+   {cinematic&&children&&<div className="editorial-cinematic-note">{children}</div>}
+  </div><div className="editorial-hero-visual"><EditorialPhoto visual={visual} priority caption fullBleed={cinematic}/>
+   {!cinematic&&children&&<div className="editorial-overlay-card">{children}</div>}
   </div>
  </div></section>;
 }

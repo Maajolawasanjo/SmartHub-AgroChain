@@ -13,7 +13,7 @@ export async function DeletionStatus({route}:{route:string}){
   : status==="UNDER_REVIEW"?"Your deletion request is under review."
   : status==="REQUESTED"?"Your deletion request has been recorded and is awaiting review."
   :"No account deletion request has been recorded for this account.";
- return <main className="container min-h-screen py-20"><section className="surface max-w-xl p-8">
+ return <main className="container min-h-screen py-20 auth-outcome"><section className="surface max-w-xl p-8 auth-outcome-panel">
   <p className="eyebrow">Account lifecycle</p><h1 className="mt-3 text-3xl font-bold">Deletion request status</h1>
   <p className="mt-5 leading-7 text-[var(--text-muted)]">{statusText}</p>
   {latest&&<p className="mt-3 text-xs text-[var(--text-muted)]">Requested: {latest.requestedAt.toISOString().slice(0,10)} · Status: {status}</p>}
