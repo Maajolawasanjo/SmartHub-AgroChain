@@ -405,18 +405,18 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--focus-accent); 
 @keyframes ed-rise{from{opacity:0;transform:translateY(19px)}to{opacity:1;transform:translateY(0)}}
 @keyframes ed-reveal{from{opacity:0;transform:translateY(23px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
 /* Public header/footer editorial upgrade */
-.public-header{background:var(--brand-ivory)!important;border-bottom:1px solid var(--border-subtle)}
+.public-header{background:var(--brand-ivory);border-bottom:1px solid var(--border-subtle)}
 .public-header-inner{min-height:88px}
 .public-logo{font-family:var(--font-satoshi);font-weight:700!important;color:var(--brand-forest)!important;letter-spacing:-.04em}
 .public-logo span{font-family:var(--font-satoshi);font-size:.6em;text-transform:uppercase;letter-spacing:.09em;vertical-align:middle;margin-left:5px;color:#658357}
 .public-desktop-nav{gap:clamp(9px,1.1vw,22px)}
-.public-desktop-nav a{font-size:12px!important;font-weight:700!important;color:#355c48!important}
-.public-actions .action-primary{background:var(--brand-forest)!important;border-color:var(--brand-forest)!important;color:#fff!important}
+.public-desktop-nav a{font-size:12px;font-weight:700;color:var(--brand-forest)}
+.public-actions .action-primary{background:var(--brand-forest);border-color:var(--brand-forest);color:white}
 .public-footer{background:var(--brand-forest);color:#e6eee6}
 .public-footer a{color:#d7e8d9}
 .public-footer a:hover{color:var(--brand-gold-on-dark)}
 .public-footer .public-footer-logo{font-family:var(--font-satoshi);font-size:25px;letter-spacing:-.03em;color:#fff}
-@media(max-width:1120px){.public-desktop-nav,.public-actions{display:none!important}.public-mobile-menu{display:block!important}.public-header-inner{justify-content:space-between}}
+@media(max-width:1120px){.public-desktop-nav,.public-actions{display:none}.public-mobile-menu{display:block}.public-header-inner{justify-content:space-between}}
 @media(max-width:900px){
  .editorial-hero-grid,.editorial-dark-grid,.editorial-commodities-inner,.editorial-problem,.editorial-questions,.editorial-content-grid{grid-template-columns:1fr;gap:35px}
  .editorial-hero-grid{padding-block:65px}

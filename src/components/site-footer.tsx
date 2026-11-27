@@ -18,9 +18,9 @@ export function SiteFooter(){return <footer className="public-footer">
    <p className="public-footer-caption">Managed sourcing · Nigeria</p>
    <p className="public-footer-caption">Service and geographic availability are confirmed for each sourcing case.</p>
   </div>
-  <div><strong>Explore</strong><nav aria-label="Explore SmartHub">{explore.map(([label,href])=><Link href={href} key={href}>{label}</Link>)}</nav></div>
-  <div><strong>Participate</strong><nav aria-label="Participation links">{participate.map(([label,href])=><Link href={href} key={href}>{label}</Link>)}</nav></div>
-  <div><strong>Information</strong><nav aria-label="Information and policies">{information.map(([label,href])=><Link href={href} key={href}>{label}</Link>)}</nav>
+  <div><h2>Explore</h2><nav aria-label="Explore SmartHub">{explore.map(([label,href])=><Link href={href} key={href}>{label}</Link>)}</nav></div>
+  <div><h2>Participate</h2><nav aria-label="Participation links">{participate.map(([label,href])=><Link href={href} key={href}>{label}</Link>)}</nav></div>
+  <div><h2>Information</h2><nav aria-label="Information and policies">{information.map(([label,href])=><Link href={href} key={href}>{label}</Link>)}</nav>
    <a href="mailto:info@smarthubagrochain.online">info@smarthubagrochain.online</a></div>
  </div>
  <div className="container public-footer-base"><span>© {new Date().getFullYear()} SmartHub AgroChain. All rights reserved.</span><span>From the field to real demand.</span></div>
