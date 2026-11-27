@@ -1,0 +1,101 @@
+/* Public-only editorial foundation. Existing portal and authentication tokens are unchanged.
+ * The public shell owns these values; do not promote them to :root.
+ * Nova Grove is a visual benchmark, not a source of copied branding or content.
+ */
+.public-editorial {
+  --public-content-max: 77.5rem;
+  --public-gutter: clamp(1.25rem, 3vw, 2rem);
+  --public-space-section: clamp(4rem, 8.5vw, 9rem);
+  --public-space-hero: clamp(3rem, 7.5vw, 7.5rem);
+  --public-type-hero: clamp(2.75rem, 6.2vw, 6rem);
+  --public-type-section: clamp(2.25rem, 4.5vw, 4.5rem);
+  --public-type-body: clamp(1rem, 1.2vw, 1.125rem);
+  --public-display-tracking: -.06em;
+  --public-display-leading: 1.02;
+  --public-display-weight: var(--font-weight-regular);
+  --public-emphasis-weight: var(--font-weight-light);
+  --public-radius-control: .25rem;
+  --public-radius-image: 0px;
+  --public-line: var(--border-subtle);
+  --public-motion: 180ms;
+  font-family: var(--font-satoshi);
+  background: var(--brand-ivory);
+  color: var(--brand-forest);
+  min-height: 100dvh;
+}
+.public-editorial .container {
+  width: min(var(--public-content-max), calc(100% - 2 * var(--public-gutter)));
+}
+.public-editorial .editorial-hero,
+.public-editorial .public-hero { background: var(--brand-ivory); }
+.public-editorial .editorial-hero-dark { background: var(--brand-forest-deep); }
+.public-editorial .editorial-hero-grid { padding-block: var(--public-space-hero); }
+.public-editorial .editorial-section,
+.public-editorial .editorial-dark-grid { padding-block: var(--public-space-section); }
+.public-editorial :is(.editorial-hero h1,.public-hero-content h1,.public-home-copy h1) {
+  font-family: var(--font-satoshi);
+  font-size: var(--public-type-hero);
+  font-weight: var(--public-display-weight);
+  letter-spacing: var(--public-display-tracking);
+  line-height: var(--public-display-leading);
+  overflow-wrap: break-word;
+}
+.public-editorial :is(.editorial-hero h1 em,.editorial-dark-copy h2 em) {
+  font-weight: var(--public-emphasis-weight);
+  font-style: normal;
+}
+.public-editorial :is(.editorial-section-lead h2,.editorial-problem-heading h2,.editorial-dark-copy h2,.editorial-questions h2,.editorial-ending h2,.editorial-explainer h2) {
+  font-size: var(--public-type-section);
+  font-weight: var(--public-display-weight);
+  letter-spacing: -.05em;
+  line-height: 1.08;
+  overflow-wrap: break-word;
+}
+.public-editorial :is(.editorial-eyebrow,.editorial-audience-label,.editorial-overlay-kicker,.public-kicker) {
+  font-weight: var(--font-weight-medium);
+  letter-spacing: .18em;
+}
+.public-editorial :is(.editorial-hero-copy>p:not(.editorial-fineprint),.editorial-section-lead p,.editorial-problem-body p,.editorial-prose p) {
+  font-size: var(--public-type-body);
+  line-height: 1.7;
+}
+.public-editorial :is(.editorial-button,.action) {
+  border-radius: var(--public-radius-control);
+  font-weight: var(--font-weight-medium);
+  min-height: 44px;
+}
+.public-editorial .editorial-inline-link { font-weight: var(--font-weight-medium); }
+.public-editorial :is(.editorial-photo,.editorial-hero-visual>.editorial-photo,.editorial-stack-photo .editorial-photo) {
+  border-radius: var(--public-radius-image);
+  box-shadow: none;
+}
+.public-editorial .editorial-photo { background: var(--brand-sage); }
+.public-editorial .editorial-photo::before { background: var(--brand-sage); }
+.public-editorial :is(.editorial-audience-card,.editorial-step,.editorial-overlay-card,.editorial-stack-note,.editorial-ending-inner) {
+  border-radius: var(--public-radius-control);
+  box-shadow: none;
+}
+.public-editorial .editorial-ending-inner { background: var(--brand-forest-deep); }
+.public-editorial .editorial-audience-card:hover { box-shadow: none; transform: none; }
+.public-editorial .editorial-step {
+  border: 0;
+  border-top: 1px solid var(--public-line);
+  background: transparent;
+  padding-inline: 0;
+  min-height: 0;
+}
+.public-editorial .editorial-step h3 { font-weight: var(--font-weight-medium); }
+.public-editorial .editorial-hero-copy,
+.public-editorial .editorial-hero-visual,
+.public-editorial .editorial-overlay-card { animation: none; }
+.public-editorial :is(.editorial-button,.editorial-inline-link) { transition-duration: var(--public-motion); }
+@media (max-width: 640px) {
+  .public-editorial {
+    --public-type-hero: clamp(2.5rem, 10vw, 3.5rem);
+    --public-type-section: clamp(2rem, 8vw, 2.75rem);
+    --public-space-section: 4rem;
+    --public-space-hero: 3rem;
+  }
+  .public-editorial .editorial-hero-grid { gap: 2rem; }
+  .public-editorial .editorial-hero-visual>.editorial-photo { border-radius: 0; }
+}
