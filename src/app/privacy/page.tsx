@@ -4,7 +4,7 @@ import {PublicShell} from "@/components/public-shell";
 import {Eyebrow} from "@/components/public/editorial";
 
 export const metadata:Metadata={
- title:"Privacy Notice — Approval Pending | SmartHub AgroChain",
+ title:"Privacy Notice: Approval Pending | SmartHub AgroChain",
  description:"The SmartHub AgroChain privacy notice is pending legal review. Contact the team about data-protection questions.",
  robots:{index:false,follow:false}
 };

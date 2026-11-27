@@ -23,7 +23,7 @@ export function EditorialPhoto({visual,className="",priority=false,caption=false
   {caption&&<figcaption>{item.credit} · Not a photograph of SmartHub operations</figcaption>}
  </figure>;
 }
-export function Eyebrow({children}:{children:ReactNode}){return <span className="editorial-eyebrow"><span aria-hidden="true" className="editorial-eyebrow-mark"/> {children}</span>;}
+export function Eyebrow({children}:{children:ReactNode}){return <span className="editorial-eyebrow">{children}</span>;}
 export function SectionLead({eyebrow,title,description,align="left"}:{eyebrow:string;title:string;description?:string;align?:"left"|"center"}){
  return <div className={"editorial-section-lead"+(align==="center"?" is-centered":"")}>
   <Eyebrow>{eyebrow}</Eyebrow><h2>{title}</h2>{description&&<p>{description}</p>}

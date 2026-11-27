@@ -6,7 +6,7 @@ import {EditorialHero,EditorialPhoto,SectionLead,Eyebrow,EditorialCTA,managedSte
 export const metadata:Metadata={
  title:"SmartHub AgroChain | Agricultural Technology & Sourcing in Nigeria",
  description:"SmartHub AgroChain connects farmers, agricultural buyers and businesses in Nigeria through technology-enabled sourcing, market access and supply-chain coordination.",
- openGraph:{title:"SmartHub AgroChain — From the field to real demand",description:"Managed agricultural sourcing built around real requirements, verified information and accountable fulfilment.",type:"website"}
+ openGraph:{title:"SmartHub AgroChain: From the field to real demand",description:"Managed agricultural sourcing built around real requirements, verified information and accountable fulfilment.",type:"website"}
 };
 const audiences=[
  {label:"For agricultural buyers",heading:"Source with a plan, not guesswork.",copy:"Define what you need, receive reviewed sourcing information and follow agreed steps from quotation through delivery.",href:"/for-buyers",link:"Explore buyer sourcing",visual:"harvest" as const},
@@ -15,7 +15,7 @@ const audiences=[
 ];
 const assurances=[
  {number:"01",title:"Real requirements first",copy:"Buyers describe the actual commodity, volume, quality and delivery needs before a supply commitment is considered."},
- {number:"02",title:"Reviewed information",copy:"Farmer identity, reported stock and field evidence are treated as distinct checks—not interchangeable promises."},
+ {number:"02",title:"Reviewed information",copy:"Farmer identity, reported stock and field evidence are treated as distinct checks, not interchangeable promises."},
  {number:"03",title:"Accountable execution",copy:"Quotations, verified payments, delivery evidence, receipt confirmations and supplier obligations each have their own state."}
 ];
 const commodityGroups=[
@@ -36,7 +36,7 @@ export default function Home(){
    <span className="editorial-overlay-meta">Illustrative process · No live order data</span>
   </EditorialHero>
   <section className="editorial-principle"><div className="container editorial-principle-inner">
-   <p>THE SMARTER CONNECTION</p><strong>Demand, supply and execution—<span>finally considered together.</span></strong>
+   <p>THE SMARTER CONNECTION</p><strong>Demand, supply and execution, <span>finally considered together.</span></strong>
    <Link href="/how-it-works">See how our model works <span aria-hidden="true">↗</span></Link>
   </div></section>
   <section className="container editorial-section editorial-problem">

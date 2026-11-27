@@ -4,7 +4,7 @@ import {PublicShell} from "@/components/public-shell";
 import {Eyebrow} from "@/components/public/editorial";
 
 export const metadata:Metadata={
- title:"Terms of Service — Approval Pending | SmartHub AgroChain",
+ title:"Terms of Service: Approval Pending | SmartHub AgroChain",
  description:"The SmartHub AgroChain Terms of Service are pending legal approval and must be published before account registration opens.",
  robots:{index:false,follow:false}
 };

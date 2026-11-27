@@ -8,7 +8,7 @@ const nav=[
 export function SiteHeader(){
  return <header className="public-header">
   <div className="container public-header-inner">
-   <Link href="/" className="public-logo" aria-label="SmartHub AgroChain — homepage">SmartHub <span>AgroChain</span></Link>
+   <Link href="/" className="public-logo" aria-label="SmartHub AgroChain: homepage">SmartHub <span>AgroChain</span></Link>
    <nav className="public-desktop-nav" aria-label="Primary navigation">
     {nav.map(([name,path])=><Link key={path} href={path}>{name}</Link>)}
    </nav>

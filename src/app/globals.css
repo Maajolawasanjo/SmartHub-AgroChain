@@ -263,7 +263,7 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--focus-accent); 
 .editorial-hero-grid{display:grid;grid-template-columns:minmax(0,1.04fr) minmax(0,.96fr);align-items:center;gap:clamp(30px,5vw,78px);padding-block:clamp(60px,8vw,108px)}
 .editorial-hero-copy{max-width:680px;animation:ed-rise .85s ease both}
 .editorial-eyebrow{display:inline-flex;align-items:center;gap:11px;font-size:11px;font-weight:850;letter-spacing:.17em;text-transform:uppercase;color:var(--brand-agricultural-ink);line-height:1.7}
-.editorial-eyebrow-mark{display:inline-block;width:22px;height:2px;background:var(--brand-gold)}
+
 .editorial-hero-dark .editorial-eyebrow,.editorial-dark-section .editorial-eyebrow,.editorial-ending .editorial-eyebrow{color:var(--brand-gold-on-dark)}
 .editorial-hero h1{font-family:var(--font-satoshi);font-size:clamp(50px,5.75vw,91px);line-height:1.04;font-weight:900;letter-spacing:-.061em;color:var(--brand-forest);margin:25px 0 25px;max-width:780px}
 .editorial-hero h1 em{color:var(--brand-agricultural-ink);font-style:italic;font-weight:700}
