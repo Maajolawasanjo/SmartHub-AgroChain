@@ -18,9 +18,6 @@ export function ContactForm({enabled,siteKey,interest,product}:{enabled:boolean;
   finally{setBusy(false);}
  }
  return <div className="public-contact-area">
-  <div><span className="eyebrow">Send a message</span><h2>Tell us how we can help</h2><p>Share your enquiry and the team will review it when contact submissions are activated. If the service is unavailable, please use the email address below.</p>
-  <p><a className="public-text-link" href="mailto:info@smarthubagrochain.online">info@smarthubagrochain.online</a></p>
-  <p className="public-small-note">The approved privacy notice and abuse protection must be in place before online enquiries are accepted.</p></div>
   <form className="public-contact-form" onSubmit={submit} noValidate={false} aria-label="Contact form">
     <BrandField htmlFor="contact-name" label="Full name *"><input className="sh-input" id="contact-name" name="fullName" required minLength={2} maxLength={160} autoComplete="name"/></BrandField>
     <BrandField htmlFor="contact-email" label="Email address *"><input className="sh-input" id="contact-email" name="email" type="email" required maxLength={254} autoComplete="email"/></BrandField>
@@ -39,5 +36,12 @@ export function ContactForm({enabled,siteKey,interest,product}:{enabled:boolean;
     {!enabled&&<p className="public-form-full public-small-note" role="status">Online submissions are not enabled yet. For now, email your message to <a href="mailto:info@smarthubagrochain.online">info@smarthubagrochain.online</a>.</p>}
     <BrandButton variant="primary" className="action action-primary" type="submit" disabled={!enabled||busy}>{busy?"Sending…":"Send Message"}</BrandButton>
   </form>
+  <aside className="contact-editorial-details" aria-label="Contact details">
+   <p className="eyebrow">Contact details</p>
+   <div><h2>Email</h2><a href="mailto:info@smarthubagrochain.online">info@smarthubagrochain.online</a></div>
+   <div><h2>Account assistance</h2><p>For sign-in, verification or account recovery, visit <a href="/account/help">account support</a>.</p></div>
+   <div><h2>Agricultural sourcing</h2><p>Include the commodity, quantity, grade, destination and timing.</p></div>
+   <div><h2>Farmers &amp; partnerships</h2><p>Introduce your farm or business, location and relevant supply or service coverage.</p></div>
+  </aside>
  </div>;
 }

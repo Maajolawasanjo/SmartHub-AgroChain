@@ -93,3 +93,47 @@
 .auth-outcome .auth-outcome-panel a:focus-visible { outline: 3px solid var(--focus-accent); outline-offset: 3px; }
 
 .auth-editorial .auth-state-intro h2 { font-size: 1.5rem; }
+
+/* Account pages follow the same calm, ivory editorial composition as Contact. */
+.auth-layout.auth-editorial { display:grid; grid-template-columns:minmax(0,1.55fr) minmax(0,1fr); grid-template-rows:auto 1fr; column-gap:clamp(2rem,6vw,6rem); padding-inline:max(1.25rem,calc((100% - 70rem)/2)); background:var(--brand-ivory); align-items:start; }
+.auth-editorial .auth-editorial-header { grid-column:1/-1; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; min-height:76px; border-bottom:1px solid var(--border-subtle); }
+.auth-editorial .auth-editorial-brand { font-size:1.25rem; font-weight:var(--font-weight-bold); text-decoration:none; color:var(--brand-forest); }
+.auth-editorial .auth-editorial-brand span { font-size:.75rem; letter-spacing:.1em; text-transform:uppercase; }
+.auth-editorial .auth-editorial-header nav { display:flex; align-items:center; flex-wrap:wrap; gap:1.5rem; font-size:.875rem; }
+.auth-editorial .auth-editorial-header nav a { color:var(--brand-forest); min-height:44px; display:inline-flex; align-items:center; }
+.auth-editorial .auth-main { grid-column:1; grid-row:2; padding:clamp(2.5rem,5vw,5rem) 0; }
+.auth-editorial .auth-content { width:100%; margin:1.5rem 0 0; }
+.auth-editorial .auth-topline { justify-content:flex-start; }
+.auth-editorial .auth-topline .auth-back { display:none; }
+.auth-editorial .auth-heading h1 { font-size:clamp(2.75rem,5vw,5rem); letter-spacing:-.05em; line-height:1.02; }
+.auth-editorial .auth-card { background:var(--brand-sage); padding:clamp(1.5rem,3.2vw,3rem); }
+.auth-editorial .auth-input { background:transparent; border:0; border-bottom:1px solid var(--brand-forest-muted); border-radius:0; padding-inline:0; }
+.auth-editorial .auth-input[aria-invalid="true"] { border-bottom-color:#bb4e4e; }
+.auth-editorial .auth-input.auth-textarea { border:1px solid var(--brand-forest-muted); padding:1rem; }
+.auth-editorial .auth-label { text-transform:uppercase; font-size:.75rem; letter-spacing:.06em; }
+.auth-editorial .auth-submit { border-radius:2px; min-height:54px; justify-content:center; }
+.auth-editorial .auth-aside { grid-column:2; grid-row:2; position:static; min-height:0; max-height:none; overflow:visible; background:transparent; color:var(--brand-forest); padding:clamp(5rem,12vw,11rem) 0 3rem; }
+.auth-editorial .auth-logo { display:none; }
+.auth-editorial .auth-aside-main { margin:0; border-top:1px solid var(--border-subtle); padding-top:1.5rem; }
+.auth-editorial .auth-aside-kicker { color:var(--brand-agricultural-ink); }
+.auth-editorial .auth-aside-main h2 { font-size:clamp(1.75rem,3vw,2.75rem); color:var(--brand-forest); line-height:1.15; letter-spacing:-.035em; }
+.auth-editorial .auth-aside-main h2 em { color:var(--brand-agricultural-ink); }
+.auth-editorial .auth-aside-main>p:not(.auth-aside-kicker) { color:var(--text-muted); font-size:1rem; }
+.auth-editorial .auth-step-list span { color:var(--brand-agricultural-ink); border-top-color:var(--border-subtle); }
+.auth-editorial .auth-step-list b,.auth-editorial .auth-aside-bottom { color:var(--brand-forest); }
+.auth-editorial .auth-aside-bottom { margin-top:2rem; }
+.auth-editorial .auth-environment { background:transparent; border:0; padding:0; max-width:none; color:var(--text-muted); }
+.auth-editorial .auth-state-dot { display:none; }
+.auth-outcome .auth-outcome-panel { background:var(--brand-sage); padding:clamp(1.5rem,4vw,3rem); max-width:38rem; }
+@media(max-width:800px) {
+ .auth-layout.auth-editorial { grid-template-columns:minmax(0,1fr); grid-template-rows:auto auto auto; }
+ .auth-editorial .auth-main { grid-row:2; grid-column:1; padding-bottom:1rem; }
+ .auth-editorial .auth-aside { grid-row:3; grid-column:1; padding:1rem 0 2rem; }
+ .auth-editorial .auth-aside-main { display:block; }
+ .auth-editorial .auth-aside-bottom { display:none; }
+}
+@media(max-width:430px) {
+ .auth-editorial .auth-editorial-header nav { gap:1rem; }
+ .auth-editorial .auth-card { padding:1.25rem; }
+ .auth-editorial .auth-heading h1 { font-size:2.75rem; }
+}
