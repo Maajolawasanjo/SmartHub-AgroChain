@@ -31,9 +31,9 @@ const sections=[
   {q:"How do I raise a support issue?",a:"Public questions can use Contact or this Help page. Signed-in authorized account holders can open and follow private support cases in their workspace."}
  ]}
 ];
-export default function FAQ(){return <PublicShell>
+export default function FAQ(){return <PublicShell><div className="editorial-service editorial-service-faq">
  <section className="editorial-hero"><div className="container editorial-section">
-  <Eyebrow>Good questions deserve clear answers</Eyebrow><h1 style={{font:"900 clamp(45px,6vw,78px)/1.09 var(--font-satoshi)",letterSpacing:"-.05em",maxWidth:820,color:"var(--brand-forest)",margin:"24px 0"}}>A clearer way to understand <em style={{color:"var(--brand-agricultural)"}}>agricultural sourcing.</em></h1>
+  <Eyebrow>Good questions deserve clear answers</Eyebrow><h1 className="service-display-heading">A clearer way to understand <em>agricultural sourcing.</em></h1>
   <p style={{maxWidth:740,color:"#587163",fontSize:17,lineHeight:1.85}}>Learn how SmartHub's managed approach works, where the controls sit and what still needs confirmation before anyone commits to a transaction.</p>
   <div className="editorial-actions"><Link href="/how-it-works" className="editorial-button editorial-button-primary">Explore the process <span aria-hidden="true">↗</span></Link>
    <Link href="/help" className="editorial-button editorial-button-secondary">Help center</Link></div>
@@ -48,4 +48,4 @@ export default function FAQ(){return <PublicShell>
  <EditorialCTA eyebrow="Need more detail?" title="Ask about your particular sourcing or participation question."
   description="Different products, locations and operating conditions need different answers. Send a specific enquiry or open a private support case if you already have a SmartHub account."
   primary={{label:"Contact the SmartHub team",href:"/contact"}} secondary={{label:"Find help",href:"/help"}}/>
- </PublicShell>}
+ </div></PublicShell>}

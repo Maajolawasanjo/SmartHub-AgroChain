@@ -179,3 +179,24 @@ test("informational pages retain editorial layouts and fit mobile and desktop",a
   }
  }
 });
+
+test("remaining public pages preserve assistance and policy flows at desktop and mobile widths",async({page})=>{
+ test.setTimeout(120000);
+ await mkdir("playwright-artifacts",{recursive:true});
+ for(const width of [390,1440]){
+  await page.setViewportSize({width,height:900});
+  for(const route of ["/contact","/faq","/help","/insights","/insights/unavailable","/privacy","/terms","/cookies","/accessibility"]){
+   await page.goto(route,{waitUntil:"domcontentloaded"});
+   await expect(page.locator("main .editorial-service")).toBeVisible();
+   await expect(page.locator("main h1")).toBeVisible();
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth),route).toBeLessThanOrEqual(3);
+   if(route==="/faq"){
+    const question=page.locator(".editorial-faq-preview summary").first();
+    await question.click();
+    await expect(question.locator("..")).toHaveAttribute("open","");
+   }
+   if(route==="/contact")await expect(page.getByRole("button",{name:"Send Message"})).toBeDisabled();
+   if(["/contact","/faq","/help","/insights"].includes(route))await page.screenshot({path:"playwright-artifacts/service-"+route.slice(1)+"-"+width+".png",fullPage:true,animations:"disabled"});
+  }
+ }
+});
