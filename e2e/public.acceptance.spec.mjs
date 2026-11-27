@@ -124,8 +124,8 @@ test("desktop and mobile inherit the canonical Satoshi brand and readable surfac
   expect(branding.agricultural).toBe("#398453");
   expect(branding.bodyFont).toContain("Satoshi");
   expect(branding.heroFont).toContain("Satoshi");
-  expect(branding.heroWeight).toBe("400");
-  expect(branding.emphasisWeight).toBe("300");
+  expect(branding.heroWeight).toBe("700");
+  expect(branding.emphasisWeight).toBe("700");
   expect(branding.footerBackground).toBe(branding.expectedFooter);
   expect(branding.focusLight.toLowerCase()).toBe("#174c35");
   expect(branding.focusDark.toLowerCase()).toBe("#d5a649");
@@ -136,7 +136,7 @@ test("desktop and mobile inherit the canonical Satoshi brand and readable surfac
     family:getComputedStyle(node).fontFamily,weight:getComputedStyle(node).fontWeight
   }));
   expect(account.family).toContain("Satoshi");
-  expect(account.weight).toBe("400");
+  expect(account.weight).toBe("700");
   await page.screenshot({path:"playwright-artifacts/brand-phase06-login-"+width+".png",fullPage:true,animations:"disabled"});
  }
 });

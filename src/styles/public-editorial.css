@@ -7,13 +7,13 @@
   --public-gutter: clamp(1.25rem, 3vw, 2rem);
   --public-space-section: clamp(4rem, 8.5vw, 9rem);
   --public-space-hero: clamp(3rem, 7.5vw, 7.5rem);
-  --public-type-hero: clamp(2.75rem, 6.2vw, 6rem);
-  --public-type-section: clamp(2.25rem, 4.5vw, 4.5rem);
+  --public-type-hero: clamp(3.25rem, 7vw, 7rem);
+  --public-type-section: clamp(2.75rem, 5vw, 5.25rem);
   --public-type-body: clamp(1rem, 1.2vw, 1.125rem);
   --public-display-tracking: -.06em;
   --public-display-leading: 1.02;
-  --public-display-weight: var(--font-weight-regular);
-  --public-emphasis-weight: var(--font-weight-light);
+  --public-display-weight: var(--font-weight-bold);
+  --public-emphasis-weight: var(--font-weight-bold);
   --public-radius-control: .25rem;
   --public-radius-image: 0px;
   --public-line: var(--border-subtle);
@@ -84,15 +84,15 @@
   padding-inline: 0;
   min-height: 0;
 }
-.public-editorial .editorial-step h3 { font-weight: var(--font-weight-medium); }
+.public-editorial .editorial-step h3 { font-weight: var(--font-weight-bold); }
 .public-editorial .editorial-hero-copy,
 .public-editorial .editorial-hero-visual,
 .public-editorial .editorial-overlay-card { animation: none; }
 .public-editorial :is(.editorial-button,.editorial-inline-link) { transition-duration: var(--public-motion); }
 @media (max-width: 640px) {
   .public-editorial {
-    --public-type-hero: clamp(2.5rem, 10vw, 3.5rem);
-    --public-type-section: clamp(2rem, 8vw, 2.75rem);
+    --public-type-hero: clamp(2.75rem, 10.5vw, 4rem);
+    --public-type-section: clamp(2.25rem, 8.5vw, 3.25rem);
     --public-space-section: 4rem;
     --public-space-hero: 3rem;
   }
@@ -185,7 +185,7 @@
 }
 .public-editorial .public-footer-grid h2 {
   font-size: .75rem;
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-bold);
   letter-spacing: .16em;
   text-transform: uppercase;
   color: var(--brand-gold-on-dark);
@@ -366,7 +366,7 @@
 }
 .public-editorial .editorial-home .editorial-audience-copy h3 {
   font-size: clamp(1.65rem,2.3vw,2.15rem);
-  font-weight: var(--font-weight-regular);
+  font-weight: var(--font-weight-bold);
 }
 .public-editorial .editorial-home .editorial-process-home {
   display: grid;
@@ -421,7 +421,7 @@
   border-top: 1px solid var(--public-line);
 }
 .public-editorial .editorial-home .editorial-assurance h3 {
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-bold);
 }
 .public-editorial .editorial-home .editorial-commodities {
   background: var(--brand-sage);
@@ -534,7 +534,7 @@
 .public-editorial .editorial-catalog .public-product-symbol span { font-size: .6875rem; font-weight: var(--font-weight-medium); letter-spacing: .16em; text-transform: uppercase; }
 .public-editorial .editorial-catalog .public-product-symbol strong { font-size: clamp(4rem,8vw,7rem); font-weight: var(--font-weight-light); line-height: 1; }
 .public-editorial .editorial-catalog .public-product-content { padding: 1.5rem 0; }
-.public-editorial .editorial-catalog .public-product-content h3 { font-size: clamp(1.5rem,2.4vw,2rem); font-weight: var(--font-weight-regular); overflow-wrap: anywhere; }
+.public-editorial .editorial-catalog .public-product-content h3 { font-size: clamp(1.5rem,2.4vw,2rem); font-weight: var(--font-weight-bold); overflow-wrap: anywhere; }
 .public-editorial .editorial-catalog .public-product-content .action-outline { justify-self: start; background: transparent; border: 0; border-bottom: 1px solid currentColor; border-radius: 0; padding-inline: 0; }
 .public-editorial .editorial-catalog .public-product-disclaimer { border-color: var(--public-line); color: var(--text-muted); }
 .public-editorial .editorial-catalog .catalog-guide { background: var(--brand-sage); }
@@ -542,21 +542,21 @@
 .public-editorial .editorial-catalog .catalog-guide-grid>.editorial-photo { min-height: 22rem; height: clamp(22rem,40vw,35rem); }
 .public-editorial .editorial-catalog .catalog-guide-list article { display: grid; grid-template-columns: 2rem minmax(0,1fr); gap: 1rem; border-top: 1px solid var(--brand-forest-muted); padding-block: 1.5rem; }
 .public-editorial .editorial-catalog .catalog-guide-list article>span { font-size: .75rem; color: var(--text-muted); }
-.public-editorial .editorial-catalog .catalog-guide-list h3 { font-size: 1.5rem; font-weight: var(--font-weight-regular); margin-bottom: .5rem; }
+.public-editorial .editorial-catalog .catalog-guide-list h3 { font-size: 1.5rem; font-weight: var(--font-weight-bold); margin-bottom: .5rem; }
 .public-editorial .editorial-catalog .catalog-guide-list p { color: var(--text-muted); line-height: 1.65; }
 .public-editorial .editorial-catalog .public-cta-band { border-radius: 0; background: var(--brand-forest-deep); padding: clamp(2rem,5vw,4rem); }
-.public-editorial .editorial-catalog .public-cta-band h2 { font-weight: var(--font-weight-regular); font-size: clamp(1.75rem,3vw,3rem); letter-spacing: -.04em; }
+.public-editorial .editorial-catalog .public-cta-band h2 { font-weight: var(--font-weight-bold); font-size: clamp(1.75rem,3vw,3rem); letter-spacing: -.04em; }
 .public-editorial .editorial-catalog-detail .public-detail-grid { grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: clamp(2rem,5vw,5rem); }
 .public-editorial .editorial-catalog-detail .public-product-illustration { background: var(--brand-forest-deep); color: var(--brand-ivory); border: 0; border-radius: 0; min-height: clamp(22rem,42vw,40rem); }
 .public-editorial .editorial-catalog-detail .public-product-illustration strong { font-weight: var(--font-weight-light); letter-spacing: -.05em; overflow-wrap: anywhere; max-width: 100%; }
 .public-editorial .editorial-catalog-detail .public-product-illustration span { color: var(--brand-gold-on-dark); }
 .public-editorial .editorial-catalog-detail .catalog-detail-copy { min-width: 0; }
 .public-editorial .editorial-catalog-detail .public-information-panel { background: transparent; border: 0; border-radius: 0; padding-inline: 0; }
-.public-editorial .editorial-catalog-detail .public-information-panel h2 { font-weight: var(--font-weight-medium); }
+.public-editorial .editorial-catalog-detail .public-information-panel h2 { font-weight: var(--font-weight-bold); }
 .public-editorial .editorial-catalog-detail .public-information-panel dl>div { border-color: var(--public-line); gap: 1rem; }
 .public-editorial .editorial-catalog-detail .public-information-panel dd { font-weight: var(--font-weight-medium); overflow-wrap: anywhere; max-width: 65%; }
 .public-editorial .editorial-catalog-detail .public-feature-card { border: 0; border-top: 1px solid var(--public-line); background: transparent; border-radius: 0; padding-inline: 0; }
-.public-editorial .editorial-catalog-detail .public-feature-card h3 { font-weight: var(--font-weight-medium); }
+.public-editorial .editorial-catalog-detail .public-feature-card h3 { font-weight: var(--font-weight-bold); }
 @media (max-width: 900px) {
   .public-editorial .editorial-catalog .catalog-guide-grid,
   .public-editorial .editorial-catalog-detail .public-detail-grid { grid-template-columns: minmax(0,1fr); }
@@ -572,7 +572,7 @@
   gap: clamp(2rem,5vw,5rem);
 }
 .public-editorial .editorial-information .editorial-hero h1 {
-  font-size: clamp(2.75rem,5.5vw,5.5rem);
+  font-size: clamp(3.25rem,6.2vw,6.25rem);
   line-height: 1.02;
 }
 .public-editorial .editorial-information .editorial-hero-visual {
@@ -640,7 +640,7 @@
 .public-editorial .editorial-information .editorial-step h3,
 .public-editorial .editorial-information .editorial-assurance h3 {
   font-size: clamp(1.25rem,2vw,1.65rem);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-bold);
 }
 .public-editorial .editorial-information .editorial-step p,
 .public-editorial .editorial-information .editorial-assurance p {
@@ -690,7 +690,7 @@
   padding: 2rem 0;
 }
 .public-editorial .editorial-information .editorial-highlight h3 {
-  font-weight: var(--font-weight-regular);
+  font-weight: var(--font-weight-bold);
   font-size: clamp(1.75rem,3vw,2.75rem);
 }
 .public-editorial .editorial-information .editorial-metric-free {
@@ -713,7 +713,7 @@
 }
 .public-editorial .editorial-information .editorial-detail-list h3 {
   font-size: clamp(1.25rem,2.4vw,1.75rem);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-bold);
 }
 .public-editorial .editorial-information .editorial-detail-list p { font-size: 1rem; color: var(--text-muted); }
 .public-editorial .editorial-information .editorial-faq-preview { gap: 0; }
@@ -783,7 +783,7 @@
   border-radius: 0;
   padding: 1.75rem 0;
 }
-.public-editorial .editorial-service .editorial-contact-options h3 { font-size: 1.75rem; font-weight: var(--font-weight-regular); }
+.public-editorial .editorial-service .editorial-contact-options h3 { font-size: 1.75rem; font-weight: var(--font-weight-bold); }
 .public-editorial .editorial-service .editorial-contact-options p { color: var(--text-muted); }
 .public-editorial .editorial-service .public-contact-area h2 { font-weight: var(--public-display-weight); letter-spacing: -.04em; }
 .public-editorial .editorial-service .public-contact-area>div p { color: var(--text-muted); }
@@ -816,7 +816,7 @@
   background: transparent;
   padding: 2rem 0;
 }
-.public-editorial .editorial-service .editorial-highlight h3 { font-weight: var(--font-weight-regular); }
+.public-editorial .editorial-service .editorial-highlight h3 { font-weight: var(--font-weight-bold); }
 .public-editorial .editorial-service-insights .public-card-grid { grid-template-columns: minmax(0,1fr); gap: 0; }
 .public-editorial .editorial-service-insights .public-feature-card {
   border: 0;
@@ -826,7 +826,7 @@
   padding: 2rem 0;
   gap: 1rem;
 }
-.public-editorial .editorial-service-insights .public-feature-card h3 { font-size: clamp(1.75rem,3vw,2.75rem); font-weight: var(--font-weight-regular); overflow-wrap: anywhere; }
+.public-editorial .editorial-service-insights .public-feature-card h3 { font-size: clamp(1.75rem,3vw,2.75rem); font-weight: var(--font-weight-bold); overflow-wrap: anywhere; }
 .public-editorial .editorial-service-insights .public-feature-card p { max-width: 50rem; }
 .public-editorial .editorial-service-insights .public-participant-grid { gap: 0 2rem; margin-bottom: 2rem; }
 .public-editorial .editorial-service-insights .public-participant-grid span {
@@ -893,10 +893,23 @@
   min-height: 32rem;
 }
 .public-editorial .editorial-home .editorial-hero-cinematic .editorial-photo::after { content: none; background: none; }
-.public-editorial .editorial-home .editorial-hero-cinematic h1 { font-size: clamp(2.5rem,5vw,5rem); }
+.public-editorial .editorial-home .editorial-hero-cinematic h1 { font-size: clamp(3rem,5.7vw,6rem); }
 .public-editorial .editorial-home .editorial-hero-cinematic .editorial-photo figcaption { background: var(--brand-forest-deep); }
 @media(max-width:900px) {
  .public-editorial .editorial-home .editorial-hero-cinematic .editorial-hero-grid { grid-template-columns: minmax(0,1fr); }
  .public-editorial .editorial-home .editorial-hero-cinematic .editorial-hero-visual>.editorial-photo { min-height: 18rem; height: clamp(18rem,55vw,32rem); }
  .public-editorial .editorial-home .editorial-hero-cinematic .editorial-hero-copy { padding: clamp(1.25rem,5vw,3rem); }
+}
+
+/* Stronger editorial headings while preserving the flat-color palette. */
+.public-editorial main :is(h1,h2,h3,h4,h5,h6) { font-weight: var(--font-weight-bold); overflow-wrap: anywhere; }
+.public-editorial main h3 { font-size: clamp(1.375rem,2.3vw,2rem); line-height: 1.2; }
+.public-editorial main h4 { font-size: 1.25rem; }
+.public-editorial .editorial-information .editorial-step h3,
+.public-editorial .editorial-information .editorial-assurance h3 { font-size: clamp(1.5rem,2.3vw,1.875rem); }
+.public-editorial .editorial-service .editorial-faq-group .editorial-section-lead h2 { font-size: clamp(2rem,3.6vw,3.25rem); }
+.public-editorial .editorial-service .editorial-faq-preview summary { font-weight: var(--font-weight-bold); font-size: 1.125rem; }
+.public-editorial .public-footer-grid h2 { font-size: .875rem; font-weight: var(--font-weight-bold); }
+@media(max-width:640px) {
+ .public-editorial .editorial-home .editorial-hero-cinematic h1 { font-size: clamp(2.75rem,10.5vw,4rem); }
 }

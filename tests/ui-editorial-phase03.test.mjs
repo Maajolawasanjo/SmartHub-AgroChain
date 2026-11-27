@@ -23,6 +23,6 @@ test("homepage styling is scoped and retains mobile layout and content",()=>{
  assert.match(css,/@media \(max-width: 640px\)/);
  assert.match(css,/\.public-editorial \.editorial-home \.editorial-cinematic-note/);
  const e2e=read("e2e/public.acceptance.spec.mjs");
- assert.ok(e2e.includes('expect(branding.heroWeight).toBe("400")'));
- assert.ok(e2e.includes('expect(account.weight).toBe("400")'));
+ assert.ok(e2e.includes('expect(branding.heroWeight).toBe("700")'));
+ assert.ok(e2e.includes('expect(account.weight).toBe("700")'));
 });
