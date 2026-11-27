@@ -140,3 +140,26 @@ test("desktop and mobile inherit the canonical Satoshi brand and readable surfac
   await page.screenshot({path:"playwright-artifacts/brand-phase06-login-"+width+".png",fullPage:true,animations:"disabled"});
  }
 });
+
+test("catalogue search and unavailable detail remain honest and responsive",async({page})=>{
+ await mkdir("playwright-artifacts",{recursive:true});
+ for(const width of [390,1440]){
+  await page.setViewportSize({width,height:900});
+  await page.goto("/products");
+  await expect(page.locator(".editorial-catalog main,main .editorial-catalog")).toBeVisible();
+  await expect(page.getByText("Published catalogue is not connected yet")).toBeVisible();
+  await expect(page.locator(".public-product-card")).toHaveCount(0);
+  await page.locator("#catalog-search").fill("maize");
+  await page.getByRole("button",{name:"Search products"}).click();
+  await expect(page).toHaveURL(/q=maize/);
+  await expect(page.locator("#catalog-search")).toHaveValue("maize");
+  await page.getByRole("link",{name:"Clear filters"}).click();
+  await expect(page).toHaveURL(/\/products$/);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth)).toBeLessThanOrEqual(3);
+  await page.screenshot({path:"playwright-artifacts/catalogue-"+width+".png",fullPage:true,animations:"disabled"});
+  await page.goto("/products/maize");
+  await expect(page.getByRole("heading",{name:"Product details are unavailable"})).toBeVisible();
+  await expect(page.getByRole("link",{name:"Back to products"})).toHaveAttribute("href","/products");
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth)).toBeLessThanOrEqual(3);
+ }
+});

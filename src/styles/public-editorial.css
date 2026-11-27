@@ -495,3 +495,74 @@
   padding-top: 1rem;
 }
 .public-editorial .editorial-home .editorial-cinematic-note .editorial-overlay-meta { color: var(--brand-sage); }
+
+/* Phase 04 — published catalogue and product reference pages. */
+.public-editorial .editorial-catalog .public-section { padding-block: var(--public-space-section); }
+.public-editorial .editorial-catalog .public-section-intro { max-width: 52rem; margin-bottom: 2.5rem; }
+.public-editorial .editorial-catalog :is(.public-section>h2,.public-section-intro h2,.public-legal-heading) {
+  font-family: var(--font-satoshi);
+  font-weight: var(--public-display-weight);
+  font-size: var(--public-type-section);
+  letter-spacing: var(--public-display-tracking);
+  line-height: 1.08;
+  overflow-wrap: anywhere;
+}
+.public-editorial .editorial-catalog .public-section-intro p { font-size: var(--public-type-body); color: var(--text-muted); }
+.public-editorial .editorial-catalog .public-catalog-filters { gap: 1.5rem; align-items: end; padding-bottom: 1.5rem; }
+.public-editorial .editorial-catalog .public-catalog-filters label { font-weight: var(--font-weight-medium); min-width: min(100%,12rem); }
+.public-editorial .editorial-catalog .public-empty {
+  border: 0;
+  border-radius: 0;
+  border-top: 1px solid var(--public-line);
+  background: transparent;
+  padding: 3rem 0;
+}
+.public-editorial .editorial-catalog .public-empty :is(h1,h3) { font-size: clamp(1.75rem,3vw,2.75rem); font-weight: var(--public-display-weight); }
+.public-editorial .editorial-catalog .public-product-grid { grid-template-columns: repeat(auto-fit,minmax(min(100%,16rem),1fr)); gap: clamp(1.5rem,3vw,2.5rem); }
+.public-editorial .editorial-catalog .public-product-card { min-width: 0; border: 0; border-radius: 0; box-shadow: none; background: transparent; }
+.public-editorial .editorial-catalog .public-product-symbol {
+  height: auto;
+  aspect-ratio: 4 / 3;
+  background: var(--brand-sage);
+  color: var(--brand-forest);
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  flex-direction: column;
+  padding: 1.5rem;
+}
+.public-editorial .editorial-catalog .public-product-symbol span { font-size: .6875rem; font-weight: var(--font-weight-medium); letter-spacing: .16em; text-transform: uppercase; }
+.public-editorial .editorial-catalog .public-product-symbol strong { font-size: clamp(4rem,8vw,7rem); font-weight: var(--font-weight-light); line-height: 1; }
+.public-editorial .editorial-catalog .public-product-content { padding: 1.5rem 0; }
+.public-editorial .editorial-catalog .public-product-content h3 { font-size: clamp(1.5rem,2.4vw,2rem); font-weight: var(--font-weight-regular); overflow-wrap: anywhere; }
+.public-editorial .editorial-catalog .public-product-content .action-outline { justify-self: start; background: transparent; border: 0; border-bottom: 1px solid currentColor; border-radius: 0; padding-inline: 0; }
+.public-editorial .editorial-catalog .public-product-disclaimer { border-color: var(--public-line); color: var(--text-muted); }
+.public-editorial .editorial-catalog .catalog-guide { background: var(--brand-sage); }
+.public-editorial .editorial-catalog .catalog-guide-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,.85fr); gap: clamp(2rem,6vw,6rem); align-items: center; }
+.public-editorial .editorial-catalog .catalog-guide-grid>.editorial-photo { min-height: 22rem; height: clamp(22rem,40vw,35rem); }
+.public-editorial .editorial-catalog .catalog-guide-list article { display: grid; grid-template-columns: 2rem minmax(0,1fr); gap: 1rem; border-top: 1px solid var(--brand-forest-muted); padding-block: 1.5rem; }
+.public-editorial .editorial-catalog .catalog-guide-list article>span { font-size: .75rem; color: var(--text-muted); }
+.public-editorial .editorial-catalog .catalog-guide-list h3 { font-size: 1.5rem; font-weight: var(--font-weight-regular); margin-bottom: .5rem; }
+.public-editorial .editorial-catalog .catalog-guide-list p { color: var(--text-muted); line-height: 1.65; }
+.public-editorial .editorial-catalog .public-cta-band { border-radius: 0; background: var(--brand-forest-deep); padding: clamp(2rem,5vw,4rem); }
+.public-editorial .editorial-catalog .public-cta-band h2 { font-weight: var(--font-weight-regular); font-size: clamp(1.75rem,3vw,3rem); letter-spacing: -.04em; }
+.public-editorial .editorial-catalog-detail .public-detail-grid { grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: clamp(2rem,5vw,5rem); }
+.public-editorial .editorial-catalog-detail .public-product-illustration { background: var(--brand-forest-deep); color: var(--brand-ivory); border: 0; border-radius: 0; min-height: clamp(22rem,42vw,40rem); }
+.public-editorial .editorial-catalog-detail .public-product-illustration strong { font-weight: var(--font-weight-light); letter-spacing: -.05em; overflow-wrap: anywhere; max-width: 100%; }
+.public-editorial .editorial-catalog-detail .public-product-illustration span { color: var(--brand-gold-on-dark); }
+.public-editorial .editorial-catalog-detail .catalog-detail-copy { min-width: 0; }
+.public-editorial .editorial-catalog-detail .public-information-panel { background: transparent; border: 0; border-radius: 0; padding-inline: 0; }
+.public-editorial .editorial-catalog-detail .public-information-panel h2 { font-weight: var(--font-weight-medium); }
+.public-editorial .editorial-catalog-detail .public-information-panel dl>div { border-color: var(--public-line); gap: 1rem; }
+.public-editorial .editorial-catalog-detail .public-information-panel dd { font-weight: var(--font-weight-medium); overflow-wrap: anywhere; max-width: 65%; }
+.public-editorial .editorial-catalog-detail .public-feature-card { border: 0; border-top: 1px solid var(--public-line); background: transparent; border-radius: 0; padding-inline: 0; }
+.public-editorial .editorial-catalog-detail .public-feature-card h3 { font-weight: var(--font-weight-medium); }
+@media (max-width: 900px) {
+  .public-editorial .editorial-catalog .catalog-guide-grid,
+  .public-editorial .editorial-catalog-detail .public-detail-grid { grid-template-columns: minmax(0,1fr); }
+}
+@media (max-width: 640px) {
+  .public-editorial .editorial-catalog .public-catalog-filters label { flex-basis: 100%; }
+  .public-editorial .editorial-catalog .public-cta-band .action { white-space: normal; }
+  .public-editorial .editorial-catalog .catalog-guide-grid>.editorial-photo { min-height: 16rem; height: 18rem; }
+}
