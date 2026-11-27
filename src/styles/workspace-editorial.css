@@ -1,0 +1,59 @@
+/* Phase 08: operational visual system, scoped to the existing workspace shell. */
+.workspace-layout {
+  --dashboard-radius: .5rem;
+  --dashboard-control-radius: .375rem;
+  --dashboard-card-shadow: none;
+  --dashboard-sidebar-width: 16rem;
+  --dashboard-gutter: clamp(1rem,3vw,2.75rem);
+  grid-template-columns: var(--dashboard-sidebar-width) minmax(0,1fr);
+}
+.workspace-layout .workspace-sidebar { background: var(--brand-forest-deep); }
+.workspace-layout .workspace-sidebar-brand { padding: 1.5rem 1.125rem; }
+.workspace-layout .workspace-brand-symbol { border-radius: .375rem; background: transparent; }
+.workspace-layout .workspace-brand-mark { font-weight: var(--font-weight-medium); }
+.workspace-layout .workspace-role-summary { background: transparent; border: 0; border-bottom: 1px solid color-mix(in srgb,var(--brand-sage) 24%,transparent); border-radius: 0; padding: 1rem .5rem; }
+.workspace-layout .workspace-role-summary strong { font-weight: var(--font-weight-medium); }
+.workspace-layout .workspace-menu-section h2 { font-weight: var(--font-weight-medium); letter-spacing: .14em; }
+.workspace-layout .workspace-nav-item { border-radius: var(--dashboard-control-radius); }
+.workspace-layout .workspace-nav-item.is-active { box-shadow: none; font-weight: var(--font-weight-medium); }
+.workspace-layout .workspace-signout { border-radius: var(--dashboard-control-radius); font-weight: var(--font-weight-medium); background: transparent; }
+.workspace-layout .workspace-topbar { min-height: 68px; box-shadow: none; padding-inline: var(--dashboard-gutter); }
+.workspace-layout .workspace-topbar-identity strong { font-weight: var(--font-weight-medium); }
+.workspace-layout .workspace-profile-trigger { min-height: 44px; background: transparent; border-radius: var(--dashboard-control-radius); }
+.workspace-layout .workspace-profile-menu { border-radius: var(--dashboard-radius); }
+.workspace-layout .workspace-profile-menu a { min-height: 44px; border-radius: var(--dashboard-control-radius); }
+.workspace-layout .workspace-mobile-menu { min-width: 44px; min-height: 44px; }
+.workspace-layout .workspace-content { padding-inline: var(--dashboard-gutter); min-width: 0; }
+.workspace-layout .workspace-breadcrumb { flex-wrap: wrap; overflow-wrap: anywhere; }
+.workspace-layout .workspace-page-heading h1 { font-weight: var(--font-weight-medium); font-size: clamp(1.75rem,3vw,2.75rem); overflow-wrap: anywhere; }
+.workspace-layout .workspace-eyebrow { font-weight: var(--font-weight-medium); }
+.workspace-layout .workspace-welcome { background: var(--brand-forest-deep); border-radius: var(--dashboard-radius); }
+.workspace-layout .workspace-welcome::after { content: none; }
+.workspace-layout .workspace-welcome h2 { font-weight: var(--font-weight-regular); }
+.workspace-layout :is(.workspace-card,.agro-panel,.staff-form,.staff-profile-card,.staff-filter-form) { border-radius: var(--dashboard-radius); box-shadow: none; min-width: 0; }
+.workspace-layout :is(.workspace-card h2,.agro-panel h2,.staff-profile-card h2) { font-weight: var(--font-weight-medium); }
+.workspace-layout :is(.workspace-cta,.action,.agro-button,.staff-primary-button,.staff-secondary-button,.staff-danger-button,.sh-button) { border-radius: var(--dashboard-control-radius); font-weight: var(--font-weight-medium); min-height: 44px; }
+.workspace-layout :is(.agro-field,.staff-field) :is(input,select,textarea),
+.workspace-layout :is(.sh-input,.sh-select,.sh-textarea) { border-radius: var(--dashboard-control-radius); border-color: var(--brand-forest-muted); min-width: 0; }
+.workspace-layout :is(.workspace-table-scroll,.staff-table-wrap,.sh-table-wrap) { border-radius: var(--dashboard-radius); min-width: 0; max-width: 100%; overflow-x: auto; }
+.workspace-layout .workspace-table { min-width: var(--dashboard-table-min-width); font-size: .8125rem; }
+.workspace-layout .workspace-table th { font-size: .6875rem; font-weight: var(--font-weight-medium); }
+.workspace-layout .workspace-table :is(th,td) { padding: .875rem 1rem; }
+.workspace-layout .workspace-status { font-weight: var(--font-weight-medium); }
+.workspace-layout .workspace-empty { border-radius: var(--dashboard-radius); background: transparent; }
+.workspace-layout .workspace-card .workspace-empty { border: 0; margin-bottom: 0; padding-inline: .5rem; }
+.workspace-layout .workspace-empty-symbol { border-radius: var(--dashboard-radius); }
+.workspace-layout .workspace-empty h2 { font-weight: var(--font-weight-medium); }
+.workspace-layout :is(.staff-metric,.agro-number) { font-weight: var(--font-weight-regular); font-size: clamp(2rem,3vw,2.75rem); }
+.workspace-layout .agro-record { border-radius: var(--dashboard-radius); }
+.workspace-layout :is(.workspace-content,.workspace-topbar) :is(a,button,input,select,textarea,[tabindex="0"]):focus-visible { outline: 3px solid var(--dashboard-focus); outline-offset: 3px; }
+.workspace-layout .workspace-sidebar :is(a,button):focus-visible { outline-color: var(--focus-on-dark); }
+@media(max-width:1100px) { .workspace-layout { --dashboard-sidebar-width: 15rem; } }
+@media(max-width:840px) { .workspace-layout { display: block; } }
+@media(max-width:490px) {
+  .workspace-layout { --dashboard-gutter: 1rem; }
+  .workspace-layout :is(.workspace-card-grid,.agro-grid,.agro-form-grid,.staff-dashboard-grid) { grid-template-columns: minmax(0,1fr); }
+}
+@media(prefers-reduced-motion:reduce) {
+  .workspace-layout :is(.workspace-nav-item,.workspace-sidebar,.workspace-cta,.agro-button,.sh-button) { transition: none; }
+}

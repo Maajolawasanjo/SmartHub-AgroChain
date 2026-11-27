@@ -34,7 +34,8 @@ test("Satoshi is loaded once at the root with approved weights and bound to all 
   for (const path of ["src/app/help/page.tsx","src/app/faq/page.tsx"]) {
     const source = read(path);
     assert.doesNotMatch(source, /Georgia|Times New Roman/i,path);
-    assert.match(source, /var\(--font-satoshi\)/,path);
+    assert.match(source, /className="service-display-heading"/,path);
+    assert.match(read("src/styles/public-editorial.css"), /\.public-editorial \.editorial-service :is\(\.service-display-heading,[^}]+font-family: var\(--font-satoshi\)/);
   }
 });
 
