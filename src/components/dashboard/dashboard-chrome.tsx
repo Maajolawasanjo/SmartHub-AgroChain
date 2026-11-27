@@ -43,7 +43,7 @@ export function DashboardChrome({role,displayName,title,description,children}:Pr
  useEffect(()=>{if(!profileOpen)return;const onPointer=(event:PointerEvent)=>{if(profilePanel.current && !profilePanel.current.contains(event.target as Node))setProfileOpen(false)};document.addEventListener("pointerdown",onPointer);return()=>document.removeEventListener("pointerdown",onPointer)},[profileOpen]);
  const navigate=()=>{setOpen(false);setProfileOpen(false)};
  const sections=[...workspaceNavigation[role],accountNavigation];
- return <div className="workspace-layout">
+ return <div className="workspace-layout" data-workspace-role={role}>
   <a className="workspace-skip" href="#main-workspace">Skip to main content</a>
   {open&&<button type="button" className="workspace-overlay" aria-label="Close navigation" onClick={()=>setOpen(false)}/>}
   <aside ref={sidebar} id="workspace-sidebar" role={open?"dialog":undefined} aria-modal={open?true:undefined} className={`workspace-sidebar${open?" is-open":""}`} aria-label="Workspace sidebar">

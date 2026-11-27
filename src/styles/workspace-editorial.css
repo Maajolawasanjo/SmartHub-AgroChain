@@ -57,3 +57,22 @@
 @media(prefers-reduced-motion:reduce) {
   .workspace-layout :is(.workspace-nav-item,.workspace-sidebar,.workspace-cta,.agro-button,.sh-button) { transition: none; }
 }
+
+/* Farmer workspace: visible next action, real metrics and uncluttered activity. */
+.workspace-layout[data-workspace-role="FARMER"] .farmer-overview-toolbar { justify-content: space-between; padding: 1rem 0; border-block: 1px solid var(--dashboard-border); }
+.workspace-layout[data-workspace-role="FARMER"] .farmer-overview-metrics { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+.workspace-layout[data-workspace-role="FARMER"] .farmer-overview-metrics .agro-panel { display: flex; flex-direction: column; align-items: flex-start; padding: 1.25rem; margin: 0; }
+.workspace-layout[data-workspace-role="FARMER"] .farmer-overview-metrics .agro-panel h2 { font-size: .875rem; color: var(--dashboard-muted); }
+.workspace-layout[data-workspace-role="FARMER"] .farmer-overview-metrics .agro-panel p { font-size: .8125rem; }
+.workspace-layout[data-workspace-role="FARMER"] .farmer-overview-metrics .agro-panel .action { margin-top: auto; padding-top: 1rem; padding-inline: 0; background: transparent; border: 0; text-decoration: underline; color: var(--dashboard-heading); white-space: normal; }
+.workspace-layout[data-workspace-role="FARMER"] .agro-panel .agro-hint { margin-block: .5rem; font-size: .75rem; }
+.workspace-layout[data-workspace-role="FARMER"] .agro-data-list { gap: .875rem; }
+.workspace-layout[data-workspace-role="FARMER"] .agro-record { background: transparent; border: 0; border-top: 1px solid var(--dashboard-border); border-radius: 0; padding: 1rem 0; }
+.workspace-layout[data-workspace-role="FARMER"] .agro-record>div { flex: 1 1 12rem; min-width: 0; overflow-wrap: anywhere; }
+.workspace-layout[data-workspace-role="FARMER"] .agro-record h3 { font-weight: var(--font-weight-medium); }
+.workspace-layout[data-workspace-role="FARMER"] .agro-panel .action { min-height: 44px; white-space: normal; }
+.workspace-layout[data-workspace-role="FARMER"] .agro-field label { font-weight: var(--font-weight-medium); }
+.workspace-layout[data-workspace-role="FARMER"] :is(.agro-alert,.agro-error,.agro-success) { border-radius: var(--dashboard-control-radius); }
+.workspace-layout[data-workspace-role="FARMER"] .farmer-support { background: transparent; border: 0; border-top: 1px solid var(--dashboard-border); border-radius: 0; padding-inline: 0; }
+@media(max-width:1200px){.workspace-layout[data-workspace-role="FARMER"] .farmer-overview-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }}
+@media(max-width:580px){.workspace-layout[data-workspace-role="FARMER"] :is(.agro-grid,.agro-form-grid,.farmer-overview-metrics) { grid-template-columns: minmax(0,1fr); }}
