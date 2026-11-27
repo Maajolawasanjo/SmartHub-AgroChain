@@ -213,3 +213,19 @@ test("account editorial shell preserves disconnected security and responsive lay
   }
  }
 });
+
+test("final public breakpoint and account outcome regression",async({page})=>{
+ test.setTimeout(150000);
+ for(const width of [320,768,1024,1280]){
+  await page.setViewportSize({width,height:900});
+  for(const route of ["/","/products","/contact","/faq","/login","/forgot-password/sent","/reset-password/success"]){
+   const response=await page.goto(route,{waitUntil:"domcontentloaded"});
+   expect(response?.status(),route).toBe(200);
+   await expect(page.locator("main h1")).toBeVisible();
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth),route+" at "+width).toBeLessThanOrEqual(3);
+   if(route==="/"){
+    await expect(page.locator(width<=1220?".public-mobile-menu summary":".public-desktop-nav")).toBeVisible();
+   }
+  }
+ }
+});

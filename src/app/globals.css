@@ -487,7 +487,7 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--focus-accent); 
 .editorial-button:focus-visible,.editorial-inline-link:focus-visible,.editorial-commodity:focus-visible,
 .public-header a:focus-visible,.public-mobile-menu summary:focus-visible,.public-footer a:focus-visible,
 .editorial-faq-preview summary:focus-visible,.public-contact-form :is(input,select,textarea,button):focus-visible{
- outline:3px solid var(--focus-accent)!important;outline-offset:4px!important
+ outline:3px solid var(--focus-accent);outline-offset:4px
 }
 .editorial-faq-preview summary{min-height:30px}
 .editorial-contact-options p{min-height:0}

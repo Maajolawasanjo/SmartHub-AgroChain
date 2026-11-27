@@ -85,3 +85,9 @@
 @media(prefers-reduced-motion:reduce) {
   .auth-editorial :is(.auth-input,.auth-submit) { transition: none; }
 }
+
+/* Standalone outcomes retain provider-neutral language and existing links. */
+.auth-outcome .auth-outcome-panel { background: transparent; border: 0; border-radius: 0; box-shadow: none; padding: 0; margin-inline: auto; }
+.auth-outcome .auth-outcome-panel h1 { font-weight: var(--font-weight-regular); font-size: clamp(2rem,5vw,3.5rem); letter-spacing: -.05em; line-height: 1.1; }
+.auth-outcome .auth-outcome-panel a { display: inline-flex; align-items: center; min-height: 44px; color: var(--brand-forest); text-decoration: underline; }
+.auth-outcome .auth-outcome-panel a:focus-visible { outline: 3px solid var(--focus-accent); outline-offset: 3px; }

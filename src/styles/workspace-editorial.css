@@ -173,3 +173,15 @@
  .workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) .agro-record>div { flex-basis: 100%; }
  .workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) .agro-toolbar input:not([type=hidden]) { flex-basis: 100%; }
 }
+
+/* Final shared control polish, including approval-gated authenticator forms. */
+.workspace-layout .auth-input { border-radius: var(--dashboard-control-radius); border-color: var(--brand-forest-muted); }
+.workspace-layout .auth-submit { border-radius: var(--dashboard-control-radius); font-weight: var(--font-weight-medium); }
+.workspace-layout .workspace-profile-trigger:focus-visible { outline-color: var(--dashboard-focus); }
+.workspace-layout .workspace-close { min-width: 44px; min-height: 44px; align-items: center; justify-content: center; }
+.workspace-layout .workspace-table-scroll:focus-visible { outline: 3px solid var(--dashboard-focus); outline-offset: 3px; }
+@media(max-width:380px) {
+ .workspace-layout .workspace-topbar-left,.workspace-layout .workspace-topbar-right { gap: .375rem; }
+ .workspace-layout .workspace-topbar { gap: .375rem; }
+ .workspace-layout .workspace-topbar-identity span { display: none; }
+}
