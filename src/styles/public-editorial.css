@@ -328,7 +328,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg,color-mix(in srgb,var(--brand-forest-deep) 98%,transparent) 0%,color-mix(in srgb,var(--brand-forest-deep) 90%,transparent) 47%,color-mix(in srgb,var(--brand-forest-deep) 48%,transparent) 100%);
+  background: transparent;
   pointer-events: none;
 }
 .public-editorial .editorial-home .editorial-hero-cinematic .editorial-photo figcaption {
@@ -859,4 +859,44 @@
 @media (max-width: 640px) {
   .public-editorial .editorial-service .editorial-contact-options { gap: 0; }
   .public-editorial .editorial-service .editorial-faq-group { padding-block: 1.5rem; }
+}
+
+/* Flat-color photographic hero: no overlay, no fade; text stays on a solid panel. */
+.public-editorial .editorial-home .editorial-hero-cinematic .editorial-hero-grid {
+  width: 100%;
+  max-width: none;
+  grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+  padding: 0;
+  gap: 0;
+  align-items: stretch;
+}
+.public-editorial .editorial-home .editorial-hero-cinematic .editorial-hero-copy {
+  background: var(--brand-forest-deep);
+  padding: clamp(2rem,6vw,6rem);
+  max-width: none;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+.public-editorial .editorial-home .editorial-hero-cinematic .editorial-hero-visual {
+  position: relative;
+  inset: auto;
+  max-width: none;
+  min-width: 0;
+  height: 100%;
+}
+.public-editorial .editorial-home .editorial-hero-cinematic .editorial-hero-visual>.editorial-photo {
+  position: relative;
+  height: 100%;
+  min-height: 32rem;
+}
+.public-editorial .editorial-home .editorial-hero-cinematic .editorial-photo::after { content: none; background: none; }
+.public-editorial .editorial-home .editorial-hero-cinematic h1 { font-size: clamp(2.5rem,5vw,5rem); }
+.public-editorial .editorial-home .editorial-hero-cinematic .editorial-photo figcaption { background: var(--brand-forest-deep); }
+@media(max-width:900px) {
+ .public-editorial .editorial-home .editorial-hero-cinematic .editorial-hero-grid { grid-template-columns: minmax(0,1fr); }
+ .public-editorial .editorial-home .editorial-hero-cinematic .editorial-hero-visual>.editorial-photo { min-height: 18rem; height: clamp(18rem,55vw,32rem); }
+ .public-editorial .editorial-home .editorial-hero-cinematic .editorial-hero-copy { padding: clamp(1.25rem,5vw,3rem); }
 }

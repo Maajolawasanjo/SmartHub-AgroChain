@@ -41,7 +41,7 @@ test("all five dashboard roles use one accessible chrome, sharing one Satoshi an
 
 test("all dashboard shells and shared UI use Satoshi, forest dark and semantic card/table colors",()=>{
  for(const name of ["agro","workspace","staff","field"])assert.match(css[name],/var\(--font-satoshi\)/,name);
- assert.match(css.workspace,/\.workspace-sidebar\{background:linear-gradient\([^}]*var\(--dashboard-sidebar\)/);
+ assert.match(css.workspace,/\.workspace-sidebar\{background:var\(--dashboard-sidebar\)/);
  assert.match(css.workspace,/\.workspace-topbar\{font-family:var\(--font-satoshi\);[^}]*background:var\(--dashboard-surface\)/);
  assert.match(css.workspace,/\.workspace-nav-item\.is-active\{background:var\(--dashboard-sidebar-active\);color:var\(--dashboard-sidebar-active-text\)/);
  assert.match(css.workspace,/\.workspace-card\{background:var\(--dashboard-surface\);[^}]*border-radius:var\(--dashboard-radius\)/);

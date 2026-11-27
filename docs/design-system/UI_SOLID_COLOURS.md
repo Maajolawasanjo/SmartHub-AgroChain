@@ -1,0 +1,1 @@
+All CSS gradient declarations replaced with flat brand surfaces. Homepage uses a solid forest text panel beside unfiltered photography. Loading skeleton uses static sage. Repository-wide source guard rejects gradient functions, Tailwind gradient utilities and SVG gradient elements. Preview CI and visual review pending. No production merge.
