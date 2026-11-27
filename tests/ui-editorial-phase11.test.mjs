@@ -1,0 +1,23 @@
+import {test} from "node:test";
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+const read=p=>readFileSync(p,"utf8");
+test("operations and admin layout retains real queue counts and privileged boundaries",()=>{
+ const operations=read("src/app/operations/page.tsx"),admin=read("src/app/admin/page.tsx");
+ assert.match(operations,/operations-overview-metrics/);
+ assert.match(operations,/requirePortal\("OPERATIONS"\)/);
+ assert.match(operations,/db\.supplyLot\.count/);
+ assert.match(admin,/admin-people-heading/);
+ assert.match(admin,/admin-risk-heading/);
+ assert.match(admin,/requireSuperAdminPage\(\)/);
+ assert.match(admin,/db\.paymentObligation\.count/);
+ const report=read("src/app/admin/reports/page.tsx");
+ assert.match(report,/admin-report-metrics/);
+ assert.match(report,/getPlatformReport\(period\)/);
+ assert.match(report,/Do not compute platform profit/);
+ const css=read("src/styles/workspace-editorial.css");
+ assert.match(css,/data-workspace-role="OPERATIONS"/);
+ assert.match(css,/data-workspace-role="SUPER_ADMIN"/);
+ assert.match(css,/\.admin-report-metrics/);
+ assert.match(read("src/app/admin/settings/page.tsx"),/Read-only operational flags/);
+});

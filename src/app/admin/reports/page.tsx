@@ -34,7 +34,7 @@ export default async function GovernanceReports({searchParams}:{searchParams:Pro
  {(["7","30","90"] as const).map(days=><Link key={days} className={"action "+(days===period?"action-primary":"action-outline")} href={"/admin/reports?days="+days}>Last {days} days</Link>)}
  <Link className="action action-outline" href={"/api/admin/reports/export?days="+period}>Export aggregate CSV</Link></nav>
  <p className="staff-meta-line">Selected period: {report.from.slice(0,16).replace("T"," ")} to {report.asOf.slice(0,16).replace("T"," ")} UTC. Financial totals are provider-verification evidence, not cash in the company's bank or accounting profit.</p>
- <div className="staff-dashboard-grid">{stats.map(stat=><section className="agro-panel" key={stat.label}><h2>{stat.label}</h2><div className="agro-number">{stat.number}</div><p>{stat.note}</p></section>)}</div>
+ <div className="staff-dashboard-grid admin-report-metrics">{stats.map(stat=><section className="agro-panel" key={stat.label}><h2>{stat.label}</h2><div className="agro-number">{stat.number}</div><p>{stat.note}</p></section>)}</div>
  <section className="agro-panel"><h2>Accounts and supply integrity</h2>
  <div className="agro-grid"><p><strong>{report.identities.active}</strong> active accounts across all roles</p>
  <p><strong>{report.identities.buyerOrganizations}</strong> buyer organizations (all states)</p>

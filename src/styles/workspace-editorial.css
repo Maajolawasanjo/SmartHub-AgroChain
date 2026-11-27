@@ -129,3 +129,47 @@
   .workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-cancel-row input { flex-basis: 100%; }
   .workspace-layout[data-workspace-role="FIELD_AGENT"] .field-agent-evidence .action { min-height: 44px; white-space: normal; }
 }
+
+/* Phase 11 — Operations and Super Admin, operational density without visual noise. */
+.workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) .agro-panel { padding: clamp(1rem,2vw,1.5rem); }
+.workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) .agro-panel>h2 { font-size: 1.125rem; margin-bottom: .875rem; }
+.workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) .agro-record { background: transparent; border: 0; border-top: 1px solid var(--dashboard-border); border-radius: 0; padding: 1rem 0; align-items: flex-start; }
+.workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) .agro-record>div { min-width: 0; overflow-wrap: anywhere; flex: 1 1 14rem; }
+.workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) .agro-record :is(h3,strong) { font-weight: var(--font-weight-medium); }
+.workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) .agro-record p { font-size: .875rem; }
+.workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) .agro-data-list { gap: 0; }
+.workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) .agro-record a { font-weight: var(--font-weight-medium); color: var(--dashboard-accent); }
+.workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) .agro-toolbar input:not([type=hidden]) { min-height: 44px; min-width: 0; max-width: 100%; border: 1px solid var(--brand-forest-muted); border-radius: var(--dashboard-control-radius); background: var(--dashboard-surface); padding: .65rem .875rem; color: var(--dashboard-heading); }
+.workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) .agro-toolbar { gap: .75rem; }
+.workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) .agro-toolbar .action { white-space: normal; }
+.workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) :is(.agro-alert,.agro-error,.agro-success,.staff-warning,.staff-form-message) { border-radius: var(--dashboard-control-radius); }
+.workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) :is(.staff-field,.agro-field label) { font-weight: var(--font-weight-medium); }
+.workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) .staff-filter-tabs a { border-radius: var(--dashboard-control-radius); font-weight: var(--font-weight-medium); min-height: 44px; align-items: center; }
+.workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) :is(.staff-text-link,.staff-table-link,.staff-page-links a) { color: var(--dashboard-accent); font-weight: var(--font-weight-medium); }
+.workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) .staff-text-link { min-height: 44px; margin-top: auto; padding-top: .75rem; }
+.workspace-layout[data-workspace-role="OPERATIONS"] .operations-overview-metrics { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 1rem; }
+.workspace-layout[data-workspace-role="OPERATIONS"] .operations-overview-metrics .agro-panel { display: flex; flex-direction: column; align-items: flex-start; margin: 0; }
+.workspace-layout[data-workspace-role="OPERATIONS"] .operations-overview-metrics h2 { font-size: .875rem; color: var(--dashboard-muted); }
+.workspace-layout[data-workspace-role="OPERATIONS"] .operations-overview-metrics p { font-size: .8125rem; margin-bottom: 1rem; }
+.workspace-layout[data-workspace-role="OPERATIONS"] .operations-overview-metrics .action { margin-top: auto; white-space: normal; }
+.workspace-layout[data-workspace-role="OPERATIONS"] .operations-overview-actions { padding-block: 1rem; border-bottom: 1px solid var(--dashboard-border); }
+.workspace-layout[data-workspace-role="SUPER_ADMIN"] .admin-overview-section { margin-bottom: 2rem; }
+.workspace-layout[data-workspace-role="SUPER_ADMIN"] .admin-overview-section>h2 { font-weight: var(--font-weight-medium); font-size: 1.125rem; margin-bottom: 1rem; }
+.workspace-layout[data-workspace-role="SUPER_ADMIN"] .admin-overview-grid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 1rem; }
+.workspace-layout[data-workspace-role="SUPER_ADMIN"] .admin-overview-grid .workspace-card { min-height: 0; padding: 1.25rem; }
+.workspace-layout[data-workspace-role="SUPER_ADMIN"] .admin-report-metrics { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 1rem; margin-block: 1rem; }
+.workspace-layout[data-workspace-role="SUPER_ADMIN"] .admin-report-metrics .agro-panel { margin: 0; }
+.workspace-layout[data-workspace-role="SUPER_ADMIN"] .admin-report-metrics .agro-number { font-size: clamp(1.35rem,2.5vw,2.25rem); overflow-wrap: anywhere; }
+.workspace-layout[data-workspace-role="SUPER_ADMIN"] .staff-access-blueprint { box-shadow: none; }
+.workspace-layout[data-workspace-role="SUPER_ADMIN"] :is(.staff-access-blueprint-heading h2,.staff-access-subheading,.staff-access-action strong,.staff-access-module strong) { font-weight: var(--font-weight-medium); }
+.workspace-layout[data-workspace-role="SUPER_ADMIN"] :is(.staff-access-action,.staff-access-module,.staff-access-gate-list li) { border-radius: 0; border: 0; border-top: 1px solid var(--dashboard-border); background: transparent; padding: 1rem 0; min-width: 0; overflow-wrap: anywhere; }
+@media(max-width:1200px) {
+ .workspace-layout[data-workspace-role="OPERATIONS"] .operations-overview-metrics,
+ .workspace-layout[data-workspace-role="SUPER_ADMIN"] :is(.admin-overview-grid,.admin-report-metrics) { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:580px) {
+ .workspace-layout[data-workspace-role="OPERATIONS"] .operations-overview-metrics,
+ .workspace-layout[data-workspace-role="SUPER_ADMIN"] :is(.admin-overview-grid,.admin-report-metrics) { grid-template-columns: minmax(0,1fr); }
+ .workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) .agro-record>div { flex-basis: 100%; }
+ .workspace-layout:is([data-workspace-role="OPERATIONS"],[data-workspace-role="SUPER_ADMIN"]) .agro-toolbar input:not([type=hidden]) { flex-basis: 100%; }
+}
