@@ -9,10 +9,10 @@ const opportunities=[
  {n:"03",title:"Quality and commodity specialists",copy:"Help establish clear, understandable criteria for commodity variation, grade, storage and inspection without unverified quality guarantees."},
  {n:"04",title:"Technology and ecosystem collaborators",copy:"Discuss integrations, digital recordkeeping, operational research and service improvements that support actual sourcing processes."}
 ];
-export default function Partnerships(){return <PublicShell>
+export default function Partnerships(){return <PublicShell><div className="editorial-information editorial-info-partnerships">
  <EditorialHero eyebrow="Partnerships & ecosystem collaboration" title={<>Better agricultural systems are <em>built together.</em></>}
  description="The movement of agricultural supply depends on much more than a website. SmartHub welcomes considered conversations with organizations working across field services, quality, logistics, technology and procurement."
- primary={{label:"Discuss a partnership",href:"/contact?interest=partner"}} secondary={{label:"Learn about SmartHub",href:"/about"}} visual="operations"
+ primary={{label:"Discuss a partnership",href:"/contact?interest=partner"}} secondary={{label:"Learn about SmartHub",href:"/about"}} visual="operations" theme="dark"
  note="Partner discussions are exploratory. This page does not imply an existing contract, endorsement or confirmed geographic service coverage.">
  <span className="editorial-overlay-kicker">Working across the value chain</span><strong>Field understanding · Logistics · Information · Trust</strong>
  <p className="editorial-overlay-meta">Opportunities are reviewed against real capacity and operating needs.</p>
@@ -45,4 +45,4 @@ export default function Partnerships(){return <PublicShell>
  <EditorialCTA eyebrow="Start a conversation" title="Have a practical way to strengthen agricultural sourcing?"
   description="Tell us about your organization, your operating region and the collaboration you have in mind."
   primary={{label:"Contact the partnerships team",href:"/contact?interest=partner"}} secondary={{label:"Read our approach",href:"/about"}}/>
- </PublicShell>}
+ </div></PublicShell>}

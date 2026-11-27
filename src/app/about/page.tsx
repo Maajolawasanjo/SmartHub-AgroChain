@@ -9,12 +9,12 @@ const values=[
  {number:"03",title:"Accountability through records",copy:"Reviews, quotation decisions, physical receipt and supplier payments each deserve their own trustworthy record."},
  {number:"04",title:"Technology with real-world grounding",copy:"Software can organize a process. Field evidence, logistics coordination and responsible people are still essential to delivery."}
 ];
-export default function About(){return <PublicShell>
+export default function About(){return <PublicShell><div className="editorial-information editorial-info-about">
  <EditorialHero eyebrow="The story behind SmartHub" title={<>Agriculture needs more than connections. <em>It needs coordination.</em></>}
   description="SmartHub AgroChain is building a Nigerian agricultural technology platform around a simple idea: farmers and buyers make better decisions when supply information, market requirements and operational follow-through are organized."
   primary={{label:"Explore our platform",href:"/product"}} secondary={{label:"Work with us",href:"/partnerships"}}
   note="We are building and validating the platform in stages. We do not claim unverified network size, impact figures or customer outcomes."
-  visual="fields">
+  visual="fields" theme="dark">
   <span className="editorial-overlay-kicker">What we are building</span><strong>Better decisions between field and market.</strong>
   <p className="editorial-overlay-meta">A long-term mission, built through practical steps.</p>
  </EditorialHero>
@@ -56,4 +56,4 @@ export default function About(){return <PublicShell>
  <EditorialCTA eyebrow="Let's build responsibly" title="Better agriculture takes more than one participant."
   description="We welcome conversations with growers, procuring businesses, field networks and responsible partners working to improve how agricultural supply moves."
   primary={{label:"Talk with SmartHub",href:"/contact"}} secondary={{label:"Explore partnerships",href:"/partnerships"}}/>
- </PublicShell>}
+ </div></PublicShell>}

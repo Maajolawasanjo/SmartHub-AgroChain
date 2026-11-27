@@ -13,7 +13,7 @@ const farmerJourney=[
  {n:"04",title:"Consider a sourcing opportunity",copy:"When a genuine buyer requirement is suitable, SmartHub may propose participation under specific availability and commercial conditions."},
  {n:"05",title:"Agree terms and confirm outcomes",copy:"Supplier purchase terms require your consideration and independent approvals. A buyer's payment, delivery completion and farmer settlement are separate, recorded steps."}
 ];
-export default function Farmers(){return <PublicShell>
+export default function Farmers(){return <PublicShell><div className="editorial-information editorial-info-for-farmers">
  <EditorialHero eyebrow="For farmers & producers" title={<>Your harvest deserves <em>a clearer route to market.</em></>}
   description="Growing food is hard enough. Finding suitable demand should begin with organized information and a transparent process. SmartHub is developing a way for farmers to present credible supply and participate in relevant sourcing opportunities."
   primary={{label:"Explore participation",href:"/contact?interest=farmer"}}
@@ -63,4 +63,4 @@ export default function Farmers(){return <PublicShell>
  <EditorialCTA eyebrow="Growing with clarity" title="Tell us about your farm and the crops you produce."
   description="Start a conversation about suitable participation and which information helps SmartHub assess genuine agricultural supply."
   primary={{label:"Contact the farmer team",href:"/contact?interest=farmer"}} secondary={{label:"Understand the process",href:"/how-it-works"}}/>
- </PublicShell>}
+ </div></PublicShell>}

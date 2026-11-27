@@ -16,12 +16,12 @@ const rules=[
  {title:"A successful checkout screen is not proof of payment",copy:"Financial status requires an independently verified provider transaction with the correct payer, amount and currency."},
  {title:"A shipment marked arrived is not necessarily received",copy:"Buyer confirmation and discrepancies have their own workflow. Farmer transfer approval follows still more controls."}
 ];
-export default function Platform(){return <PublicShell>
+export default function Platform(){return <PublicShell><div className="editorial-information editorial-info-product">
  <EditorialHero eyebrow="The SmartHub platform" title={<>One coordinated system. <em>Five clear workspaces.</em></>}
   description="Agricultural procurement becomes easier to understand when every participant has the right information and responsibilities. SmartHub is being developed as a connected workflow—not five isolated dashboards."
   primary={{label:"See the complete journey",href:"/how-it-works"}} secondary={{label:"Discuss participation",href:"/contact"}}
   note="The authenticated platform is undergoing integration and staged release validation. The illustration does not show actual customer data."
-  visual="operations"><span className="editorial-overlay-kicker">A managed operating model</span>
+  visual="operations" theme="dark"><span className="editorial-overlay-kicker">A managed operating model</span>
    <strong>Farmer → SmartHub → Buyer</strong><p className="editorial-overlay-meta">Different access rights · Shared accountable records</p>
  </EditorialHero>
  <section className="container editorial-section editorial-content-grid">
@@ -64,4 +64,4 @@ export default function Platform(){return <PublicShell>
  <EditorialCTA eyebrow="Get to know SmartHub" title="See where your place in the agricultural chain fits."
   description="Whether you source goods, grow crops or support the logistics behind them, explore how participation is designed to work."
   primary={{label:"How the process works",href:"/how-it-works"}} secondary={{label:"Contact our team",href:"/contact"}}/>
- </PublicShell>}
+ </div></PublicShell>}

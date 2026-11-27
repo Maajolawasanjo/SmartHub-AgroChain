@@ -14,7 +14,7 @@ const stages=[
  {n:"05",title:"Receive and report",text:"Confirm quantities physically received. A shortage or delivery issue goes into review; it does not disappear because a shipment was marked arrived."}
 ];
 const buyerTypes=["Food processors & manufacturers","Restaurants, hotels & caterers","Retail and wholesale distributors","Institutions and organized procurement teams"];
-export default function Buyers(){return <PublicShell>
+export default function Buyers(){return <PublicShell><div className="editorial-information editorial-info-for-buyers">
  <EditorialHero eyebrow="For buyers & procurement teams" title={<>Agricultural sourcing, <em>without the guesswork.</em></>}
  description="From a precise requirement to an agreed delivery, SmartHub helps business buyers navigate agricultural sourcing through review, clear terms and accountable coordination—not a list of strangers to call."
  primary={{label:"Discuss a sourcing requirement",href:"/contact?interest=buyer"}}
@@ -68,4 +68,4 @@ export default function Buyers(){return <PublicShell>
  <EditorialCTA eyebrow="For procurement teams" title="Tell us what you need to source."
  description="Start with the product, quantity, location and timing. We'll explain how the SmartHub sourcing process applies to your requirement."
  primary={{label:"Discuss your requirement",href:"/contact?interest=buyer"}} secondary={{label:"Explore commodities",href:"/products"}}/>
- </PublicShell>}
+ </div></PublicShell>}

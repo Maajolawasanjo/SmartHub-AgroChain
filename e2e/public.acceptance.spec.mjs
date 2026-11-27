@@ -163,3 +163,19 @@ test("catalogue search and unavailable detail remain honest and responsive",asyn
   expect(await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth)).toBeLessThanOrEqual(3);
  }
 });
+
+test("informational pages retain editorial layouts and fit mobile and desktop",async({page})=>{
+ test.setTimeout(120000);
+ await mkdir("playwright-artifacts",{recursive:true});
+ for(const width of [390,1440]){
+  await page.setViewportSize({width,height:900});
+  for(const route of ["/product","/about","/how-it-works","/for-buyers","/for-farmers","/partnerships"]){
+   await page.goto(route,{waitUntil:"domcontentloaded"});
+   await expect(page.locator("main .editorial-information")).toBeVisible();
+   await expect(page.locator("main h1")).toBeVisible();
+   await expect(page.locator(".editorial-ending .editorial-button-primary")).toBeVisible();
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth),route).toBeLessThanOrEqual(3);
+   await page.screenshot({path:"playwright-artifacts/info-"+route.slice(1)+"-"+width+".png",fullPage:true,animations:"disabled"});
+  }
+ }
+});

@@ -9,7 +9,7 @@ const gates=[
  {title:"Delivery is not the same as receipt",copy:"Pickup and arrival events require operational evidence. The buyer confirms the quantities actually accepted; shortages and damage can trigger investigation."},
  {title:"Payment to SmartHub is not payment to a farmer",copy:"The buyer charge, approved supplier purchase terms and externally verified farmer payout are separately governed financial events."}
 ];
-export default function How(){return <PublicShell>
+export default function How(){return <PublicShell><div className="editorial-information editorial-info-how-it-works">
  <EditorialHero eyebrow="How managed sourcing works" title={<>A better supply chain starts with <em>clearer steps.</em></>}
  description="SmartHub organizes the work between business demand and agricultural supply. The process moves through independent checks so a discussion, a quotation, a payment and a completed delivery are never confused."
  primary={{label:"Start with your sourcing need",href:"/contact?interest=buyer"}} secondary={{label:"Explore the platform",href:"/product"}}
@@ -60,4 +60,4 @@ export default function How(){return <PublicShell>
  <EditorialCTA eyebrow="The next practical step" title="Start with a real requirement or real supply."
  description="We'll help you understand the relevant process without claiming a price, buyer or delivery outcome before it has been assessed."
  primary={{label:"Contact SmartHub",href:"/contact"}} secondary={{label:"Browse products",href:"/products"}}/>
- </PublicShell>}
+ </div></PublicShell>}
