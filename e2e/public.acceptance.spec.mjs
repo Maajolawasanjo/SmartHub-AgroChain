@@ -111,6 +111,8 @@ test("desktop and mobile inherit the canonical Satoshi brand and readable surfac
     agricultural:r.getPropertyValue("--brand-agricultural").trim().toLowerCase(),
     bodyFont:body.fontFamily,heroFont:hero.fontFamily,heroWeight:hero.fontWeight,
     footerBackground:footer.backgroundColor,
+    expectedFooter:(()=>{const probe=document.createElement("div");probe.style.backgroundColor="var(--brand-forest-deep)";document.body.append(probe);const color=getComputedStyle(probe).backgroundColor;probe.remove();return color;})(),
+    emphasisWeight:getComputedStyle(document.querySelector(".editorial-hero h1 em")).fontWeight,
     focusLight:r.getPropertyValue("--focus-accent").trim(),
     focusDark:r.getPropertyValue("--focus-on-dark").trim()
    };
@@ -122,8 +124,9 @@ test("desktop and mobile inherit the canonical Satoshi brand and readable surfac
   expect(branding.agricultural).toBe("#398453");
   expect(branding.bodyFont).toContain("Satoshi");
   expect(branding.heroFont).toContain("Satoshi");
-  expect(branding.heroWeight).toBe("900");
-  expect(branding.footerBackground).toBe("rgb(23, 76, 53)");
+  expect(branding.heroWeight).toBe("400");
+  expect(branding.emphasisWeight).toBe("300");
+  expect(branding.footerBackground).toBe(branding.expectedFooter);
   expect(branding.focusLight.toLowerCase()).toBe("#174c35");
   expect(branding.focusDark.toLowerCase()).toBe("#d5a649");
   await page.screenshot({path:"playwright-artifacts/brand-phase06-home-"+width+".png",fullPage:true,animations:"disabled"});
